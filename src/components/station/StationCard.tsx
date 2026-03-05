@@ -51,13 +51,13 @@ export function StationCard({ station }: StationCardProps) {
               <Badge variant="stale">{t('station.stale')}</Badge>
             )}
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
+          <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-700">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{station.township}</span>
             {station.distance_m !== undefined && (
               <>
-                <span className="text-gray-300">·</span>
-                <span className="font-medium text-gray-600">{formatDistance(station.distance_m)}</span>
+                <span className="text-gray-700">·</span>
+                <span className="font-medium text-gray-700">{formatDistance(station.distance_m)}</span>
               </>
             )}
           </div>
@@ -78,12 +78,12 @@ export function StationCard({ station }: StationCardProps) {
           ))}
         </div>
       ) : (
-        <p className="mt-3 text-sm text-gray-400">{t('station.noData')}</p>
+        <p className="mt-3 text-sm text-gray-700">{t('station.noData')}</p>
       )}
 
       {/* Footer metadata */}
       {status && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-gray-400">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-gray-700">
           <div className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
             <span>
@@ -99,7 +99,7 @@ export function StationCard({ station }: StationCardProps) {
               <span>{REPORTER_ROLE_LABEL[status.source_role][lang]}</span>
             )}
             {status.queue_bucket_computed && status.queue_bucket_computed !== 'NONE' && (
-              <span className="font-medium text-gray-600">
+              <span className="font-medium text-gray-700">
                 {QUEUE_LABEL[status.queue_bucket_computed][lang]}
               </span>
             )}

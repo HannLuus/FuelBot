@@ -81,8 +81,8 @@ export function AdminPage() {
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <ShieldAlert className="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p className="text-gray-500">Admin access required.</p>
+          <ShieldAlert className="mx-auto mb-3 h-12 w-12 text-gray-700" />
+          <p className="text-gray-700">Admin access required.</p>
         </div>
       </div>
     )
@@ -98,7 +98,7 @@ export function AdminPage() {
       <div className="flex border-b border-gray-100 bg-white">
         <button
           onClick={() => setTab('flagged')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'flagged' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}
+          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'flagged' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
         >
           <Flag className="h-4 w-4" />
           {t('admin.flaggedReports')}
@@ -110,7 +110,7 @@ export function AdminPage() {
         </button>
         <button
           onClick={() => setTab('claims')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'claims' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}
+          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'claims' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
         >
           <Store className="h-4 w-4" />
           {t('admin.stationClaims')}
@@ -129,19 +129,19 @@ export function AdminPage() {
           </div>
         ) : tab === 'flagged' ? (
           flagged.length === 0 ? (
-            <p className="py-12 text-center text-gray-400">{t('admin.noFlagged')}</p>
+            <p className="py-12 text-center text-gray-700">{t('admin.noFlagged')}</p>
           ) : (
             <div className="space-y-3">
               {flagged.map((report) => (
                 <div key={report.id} className="rounded-xl border border-gray-200 bg-white p-4">
-                  <p className="text-xs text-gray-500 mb-2">
+                  <p className="text-xs text-gray-700 mb-2">
                     Report ID: {report.id.slice(0, 8)}… · {report.reporter_role}
                   </p>
                   <pre className="text-xs bg-gray-50 rounded p-2 overflow-x-auto">
                     {JSON.stringify(report.fuel_statuses, null, 2)}
                   </pre>
                   {report.note && (
-                    <p className="mt-2 text-xs italic text-gray-600">"{report.note}"</p>
+                    <p className="mt-2 text-xs italic text-gray-700">"{report.note}"</p>
                   )}
                   <div className="mt-3 flex gap-2">
                     <Button size="sm" variant="secondary" onClick={() => void dismissReport(report.id)}>
@@ -156,14 +156,14 @@ export function AdminPage() {
             </div>
           )
         ) : claims.length === 0 ? (
-          <p className="py-12 text-center text-gray-400">{t('admin.noClaims')}</p>
+          <p className="py-12 text-center text-gray-700">{t('admin.noClaims')}</p>
         ) : (
           <div className="space-y-3">
             {claims.map((claim) => (
               <div key={claim.id} className="rounded-xl border border-gray-200 bg-white p-4">
-                <p className="text-xs text-gray-500 mb-1">Station: {claim.station_id.slice(0, 8)}…</p>
-                <p className="text-xs text-gray-500">User: {claim.user_id.slice(0, 8)}…</p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-700 mb-1">Station: {claim.station_id.slice(0, 8)}…</p>
+                <p className="text-xs text-gray-700">User: {claim.user_id.slice(0, 8)}…</p>
+                <p className="text-xs text-gray-700 mt-1">
                   Submitted: {new Date(claim.submitted_at).toLocaleDateString()}
                 </p>
                 <div className="mt-3 flex gap-2">

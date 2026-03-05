@@ -1,0 +1,38 @@
+---
+description: No grey text lighter than 700 on white or light backgrounds (accessibility)
+globs: "**/*.tsx,**/*.ts,**/*.css"
+alwaysApply: false
+---
+
+# Grey Text on White/Light Backgrounds
+
+Do not use grey text lighter than `gray-700` when the background is white or light (e.g. `bg-white`, `bg-gray-50`, `bg-gray-100`). Light grey on white is very hard to read.
+
+## Rule
+
+- **On white or light backgrounds**: Use at least `text-gray-700` for grey text. For placeholders, use at least `placeholder-gray-600`.
+- **On contrasting backgrounds**: Grey text is fine when the background is dark or distinctly colored (e.g. dark mode `dark:text-gray-300` on dark bg, or text on `bg-gray-300`).
+
+## Avoid
+
+- `text-gray-300`, `text-gray-400`, `text-gray-500`, `text-gray-600` on white, gray-50, or gray-100
+- `placeholder-gray-400` (or lighter) on white/light input backgrounds
+
+## Use instead
+
+- `text-gray-700` (or `text-gray-800` / `text-gray-900`) for body and secondary text on light backgrounds
+- `placeholder-gray-600` or `placeholder-gray-700` for input placeholders on light backgrounds
+
+## Tailwind examples
+
+```html
+<!-- ❌ BAD: light grey on white -->
+<p class="text-gray-500">Hint text</p>
+<nav class="... text-gray-400">Inactive link</nav>
+
+<!-- ✅ GOOD: readable grey on white -->
+<p class="text-gray-700">Hint text</p>
+<nav class="... text-gray-700">Inactive link</nav>
+```
+
+Leave grey-on-contrasting-background (e.g. dark mode, or chips with `bg-gray-300`) unchanged.

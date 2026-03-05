@@ -98,7 +98,7 @@ export function StationDetailPage() {
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500">
+          <div className="flex items-center gap-1 text-xs text-gray-700">
             <MapPin className="h-3 w-3" />
             <span>{station.township}, {station.city}</span>
           </div>
@@ -120,7 +120,7 @@ export function StationDetailPage() {
 
           {/* Queue + confidence */}
           {status && (
-            <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+            <div className="mt-3 flex items-center justify-between text-xs text-gray-700">
               <div className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
                 <span>
@@ -140,7 +140,7 @@ export function StationDetailPage() {
           )}
 
           {status?.last_updated_at && (
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-700">
               {t('station.lastUpdated', {
                 time: formatRelativeTime(status.last_updated_at),
               })}
@@ -173,7 +173,7 @@ export function StationDetailPage() {
               onClick={() => void toggleFollow()}
             >
               {isFollowing ? (
-                <BellOff className="h-4 w-4 text-gray-500" />
+                <BellOff className="h-4 w-4 text-gray-700" />
               ) : (
                 <Bell className="h-4 w-4" />
               )}

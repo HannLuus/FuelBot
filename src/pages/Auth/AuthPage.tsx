@@ -44,7 +44,7 @@ export function AuthPage() {
             <Zap className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">{t('app.name')}</h1>
-          <p className="mt-1 text-sm text-gray-500">{t('app.tagline')}</p>
+          <p className="mt-1 text-sm text-gray-700">{t('app.tagline')}</p>
         </div>
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
@@ -60,7 +60,7 @@ export function AuthPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={{ fontSize: '16px' }}
-              className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none"
+              className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
             />
           </div>
           <div>
@@ -75,7 +75,7 @@ export function AuthPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{ fontSize: '16px' }}
-              className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none"
+              className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
             />
           </div>
 
@@ -105,7 +105,7 @@ export function AuthPage() {
 
         <button
           onClick={() => navigate('/')}
-          className="mt-1 flex min-h-[48px] w-full items-center justify-center rounded-2xl text-sm text-gray-400 active:bg-gray-50"
+          className="mt-1 flex min-h-[48px] w-full items-center justify-center rounded-2xl text-sm text-gray-700 active:bg-gray-50"
         >
           {t('auth.continueAnonymous')}
         </button>

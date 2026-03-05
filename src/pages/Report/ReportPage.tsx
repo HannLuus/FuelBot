@@ -16,7 +16,7 @@ const FUEL_STATUS_OPTIONS: { value: FuelStatusChoice; emoji: string; labelKey: s
   { value: 'AVAILABLE', emoji: '🟢', labelKey: 'report.fuelStatus.available', activeClass: 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-400' },
   { value: 'LIMITED',   emoji: '🟡', labelKey: 'report.fuelStatus.limited',   activeClass: 'border-yellow-400 bg-yellow-50 text-yellow-700 ring-2 ring-yellow-400' },
   { value: 'OUT',       emoji: '🔴', labelKey: 'report.fuelStatus.out',       activeClass: 'border-red-500 bg-red-50 text-red-700 ring-2 ring-red-400' },
-  { value: 'SKIP',      emoji: '—',  labelKey: 'report.fuelStatus.dontKnow', activeClass: 'border-gray-400 bg-gray-100 text-gray-600 ring-2 ring-gray-300' },
+  { value: 'SKIP',      emoji: '—',  labelKey: 'report.fuelStatus.dontKnow', activeClass: 'border-gray-400 bg-gray-100 text-gray-700 ring-2 ring-gray-300' },
 ]
 
 const QUEUE_OPTIONS: QueueBucket[] = ['NONE', 'MIN_0_15', 'MIN_15_30', 'MIN_30_60', 'MIN_60_PLUS']
@@ -90,7 +90,7 @@ export function ReportPage() {
           <CheckCircle2 className="h-10 w-10 text-green-500" />
         </div>
         <p className="text-xl font-bold text-gray-800">{t('report.success')}</p>
-        <p className="text-sm text-gray-500">Returning to station…</p>
+        <p className="text-sm text-gray-700">Returning to station…</p>
       </div>
     )
   }
@@ -129,7 +129,7 @@ export function ReportPage() {
             <div className="space-y-5">
               {FUEL_CODES.map((code) => (
                 <div key={code}>
-                  <p className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                  <p className="mb-2 text-sm font-semibold text-gray-700 uppercase tracking-wide">
                     {FUEL_DISPLAY[code][lang]}
                   </p>
                   {/* 2×2 grid — each button ≥52px tall for easy thumb tap */}
@@ -144,7 +144,7 @@ export function ReportPage() {
                             'flex min-h-[52px] items-center justify-center gap-2 rounded-2xl border-2 text-sm font-semibold transition-all active:scale-95',
                             active
                               ? activeClass
-                              : 'border-gray-200 bg-gray-50 text-gray-600 active:bg-gray-100',
+                              : 'border-gray-200 bg-gray-50 text-gray-700 active:bg-gray-100',
                           )}
                         >
                           <span role="img" aria-hidden>{emoji}</span>
@@ -187,7 +187,7 @@ export function ReportPage() {
         {step === 3 && (
           <div>
             <p className="mb-2 text-lg font-bold text-gray-900">{t('report.step3')}</p>
-            <p className="mb-4 text-sm text-gray-500">Optional — skip if nothing special.</p>
+            <p className="mb-4 text-sm text-gray-700">Optional — skip if nothing special.</p>
             {/* font-size 16px prevents iOS auto-zoom on focus */}
             <textarea
               value={note}
@@ -196,9 +196,9 @@ export function ReportPage() {
               maxLength={280}
               rows={4}
               style={{ fontSize: '16px' }}
-              className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 p-4 leading-relaxed text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 p-4 leading-relaxed text-gray-800 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            <p className="mt-2 text-right text-xs text-gray-400">{note.length}/280</p>
+            <p className="mt-2 text-right text-xs text-gray-700">{note.length}/280</p>
           </div>
         )}
 

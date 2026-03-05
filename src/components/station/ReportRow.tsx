@@ -53,15 +53,15 @@ export function ReportRow({ report, onVoted }: ReportRowProps) {
             ))}
           </div>
           {report.queue_bucket && report.queue_bucket !== 'NONE' && (
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-700">
               {QUEUE_LABEL[report.queue_bucket][lang]}
             </p>
           )}
           {report.note && (
-            <p className="mt-1 text-xs italic text-gray-600">"{report.note}"</p>
+            <p className="mt-1 text-xs italic text-gray-700">"{report.note}"</p>
           )}
         </div>
-        <div className="text-right text-xs text-gray-400 shrink-0">
+        <div className="text-right text-xs text-gray-700 shrink-0">
           <p>{REPORTER_ROLE_LABEL[report.reporter_role][lang]}</p>
           <p>{formatRelativeTime(report.reported_at)}</p>
         </div>
@@ -76,13 +76,13 @@ export function ReportRow({ report, onVoted }: ReportRowProps) {
             'flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all active:scale-95',
             myVote === 'CONFIRM'
               ? 'bg-green-100 text-green-700'
-              : 'bg-white text-gray-600 active:bg-green-50',
+              : 'bg-white text-gray-700 active:bg-green-50',
           )}
         >
           <ThumbsUp className="h-4 w-4" />
           {myVote === 'CONFIRM' ? t('vote.confirmed') : t('vote.confirm')}
           {(report.confirm_count ?? 0) > 0 && (
-            <span className="text-gray-400 text-xs">({report.confirm_count})</span>
+            <span className="text-gray-700 text-xs">({report.confirm_count})</span>
           )}
         </button>
         <button
@@ -92,7 +92,7 @@ export function ReportRow({ report, onVoted }: ReportRowProps) {
             'flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all active:scale-95',
             myVote === 'DISAGREE'
               ? 'bg-red-100 text-red-700'
-              : 'bg-white text-gray-600 active:bg-red-50',
+              : 'bg-white text-gray-700 active:bg-red-50',
           )}
         >
           <ThumbsDown className="h-4 w-4" />

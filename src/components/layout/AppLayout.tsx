@@ -43,7 +43,7 @@ export function AppLayout() {
           {/* Language toggle — 44×44 hit area */}
           <button
             onClick={toggleLang}
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-sm font-semibold text-gray-600 active:bg-gray-100"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-sm font-semibold text-gray-700 active:bg-gray-100"
             aria-label="Toggle language"
           >
             {i18n.language === 'en' ? 'မြ' : 'EN'}
@@ -55,7 +55,7 @@ export function AppLayout() {
             className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl active:bg-gray-100"
             aria-label="User menu"
           >
-            <User className="h-5 w-5 text-gray-600" />
+            <User className="h-5 w-5 text-gray-700" />
           </button>
         </div>
       </header>
@@ -76,7 +76,7 @@ export function AppLayout() {
               className={({ isActive }) =>
                 clsx(
                   'flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2.5 text-xs transition-colors active:bg-gray-50',
-                  isActive ? 'text-blue-600' : 'text-gray-400',
+                  isActive ? 'text-blue-600' : 'text-gray-700',
                 )
               }
               style={{ minHeight: '52px' }}
@@ -124,7 +124,7 @@ export function AppLayout() {
             {/* User info */}
             {user && (
               <div className="border-b border-gray-100 px-6 py-3">
-                <p className="text-xs text-gray-400">Signed in as</p>
+                <p className="text-xs text-gray-700">Signed in as</p>
                 <p className="truncate text-sm font-medium text-gray-800">{user.email}</p>
               </div>
             )}
@@ -135,7 +135,7 @@ export function AppLayout() {
                 onClick={() => { toggleLang(); setSheetOpen(false) }}
                 className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
               >
-                <Globe className="h-5 w-5 text-gray-400 shrink-0" />
+                <Globe className="h-5 w-5 text-gray-700 shrink-0" />
                 <span>{i18n.language === 'en' ? 'Switch to မြန်မာ' : 'Switch to English'}</span>
               </button>
 
@@ -162,7 +162,7 @@ export function AppLayout() {
             <div className="px-4 pb-4">
               <button
                 onClick={() => setSheetOpen(false)}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gray-100 py-4 text-sm font-semibold text-gray-600 active:bg-gray-200"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gray-100 py-4 text-sm font-semibold text-gray-700 active:bg-gray-200"
               >
                 <X className="h-4 w-4" />
                 Close

@@ -19,7 +19,7 @@ export function HomePage() {
   const { filters } = useFilterStore()
 
   useEffect(() => {
-    requestLocation()
+    requestLocation({ highAccuracy: true })
   }, [requestLocation])
 
   // Use user location when available, fall back to Yangon so the list is never empty
@@ -59,7 +59,7 @@ export function HomePage() {
       <div className="flex-1 overflow-y-auto scroll-touch">
         {/* Initial location loading */}
         {locLoading && stations.length === 0 && (
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-400">
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-700">
             <Spinner />
             <span className="text-sm">{t('home.loading')}</span>
           </div>
@@ -88,8 +88,8 @@ export function HomePage() {
           <div className="space-y-3 p-4">
             {!loading && stations.length === 0 && !locLoading && (
               <div className="py-12 text-center">
-                <p className="text-gray-500">{t('home.noStations')}</p>
-                <p className="mt-1 text-xs text-gray-400">{t('home.noStationsHint')}</p>
+                <p className="text-gray-700">{t('home.noStations')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('home.noStationsHint')}</p>
               </div>
             )}
             {stations.map((station) => (
