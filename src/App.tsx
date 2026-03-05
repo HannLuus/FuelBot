@@ -10,7 +10,7 @@ import { AuthPage } from '@/pages/Auth/AuthPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 
-// Lazy-load the map to avoid loading maplibre-gl on first paint
+// Lazy-load the map to keep it out of the initial bundle
 const MapPage = lazy(() =>
   import('@/pages/Map/MapPage').then((m) => ({ default: m.MapPage })),
 )

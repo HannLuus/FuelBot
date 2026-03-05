@@ -70,7 +70,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          maplibre: ['maplibre-gl'],
+          leaflet: ['leaflet'],
           supabase: ['@supabase/supabase-js'],
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
