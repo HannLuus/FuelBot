@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
 import { Crosshair, Sun, Moon } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
@@ -58,6 +59,7 @@ export function MapPage() {
   const { lat, lng, requestLocation, loading: locationLoading } = useLocationStore()
   const { filters } = useFilterStore()
   const { mapStyle, setMapStyle } = useMapStyleStore()
+  const { t, i18n } = useTranslation()
 
   const effectiveLat = lat ?? YANGON_LAT
   const effectiveLng = lng ?? YANGON_LNG
@@ -93,7 +95,7 @@ export function MapPage() {
         fillOpacity: 1,
       })
         .addTo(mapRef.current)
-        .bindPopup('You are here')
+        .bindPopup(i18n.t('map.youAreHere'))
       userLocationLayerRef.current = circle
     }
 
@@ -130,8 +132,15 @@ export function MapPage() {
       fillOpacity: 1,
     })
       .addTo(mapRef.current)
-      .bindPopup('You are here')
-  }, [lat, lng])
+      .bindPopup(t('map.youAreHere'))
+  }, [lat, lng, t])
+
+  // When app language changes, update "You are here" popup text
+  useEffect(() => {
+    if (userLocationLayerRef.current) {
+      userLocationLayerRef.current.setPopupContent(t('map.youAreHere'))
+    }
+  }, [i18n.language, t])
 
   // Update station markers whenever stations list changes
   useEffect(() => {
@@ -167,7 +176,7 @@ export function MapPage() {
       <div
         className="absolute top-3 right-3 z-[1000] flex rounded-xl bg-white/90 shadow-lg backdrop-blur-sm dark:bg-gray-900/90"
         role="group"
-        aria-label="Map style"
+        aria-label={t('map.mapStyle')}
       >
         <button
           type="button"
@@ -177,8 +186,8 @@ export function MapPage() {
               ? 'bg-blue-600 text-white'
               : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
           }`}
-          title="Light map"
-          aria-label="Light map"
+          title={t('map.lightMap')}
+          aria-label={t('map.lightMap')}
           aria-pressed={mapStyle === 'light'}
         >
           <Sun className="h-5 w-5" />
@@ -191,8 +200,8 @@ export function MapPage() {
               ? 'bg-blue-600 text-white'
               : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
           }`}
-          title="Dark map"
-          aria-label="Dark map"
+          title={t('map.darkMap')}
+          aria-label={t('map.darkMap')}
           aria-pressed={mapStyle === 'dark'}
         >
           <Moon className="h-5 w-5" />
@@ -205,8 +214,8 @@ export function MapPage() {
         onClick={handleMyLocation}
         disabled={locationLoading}
         className="absolute top-14 right-3 z-[1000] flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl bg-white/90 text-gray-900 shadow-lg backdrop-blur-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 active:scale-95 dark:bg-gray-900/90 dark:text-gray-100 dark:hover:bg-gray-800"
-        title="Center on my location"
-        aria-label="Center on my location"
+        title={t('map.centerOnMyLocation')}
+        aria-label={t('map.centerOnMyLocation')}
       >
         {locationLoading ? (
           <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -215,12 +224,12 @@ export function MapPage() {
         )}
       </button>
 
-      {/* Legend — readable on both light and dark map */}
+      {/* Legend — follows app language (en / my) */}
       <div className="absolute bottom-10 left-3 z-[1000] rounded-xl bg-white/90 px-3 py-2 text-xs text-gray-800 shadow-lg backdrop-blur-sm dark:bg-gray-900/90 dark:text-gray-200">
         {(['AVAILABLE', 'LIMITED', 'OUT', 'UNKNOWN'] as const).map((s) => (
           <div key={s} className="flex items-center gap-2 py-0.5">
             <span className={`h-3 w-3 rounded-full shrink-0 ${STATUS_DOT_COLORS[s]}`} />
-            <span className="capitalize">{s.toLowerCase().replace('_', ' ')}</span>
+            <span>{t(`fuelStatus.${s}`)}</span>
           </div>
         ))}
       </div>

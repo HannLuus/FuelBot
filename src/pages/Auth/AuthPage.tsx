@@ -25,7 +25,7 @@ export function AuthPage() {
       if (mode === 'signin') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) { setError(error.message); return }
-        navigate('/')
+        navigate('/home')
       } else {
         const { error } = await supabase.auth.signUp({ email, password })
         if (error) { setError(error.message); return }
@@ -104,7 +104,7 @@ export function AuthPage() {
         </button>
 
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
           className="mt-1 flex min-h-[48px] w-full items-center justify-center rounded-2xl text-sm text-gray-700 active:bg-gray-50"
         >
           {t('auth.continueAnonymous')}

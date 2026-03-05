@@ -1,24 +1,27 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Store, CheckCircle, Send, Users, MapPin } from 'lucide-react'
+import { Store, CheckCircle, Send, Users, MapPin, Upload, Copy } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import { FUEL_CODES, FUEL_DISPLAY, STATUS_LABEL } from '@/lib/fuelUtils'
-import type { Station, FuelCode, FuelStatus, QueueBucket, FuelStatuses } from '@/types'
+import { FUEL_CODES, FUEL_DISPLAY, STATUS_LABEL, QUEUE_LABEL, formatRelativeTime } from '@/lib/fuelUtils'
+import type { Station, FuelCode, FuelStatus, QueueBucket, FuelStatuses, StationCurrentStatus, SubscriptionTierRequested } from '@/types'
+import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
+import { referralAmountForTier } from '@/lib/referrals'
 
 type FuelStatusOrSkip = FuelStatus | 'SKIP'
-
-const VERIFIED_PRICE_MONTHLY = '15' // USD or local equivalent — adjust as needed
+type SaveState = 'idle' | 'saving' | 'success' | 'error'
 
 export function OperatorPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
   const { user } = useAuthStore()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [myStation, setMyStation] = useState<Station | null>(null)
+  const [currentStatus, setCurrentStatus] = useState<StationCurrentStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [posting, setPosting] = useState(false)
   const [postResult, setPostResult] = useState<'success' | 'error' | null>(null)
@@ -32,21 +35,97 @@ export function OperatorPage() {
     PREMIUM_DIESEL: 'SKIP',
   })
   const [queue] = useState<QueueBucket>('NONE')
+  const [tier, setTier] = useState<SubscriptionTierRequested>('small')
+  const [referralCodeInput, setReferralCodeInput] = useState('')
+  const [myReferralCode, setMyReferralCode] = useState('')
+  const [saveState, setSaveState] = useState<SaveState>('idle')
+  const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [stationPhotos, setStationPhotos] = useState<string[]>([])
+  const [locationPhoto, setLocationPhoto] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [submittingPaid, setSubmittingPaid] = useState(false)
+  const [recognitionPhotoUrl, setRecognitionPhotoUrl] = useState<string | null>(null)
+  const [recognitionConfirming, setRecognitionConfirming] = useState(false)
+
+  const selectedTierPrice = useMemo(() => getTierPrice(tier), [tier])
+  const selectedReferralAmount = useMemo(() => referralAmountForTier(tier), [tier])
+  const paymentInstructions = import.meta.env.VITE_PAYMENT_INSTRUCTIONS
+  const paymentQrUrl = import.meta.env.VITE_PAYMENT_QR_URL
+  const shareLink =
+    myReferralCode && typeof window !== 'undefined'
+      ? `${window.location.origin}/operator?ref=${encodeURIComponent(myReferralCode)}`
+      : ''
 
   useEffect(() => {
     if (!user) return
     void loadMyStation()
+    void loadMyReferralCode()
   }, [user])
+
+  useEffect(() => {
+    const refFromUrl = searchParams.get('ref')?.trim() ?? ''
+    if (refFromUrl) {
+      setReferralCodeInput(refFromUrl.toUpperCase())
+    }
+  }, [searchParams])
 
   async function loadMyStation() {
     if (!user) return
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('stations')
       .select('*')
       .eq('verified_owner_id', user.id)
-      .single()
+      .maybeSingle()
+    if (error) {
+      setLoading(false)
+      return
+    }
     setMyStation(data ?? null)
+    if (data) {
+      setTier((data.subscription_tier_requested as SubscriptionTierRequested) ?? 'small')
+      setStationPhotos(data.station_photo_urls ?? [])
+      setLocationPhoto(data.location_photo_url ?? null)
+      setRecognitionPhotoUrl(data.recognition_photo_url ?? null)
+      if (data.referrer_user_id) {
+        setReferralCodeInput('ASSIGNED')
+      }
+      await loadCurrentStatus(data.id)
+    } else {
+      setCurrentStatus(null)
+    }
     setLoading(false)
+  }
+
+  async function loadCurrentStatus(stationId: string) {
+    const { data } = await supabase
+      .from('station_current_status')
+      .select('*')
+      .eq('station_id', stationId)
+      .maybeSingle()
+    setCurrentStatus((data as StationCurrentStatus) ?? null)
+    if (data?.fuel_statuses_computed) {
+      const next: Record<FuelCode, FuelStatusOrSkip> = {
+        RON92: 'SKIP',
+        RON95: 'SKIP',
+        DIESEL: 'SKIP',
+        PREMIUM_DIESEL: 'SKIP',
+      }
+      for (const code of FUEL_CODES) {
+        const v = data.fuel_statuses_computed[code] as FuelStatus | undefined
+        next[code] = v && v !== 'UNKNOWN' ? v : 'SKIP'
+      }
+      setFuelStatuses(next)
+    }
+  }
+
+  async function loadMyReferralCode() {
+    if (!user) return
+    try {
+      const { data, error } = await supabase.functions.invoke('get-referral-code')
+      if (!error && data?.code) setMyReferralCode(data.code)
+    } catch {
+      // ignore
+    }
   }
 
   async function submitRegistration(e: React.FormEvent) {
@@ -61,6 +140,8 @@ export function OperatorPage() {
           address: registerForm.address.trim() || null,
           township: registerForm.township.trim() || undefined,
           city: registerForm.city.trim() || 'Yangon',
+          subscription_tier_requested: tier,
+          referral_code: referralCodeInput.trim() || null,
         },
       })
       if (error) throw error
@@ -71,6 +152,127 @@ export function OperatorPage() {
       setRegisterResult('error')
     } finally {
       setRegistering(false)
+    }
+  }
+
+  async function uploadVerificationPhoto(file: File, kind: 'station' | 'location') {
+    if (!myStation || !user) return
+    setUploading(true)
+    setSaveMessage(null)
+    try {
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const path = `${user.id}/${myStation.id}/${kind}-${Date.now()}.${ext}`
+      const { data, error } = await supabase.storage
+        .from('station-verification')
+        .upload(path, file, { upsert: true })
+
+      if (error) throw error
+
+      const { data: pub } = supabase.storage.from('station-verification').getPublicUrl(data.path)
+      const url = pub.publicUrl
+
+      if (kind === 'station') {
+        const next = [...stationPhotos, url]
+        setStationPhotos(next)
+      } else {
+        setLocationPhoto(url)
+      }
+      setSaveMessage(null)
+    } catch (err) {
+      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function saveVerificationInfo() {
+    if (!myStation) return
+    setSaveState('saving')
+    setSaveMessage(null)
+    try {
+      const referralToSend = referralCodeInput === 'ASSIGNED' ? null : (referralCodeInput.trim() || null)
+      const { data, error } = await supabase.functions.invoke('update-operator-verification', {
+        body: {
+          station_id: myStation.id,
+          subscription_tier_requested: tier,
+          referral_code: referralToSend,
+          station_photo_urls: stationPhotos,
+          location_photo_url: locationPhoto,
+        },
+      })
+      if (error) throw error
+      if (data?.error) throw new Error(data.error)
+      setSaveState('success')
+      setSaveMessage(
+        data?.referral_matched
+          ? t('operator.referralSavedWithCode', { code: data.referral_matched })
+          : t('operator.referralSaved')
+      )
+      await loadMyStation()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('errors.generic')
+      if (message.toLowerCase().includes('own referral')) {
+        setSaveMessage(t('operator.ownReferralCode'))
+      } else if (message.toLowerCase().includes('invalid referral')) {
+        setSaveMessage(t('operator.invalidReferralCode'))
+      } else {
+        setSaveMessage(message)
+      }
+      setSaveState('error')
+    }
+  }
+
+  async function markIHavePaid() {
+    if (!myStation || submittingPaid) return
+    setSubmittingPaid(true)
+    try {
+      await saveVerificationInfo()
+      setSaveMessage(t('operator.weWillVerifySoon'))
+    } finally {
+      setSubmittingPaid(false)
+    }
+  }
+
+  async function uploadRecognitionPhoto(file: File) {
+    if (!myStation || !user) return
+    setUploading(true)
+    setSaveMessage(null)
+    try {
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const path = `${user.id}/${myStation.id}/recognition-${Date.now()}.${ext}`
+      const { data, error } = await supabase.storage
+        .from('recognition-photos')
+        .upload(path, file, { upsert: true })
+      if (error) throw error
+      const { data: pub } = supabase.storage.from('recognition-photos').getPublicUrl(data.path)
+      setRecognitionPhotoUrl(pub.publicUrl)
+    } catch (err) {
+      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function confirmRecognitionPhoto() {
+    if (!myStation || !recognitionPhotoUrl) return
+    setRecognitionConfirming(true)
+    setSaveMessage(null)
+    try {
+      const { data, error } = await supabase.functions.invoke('update-recognition-photo', {
+        body: {
+          station_id: myStation.id,
+          recognition_photo_url: recognitionPhotoUrl,
+          recognition_photo_confirmed: true,
+        },
+      })
+      if (error) throw error
+      if (data?.error) throw new Error(data.error)
+      setSaveMessage('Recognition photo confirmed for hero section.')
+      await loadMyStation()
+    } catch (err) {
+      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setRecognitionConfirming(false)
     }
   }
 
@@ -129,23 +331,72 @@ export function OperatorPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Tiers — how we make money */}
+        {/* Referrer earnings */}
+        <section className="rounded-2xl border border-green-200 bg-green-50 p-4">
+          <h2 className="text-sm font-bold text-green-900 mb-2">{t('landing.whatYouEarnTitle')}</h2>
+          <p className="text-xs text-green-800 mb-3">{t('landing.whatYouEarnBody')}</p>
+          {myReferralCode ? (
+            <div className="rounded-xl border border-green-200 bg-white p-3">
+              <p className="text-xs text-gray-700 mb-1">{t('landing.getReferralCodeCta')}</p>
+              <div className="flex items-center justify-between gap-2">
+                <code className="rounded bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-900">{myReferralCode}</code>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(myReferralCode)
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy
+                </Button>
+              </div>
+              {shareLink ? (
+                <div className="mt-2 rounded bg-gray-50 p-2">
+                  <p className="text-[11px] text-gray-700 break-all">{shareLink}</p>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="mt-2"
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(shareLink)
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                    Copy share link
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-700">—</p>
+          )}
+        </section>
+
+        {/* Tiers */}
         <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.tiersTitle')}</h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 bg-white p-3">
-              <p className="font-semibold text-gray-800">{t('operator.tierFree')}</p>
-              <p className="mt-1 text-xs text-gray-700">{t('operator.tierFreeDesc')}</p>
-            </div>
-            <div className="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-3">
-              <p className="font-semibold text-blue-900">{t('operator.tierVerified')}</p>
-              <p className="mt-1 text-xs text-blue-800">{t('operator.tierVerifiedDesc')}</p>
-              <p className="mt-2 text-sm font-bold text-blue-700">
-                {t('operator.pricePerMonth', { amount: `$${VERIFIED_PRICE_MONTHLY}` })}
-              </p>
-              <p className="mt-0.5 text-xs text-blue-600">{t('operator.contactToSubscribe')}</p>
-            </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {SUBSCRIPTION_TIERS.map((cfg) => (
+              <button
+                key={cfg.key}
+                type="button"
+                onClick={() => setTier(cfg.key)}
+                className={`rounded-xl border p-3 text-left ${
+                  tier === cfg.key ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'
+                }`}
+              >
+                <p className="font-semibold text-gray-900">{cfg.name[lang]}</p>
+                <p className="mt-1 text-xs text-gray-700">{cfg.description[lang]}</p>
+                <p className="mt-2 text-sm font-bold text-gray-900">{formatMmk(cfg.annualPriceMmk)} / {t('landing.perYear')}</p>
+              </button>
+            ))}
           </div>
+          {selectedTierPrice ? (
+            <p className="mt-3 text-xs text-gray-700">
+              {t('operator.selectTier')} · {formatMmk(selectedTierPrice)} / {t('landing.perYear')} · 15% referral: {formatMmk(selectedReferralAmount)}
+            </p>
+          ) : null}
         </section>
 
         {/* No station yet: Register (owner-first) or Claim existing */}
@@ -224,7 +475,7 @@ export function OperatorPage() {
                 variant="secondary"
                 size="md"
                 className="mt-3"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
               >
                 <MapPin className="h-4 w-4" />
                 {t('operator.claimButton')}
@@ -247,7 +498,150 @@ export function OperatorPage() {
                 {myStation.township}
                 {myStation.is_verified ? ` · ${t('station.verified')}` : ` · ${t('operator.pendingVerification')}`}
               </p>
+                {myStation.registration_reject_reason ? (
+                <p className="mt-2 rounded-lg bg-red-50 p-2 text-xs text-red-700">
+                  {t('operator.registrationRejectedReason')}: {myStation.registration_reject_reason}
+                </p>
+              ) : null}
             </div>
+
+            {!myStation.is_verified && (
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                <h3 className="font-semibold text-blue-900">{t('operator.completeVerification')}</h3>
+                <p className="mt-1 text-xs text-blue-800">{t('operator.paymentInstructions')}</p>
+
+                <div className="mt-3">
+                  <label className="mb-1 block text-xs font-semibold text-gray-700">{t('operator.referralCode')}</label>
+                  <input
+                    value={referralCodeInput === 'ASSIGNED' ? '' : referralCodeInput}
+                    onChange={(e) => setReferralCodeInput(e.target.value)}
+                    placeholder={t('operator.referralCodePlaceholder')}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-700">
+                    <span className="mb-2 block font-medium text-gray-900">{t('admin.stationPhotos')}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0]
+                        if (f) void uploadVerificationPhoto(f, 'station')
+                      }}
+                    />
+                    <p className="mt-2 text-xs text-gray-700">Uploaded: {stationPhotos.length}</p>
+                  </label>
+                  <label className="rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-700">
+                    <span className="mb-2 block font-medium text-gray-900">{t('admin.locationPhoto')}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0]
+                        if (f) void uploadVerificationPhoto(f, 'location')
+                      }}
+                    />
+                    <p className="mt-2 text-xs text-gray-700">{locationPhoto ? 'Uploaded' : 'Missing'}</p>
+                  </label>
+                </div>
+
+                {paymentInstructions ? (
+                  <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 text-xs text-gray-700">
+                    {paymentInstructions}
+                  </div>
+                ) : (
+                  <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 text-xs text-gray-700">
+                    Contact us for payment details.
+                  </div>
+                )}
+
+                {paymentQrUrl ? (
+                  <img src={paymentQrUrl} alt="Payment QR" className="mt-3 h-40 w-40 rounded border border-gray-200 object-cover" />
+                ) : null}
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    loading={saveState === 'saving' || uploading}
+                    onClick={() => void saveVerificationInfo()}
+                    disabled={uploading}
+                  >
+                    <Upload className="h-4 w-4" />
+                    {t('operator.completeVerification')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    loading={submittingPaid}
+                    onClick={() => void markIHavePaid()}
+                    disabled={stationPhotos.length === 0 || !locationPhoto}
+                  >
+                    {t('operator.iHavePaid')}
+                  </Button>
+                </div>
+
+                {saveMessage ? <p className="mt-3 text-sm text-gray-700">{saveMessage}</p> : null}
+              </div>
+            )}
+
+            {currentStatus && (
+              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                <p className="font-semibold text-gray-900">{t('operator.currentStatus')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('operator.updateFuelStatusDescription')}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {FUEL_CODES.map((code) => {
+                    const v = currentStatus.fuel_statuses_computed?.[code] ?? 'UNKNOWN'
+                    return (
+                      <div key={code} className="rounded-lg border border-gray-200 px-2 py-1.5">
+                        <p className="text-xs text-gray-700">{FUEL_DISPLAY[code][lang]}</p>
+                        <p className="text-sm font-semibold text-gray-900">{STATUS_LABEL[v][lang]}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-gray-700">
+                  {currentStatus.last_updated_at ? formatRelativeTime(currentStatus.last_updated_at) : '—'} · {QUEUE_LABEL[currentStatus.queue_bucket_computed ?? 'NONE'][lang]}
+                </p>
+              </div>
+            )}
+
+            {myStation.is_verified && (
+              <div className="rounded-2xl border border-purple-200 bg-purple-50 p-4">
+                <p className="font-semibold text-purple-900">Hero recognition photo</p>
+                <p className="mt-1 text-xs text-purple-800">
+                  Prefer a photo with both referrer and owner (or manager). You can upload now and publish when ready.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <label className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0]
+                        if (f) void uploadRecognitionPhoto(f)
+                      }}
+                    />
+                  </label>
+                  {recognitionPhotoUrl ? (
+                    <img src={recognitionPhotoUrl} alt="Recognition" className="h-20 w-20 rounded border border-gray-200 object-cover" />
+                  ) : null}
+                </div>
+                <div className="mt-3">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    loading={recognitionConfirming}
+                    onClick={() => void confirmRecognitionPhoto()}
+                    disabled={!recognitionPhotoUrl}
+                  >
+                    Confirm and show on FuelBot
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-3">

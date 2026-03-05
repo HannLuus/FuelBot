@@ -25,6 +25,8 @@ export function StationDetailPage() {
   const lang = i18n.language as 'en' | 'my'
   const { user } = useAuthStore()
   const [isFollowing, setIsFollowing] = useState(false)
+  const [claiming, setClaiming] = useState(false)
+  const [claimMessage, setClaimMessage] = useState<string | null>(null)
 
   const { station, reports, loading, error, refresh } = useStationDetail(id!)
 
@@ -52,6 +54,34 @@ export function StationDetailPage() {
         .from('station_followers')
         .insert({ user_id: user.id, station_id: station.id })
       setIsFollowing(true)
+    }
+  }
+
+  async function claimStation() {
+    if (!user || !station) return
+    setClaiming(true)
+    setClaimMessage(null)
+    try {
+      const { error } = await supabase
+        .from('station_claims')
+        .insert({
+          station_id: station.id,
+          user_id: user.id,
+          status: 'PENDING',
+        })
+      if (error) throw error
+
+      await supabase.functions.invoke('notify-admin', {
+        body: {
+          kind: 'PENDING_CLAIM',
+          station_id: station.id,
+        },
+      })
+      setClaimMessage(t('operator.claimPending'))
+    } catch {
+      setClaimMessage(t('errors.generic'))
+    } finally {
+      setClaiming(false)
     }
   }
 
@@ -94,7 +124,7 @@ export function StationDetailPage() {
             {station.is_verified && (
               <Badge variant="verified">
                 <CheckCircle className="mr-0.5 h-3 w-3" />
-                {t('station.verified')}
+                {t('station.verifiedOwnerClaimed')}
               </Badge>
             )}
           </div>
@@ -144,6 +174,13 @@ export function StationDetailPage() {
               {t('station.lastUpdated', {
                 time: formatRelativeTime(status.last_updated_at),
               })}
+            </p>
+          )}
+          {station.referrer_user_id && (
+            <p className="mt-1 text-xs text-gray-700">
+              {station.referral_reward_status === 'PENDING'
+                ? t('station.referrerRewardPending')
+                : t('station.referrerRewarded')}
             </p>
           )}
         </div>
@@ -209,10 +246,12 @@ export function StationDetailPage() {
               size="sm"
               variant="primary"
               className="mt-2"
-              onClick={() => navigate(`/operator/claim/${station.id}`)}
+              loading={claiming}
+              onClick={() => void claimStation()}
             >
               {t('operator.claimButton')}
             </Button>
+            {claimMessage ? <p className="mt-2 text-xs text-blue-900">{claimMessage}</p> : null}
           </div>
         )}
       </div>

@@ -19,7 +19,7 @@ export function AppLayout() {
   }
 
   const navItems = [
-    { to: '/', label: t('nav.nearby'), icon: List, end: true },
+    { to: '/home', label: t('nav.nearby'), icon: List, end: true },
     { to: '/map', label: t('nav.map'), icon: Map },
     { to: '/operator', label: t('nav.operator'), icon: Store },
     ...(isAdmin ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
@@ -30,7 +30,7 @@ export function AppLayout() {
       {/* Top bar */}
       <header className="shrink-0 flex items-center justify-between border-b border-gray-100 bg-white px-4 shadow-sm" style={{ minHeight: '52px' }}>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
           className="flex items-center gap-2 min-h-[44px]"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">

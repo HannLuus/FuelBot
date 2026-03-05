@@ -27,6 +27,16 @@ cp .env.example .env
 
 Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the Supabase dashboard.
 
+Also configure:
+
+- `VITE_PAYMENT_INSTRUCTIONS`
+- `VITE_PAYMENT_QR_URL`
+- `ADMIN_NOTIFICATION_EMAIL` (for admin action emails; test: `best.iptvmm@gmail.com`)
+- Tier pricing:
+  - `VITE_TIER_PRICE_SMALL_MMK`
+  - `VITE_TIER_PRICE_MEDIUM_MMK`
+  - `VITE_TIER_PRICE_LARGE_MMK`
+
 ### 2. Install dependencies
 
 ```bash
@@ -93,13 +103,19 @@ Reports are weighted by role (VERIFIED_STATION → TRUSTED → CROWD → ANON) a
 - Follow a station for fuel-back alerts
 - Full Burmese + English UI
 
-### Operator (paid, schema ready)
-- Claim station (admin-reviewed)
-- Post verified updates (bypasses crowd rate limits)
-- View follower count and basic stats
+### Operator
+- Owner-first station registration and verification workflow
+- Tier selection (small / medium / large) with annual MMK pricing
+- Payment instructions + QR visibility
+- Referral code support (15% reward to the person who gets the deal)
+- Post verified updates (after admin approval)
+- Recognition photo upload/confirm flow for landing hero
 
 ### Admin
 - Review flagged reports
+- Review pending station registrations with station/location photos
+- Mark payment received (KBZ Pay, WavePay, bank transfer + reference)
+- Tier verification policy: reject under-declared tier, accept over-declared tier
 - Approve / reject station claims
 - Device suspension
 

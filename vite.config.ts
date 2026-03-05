@@ -40,6 +40,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/,
@@ -50,10 +52,10 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: /^https:\/\/.*\.openstreetmap\.org\/.*/,
+            urlPattern: /^https:\/\/.*\.(openstreetmap|cartocdn)\.(org|com)\/.*/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'osm-tiles',
+              cacheName: 'map-tiles',
               expiration: { maxEntries: 200, maxAgeSeconds: 86400 },
             },
           },

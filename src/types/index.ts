@@ -20,6 +20,8 @@ export type VoteType = 'CONFIRM' | 'DISAGREE'
 export type ClaimStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 
 export type SubscriptionTier = 'BASIC' | 'VERIFIED' | 'FLEET'
+export type SubscriptionTierRequested = 'small' | 'medium' | 'large'
+export type ReferralRewardStatus = 'PENDING' | 'PAID' | 'COLLECTED'
 
 export type AlertTrigger = 'FUEL_BACK_IN_STOCK'
 
@@ -49,6 +51,21 @@ export interface Station {
   country_code: string
   is_verified: boolean
   verified_owner_id: string | null
+  subscription_tier_requested?: SubscriptionTierRequested | null
+  payment_received_at?: string | null
+  payment_method?: string | null
+  payment_reference?: string | null
+  payment_confirmed_by?: string | null
+  referrer_user_id?: string | null
+  station_photo_urls?: string[]
+  location_photo_url?: string | null
+  referral_paid_at?: string | null
+  referral_reward_status?: ReferralRewardStatus | null
+  recognition_photo_url?: string | null
+  recognition_photo_confirmed?: boolean
+  recognition_photo_updated_at?: string | null
+  registration_reject_reason?: string | null
+  registration_rejected_at?: string | null
   is_active: boolean
   created_at: string
   updated_at: string
@@ -116,6 +133,23 @@ export interface AlertsLog {
   trigger: AlertTrigger
   channel: AlertChannel
   sent_at: string
+}
+
+export interface ReferralCode {
+  user_id: string
+  code: string
+  created_at: string
+}
+
+export interface ReferralReward {
+  id: string
+  referrer_user_id: string
+  station_id: string
+  amount_mmk: number
+  status: ReferralRewardStatus
+  payment_reference: string | null
+  paid_at: string | null
+  created_at: string
 }
 
 // ─── Composite view types (used by the app) ──────────────────────────────────

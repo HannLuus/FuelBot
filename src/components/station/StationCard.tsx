@@ -44,7 +44,7 @@ export function StationCard({ station }: StationCardProps) {
             {station.is_verified && (
               <Badge variant="verified">
                 <CheckCircle className="mr-0.5 h-3 w-3" />
-                {t('station.verified')}
+                {t('station.verifiedOwnerClaimed')}
               </Badge>
             )}
             {isStale && !hasNoData && (
@@ -105,6 +105,13 @@ export function StationCard({ station }: StationCardProps) {
             )}
           </div>
         </div>
+      )}
+      {station.referrer_user_id && (
+        <p className="mt-2 text-xs text-gray-700">
+          {station.referral_reward_status === 'PENDING'
+            ? t('station.referrerRewardPending')
+            : t('station.referrerRewarded')}
+        </p>
       )}
     </button>
   )

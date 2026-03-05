@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, lazy, Suspense } from 'react'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { HomePage } from '@/pages/Home/HomePage'
@@ -9,6 +9,7 @@ import { OperatorPage } from '@/pages/Operator/OperatorPage'
 import { AuthPage } from '@/pages/Auth/AuthPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
+import { LandingPage } from '@/pages/Landing/LandingPage'
 
 // Lazy-load the map to keep it out of the initial bundle
 const MapPage = lazy(() =>
@@ -25,9 +26,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route element={<AppLayout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/station/:id" element={<StationDetailPage />} />
           <Route path="/report/:id?" element={<ReportPage />} />
           <Route
@@ -48,6 +51,7 @@ export default function App() {
           <Route path="/operator/claim/:stationId" element={<OperatorPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
