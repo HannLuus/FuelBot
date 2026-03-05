@@ -1,0 +1,135 @@
+# FuelBot
+
+Real-time fuel availability and queue times at nearby stations. Built for Myanmar (first market), designed to expand globally.
+
+**Supabase project:** `feenwusofmhnpuahekvu`
+
+---
+
+## Tech stack
+
+- **Frontend:** Vite + React + TypeScript + TailwindCSS v4
+- **PWA:** vite-plugin-pwa (installable, offline shell, push-ready)
+- **Map:** MapLibre GL + OpenStreetMap (lazy-loaded)
+- **Backend:** Supabase (Postgres + PostGIS, Auth, Realtime, Edge Functions)
+- **Hosting:** Vercel (recommended)
+- **i18n:** English + Burmese (Myanmar)
+
+---
+
+## Setup
+
+### 1. Environment
+
+```bash
+cp .env.example .env
+```
+
+Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the Supabase dashboard.
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start dev server
+
+```bash
+npm run dev
+```
+
+### 4. Deploy Edge Functions (Supabase CLI)
+
+```bash
+supabase functions deploy submit-report
+supabase functions deploy send-fuel-alerts
+```
+
+Set `SUPABASE_SERVICE_ROLE_KEY` in the Edge Function secrets via the Supabase dashboard.
+
+---
+
+## Database
+
+All migrations are applied to the remote Supabase project. Key tables:
+
+| Table | Purpose |
+|---|---|
+| `fuel_types` | Seeded fuel type codes (RON92, RON95, DIESEL, PREMIUM_DIESEL) |
+| `stations` | Fuel stations with PostGIS coordinates |
+| `station_status_reports` | Crowd + verified fuel status reports |
+| `status_votes` | Confirm / Disagree votes per report |
+| `station_current_status` | Computed best status per station (auto-updated by trigger) |
+| `station_claims` | Operator claim requests (admin approval) |
+| `station_followers` | Users following a station for alerts |
+| `subscriptions` | Operator subscription tiers |
+| `alerts_log` | Dispatched alert records |
+
+### Confidence model
+
+Reports are weighted by role (VERIFIED_STATION → TRUSTED → CROWD → ANON) and decay by freshness. Votes add a bonus. The trigger `on_report_insert` recomputes `station_current_status` automatically on every new report or vote.
+
+### Freshness / decay windows
+
+| Role | Window |
+|---|---|
+| VERIFIED_STATION | 4 hours |
+| TRUSTED | 2 hours |
+| CROWD | 1 hour |
+| ANON | 30 minutes |
+
+---
+
+## Features
+
+### Public (drivers)
+- Nearby station list, sorted by distance, with per-fuel traffic lights (green/yellow/red/grey)
+- Filter by fuel type and status
+- Station detail with queue estimate and confidence score
+- 3-step report flow (fuel status per type → queue bucket → optional note)
+- Confirm / Disagree voting on existing reports
+- Open in Maps deep link (Google / Apple Maps)
+- Follow a station for fuel-back alerts
+- Full Burmese + English UI
+
+### Operator (paid, schema ready)
+- Claim station (admin-reviewed)
+- Post verified updates (bypasses crowd rate limits)
+- View follower count and basic stats
+
+### Admin
+- Review flagged reports
+- Approve / reject station claims
+- Device suspension
+
+---
+
+## Fuel types (Myanmar)
+
+| Code | English | Burmese |
+|---|---|---|
+| RON92 | 92 | ၉၂ |
+| RON95 | 95 | ၉၅ |
+| DIESEL | Diesel | ဒီဇယ် |
+| PREMIUM_DIESEL | Premium Diesel | ပရီမီယံဒီဇယ် |
+
+---
+
+## Adding a new country
+
+1. Seed new fuel type rows in `fuel_types` with the country's codes and display names
+2. Add stations with `country_code` set to the new country
+3. Add translations to `src/i18n/locales/`
+4. No code changes required for core functionality
+
+---
+
+## Deployment (Vercel)
+
+```bash
+npm run build
+# Push dist/ or connect repo to Vercel
+```
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel environment variables.

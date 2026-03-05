@@ -1,0 +1,103 @@
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { MapPin, RefreshCw } from 'lucide-react'
+import { useLocationStore } from '@/stores/locationStore'
+import { useFilterStore } from '@/stores/filterStore'
+import { useNearbyStations } from '@/hooks/useNearbyStations'
+import { StationCard } from '@/components/station/StationCard'
+import { FilterBar } from '@/components/station/FilterBar'
+import { Spinner } from '@/components/ui/Spinner'
+import { Button } from '@/components/ui/Button'
+
+// Default to central Yangon when location is unavailable
+const YANGON_LAT = 16.8661
+const YANGON_LNG = 96.1561
+
+export function HomePage() {
+  const { t } = useTranslation()
+  const { lat, lng, loading: locLoading, error: locError, requestLocation } = useLocationStore()
+  const { filters } = useFilterStore()
+
+  useEffect(() => {
+    requestLocation()
+  }, [requestLocation])
+
+  // Use user location when available, fall back to Yangon so the list is never empty
+  const effectiveLat = lat ?? YANGON_LAT
+  const effectiveLng = lng ?? YANGON_LNG
+  // Use a bigger radius when using the fallback location
+  const effectiveRadius = lat !== null ? filters.maxDistanceKm : 25
+
+  const { stations, loading, error, refresh } = useNearbyStations({
+    lat: effectiveLat,
+    lng: effectiveLng,
+    maxDistanceKm: effectiveRadius,
+    fuelTypes: filters.fuelTypes,
+    statusFilter: filters.statusFilter,
+  })
+
+  const showLocationBanner = !!locError && !locLoading
+
+  return (
+    <div className="flex h-full flex-col">
+      <FilterBar />
+
+      {/* Location denied banner — slim, non-blocking */}
+      {showLocationBanner && (
+        <div className="shrink-0 flex items-center gap-2 bg-orange-50 px-4 py-2.5 text-xs text-orange-700">
+          <MapPin className="h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1">{t('home.locationDenied')}</span>
+          <button
+            onClick={() => requestLocation()}
+            className="flex items-center gap-1 font-semibold underline underline-offset-2"
+          >
+            {t('home.filters.allStatuses')}
+          </button>
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto scroll-touch">
+        {/* Initial location loading */}
+        {locLoading && stations.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-400">
+            <Spinner />
+            <span className="text-sm">{t('home.loading')}</span>
+          </div>
+        )}
+
+        {/* Data loading (after location resolved) */}
+        {!locLoading && loading && stations.length === 0 && (
+          <div className="flex justify-center py-12">
+            <Spinner />
+          </div>
+        )}
+
+        {/* Data error */}
+        {!loading && error && (
+          <div className="mx-4 mt-6 rounded-2xl bg-red-50 p-5 text-center">
+            <p className="text-sm text-red-700">{t('errors.network')}</p>
+            <Button size="sm" variant="secondary" className="mt-3" onClick={refresh}>
+              <RefreshCw className="h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        )}
+
+        {/* Station list */}
+        {!error && (
+          <div className="space-y-3 p-4">
+            {!loading && stations.length === 0 && !locLoading && (
+              <div className="py-12 text-center">
+                <p className="text-gray-500">{t('home.noStations')}</p>
+                <p className="mt-1 text-xs text-gray-400">{t('home.noStationsHint')}</p>
+              </div>
+            )}
+            {stations.map((station) => (
+              <StationCard key={station.id} station={station} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
