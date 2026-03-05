@@ -5,7 +5,7 @@ interface LocationState {
   lng: number | null
   error: string | null
   loading: boolean
-  requestLocation: () => void
+  requestLocation: (options?: { highAccuracy?: boolean }) => void
 }
 
 export const useLocationStore = create<LocationState>((set) => ({
@@ -14,7 +14,7 @@ export const useLocationStore = create<LocationState>((set) => ({
   error: null,
   loading: false,
 
-  requestLocation: () => {
+  requestLocation: (options?: { highAccuracy?: boolean }) => {
     if (!navigator.geolocation) {
       set({ error: 'Geolocation not supported', loading: false })
       return
@@ -32,7 +32,11 @@ export const useLocationStore = create<LocationState>((set) => ({
       (err) => {
         set({ error: err.message, loading: false })
       },
-      { enableHighAccuracy: false, timeout: 10000 },
+      {
+        enableHighAccuracy: options?.highAccuracy ?? false,
+        timeout: 15000,
+        maximumAge: options?.highAccuracy ? 0 : 60000,
+      },
     )
   },
 }))
