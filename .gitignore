@@ -28,3 +28,4 @@ Untitled
 *.njsproj
 *.sln
 *.sw?
+.vercel
