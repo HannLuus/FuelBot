@@ -48,10 +48,10 @@ export function HomePage() {
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">{t('home.locationDenied')}</span>
           <button
-            onClick={() => requestLocation()}
+            onClick={() => requestLocation({ highAccuracy: true })}
             className="flex items-center gap-1 font-semibold underline underline-offset-2"
           >
-            {t('home.filters.allStatuses')}
+            {t('home.tryAgain')}
           </button>
         </div>
       )}

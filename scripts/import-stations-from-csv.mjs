@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Import fuel stations from data/stations-yangon-mandalay.csv into Supabase.
+ * Import fuel stations from data/stations-myanmar.csv (or stations-yangon-mandalay.csv) into Supabase.
  *
  * Requires in .env: VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  * Run: npm run import-stations
@@ -27,7 +27,10 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   process.exit(1)
 }
 
-const CSV_PATH = resolve(root, 'data', 'stations-yangon-mandalay.csv')
+const DATA_DIR = resolve(root, 'data')
+const CSV_PATH = existsSync(resolve(DATA_DIR, 'stations-myanmar.csv'))
+  ? resolve(DATA_DIR, 'stations-myanmar.csv')
+  : resolve(DATA_DIR, 'stations-yangon-mandalay.csv')
 const BATCH_SIZE = 50
 
 /** Parse a single CSV line respecting quoted fields (handles commas inside "...") */
@@ -121,6 +124,10 @@ function parseCSV(content) {
   return rows
 }
 
+function rowKey(r) {
+  return `${r.name}|${Number(r.lat).toFixed(5)}|${Number(r.lng).toFixed(5)}|${r.city}`
+}
+
 async function main() {
   if (!existsSync(CSV_PATH)) {
     console.error(`File not found: ${CSV_PATH}`)
@@ -136,11 +143,25 @@ async function main() {
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+  const { data: existingRows } = await supabase.from('stations').select('name, lat, lng, city')
+  const existingKeys = new Set(
+    (existingRows || []).map((r) => `${r.name}|${Number(r.lat).toFixed(5)}|${Number(r.lng).toFixed(5)}|${r.city}`),
+  )
+  const toInsert = rows.filter((r) => !existingKeys.has(rowKey(r)))
+  const skipCount = rows.length - toInsert.length
+  if (skipCount > 0) console.log(`Already in DB: ${skipCount}. Will insert only ${toInsert.length} new.\n`)
+
+  if (toInsert.length === 0) {
+    console.log('Nothing new to insert.')
+    return
+  }
+
   let inserted = 0
   let failed = 0
 
-  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-    const batch = rows.slice(i, i + BATCH_SIZE)
+  for (let i = 0; i < toInsert.length; i += BATCH_SIZE) {
+    const batch = toInsert.slice(i, i + BATCH_SIZE)
     const { data, error } = await supabase.from('stations').insert(batch).select('id')
     if (error) {
       for (const row of batch) {
@@ -155,10 +176,10 @@ async function main() {
     } else {
       inserted += (data && data.length) || batch.length
     }
-    process.stdout.write(`  ${Math.min(i + BATCH_SIZE, rows.length)} / ${rows.length}\r`)
+    process.stdout.write(`  ${Math.min(i + BATCH_SIZE, toInsert.length)} / ${toInsert.length}\r`)
   }
 
-  console.log(`\nDone. Inserted: ${inserted}, skipped/failed: ${failed}, total rows: ${rows.length}`)
+  console.log(`\nDone. Inserted: ${inserted}, failed: ${failed}, skipped (already in DB): ${skipCount}`)
 }
 
 main().catch((err) => {

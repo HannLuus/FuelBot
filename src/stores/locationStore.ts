@@ -20,6 +20,7 @@ export const useLocationStore = create<LocationState>((set) => ({
       return
     }
     set({ loading: true, error: null })
+    const highAccuracy = options?.highAccuracy ?? false
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         set({
@@ -30,12 +31,20 @@ export const useLocationStore = create<LocationState>((set) => ({
         })
       },
       (err) => {
-        set({ error: err.message, loading: false })
+        const message =
+          err.code === 1
+            ? 'PERMISSION_DENIED'
+            : err.code === 2
+              ? 'POSITION_UNAVAILABLE'
+              : err.code === 3
+                ? 'TIMEOUT'
+                : err.message
+        set({ error: message, loading: false })
       },
       {
-        enableHighAccuracy: options?.highAccuracy ?? false,
-        timeout: 15000,
-        maximumAge: options?.highAccuracy ? 0 : 60000,
+        enableHighAccuracy: highAccuracy,
+        timeout: 20000,
+        maximumAge: highAccuracy ? 0 : 60000,
       },
     )
   },

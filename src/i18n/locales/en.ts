@@ -47,7 +47,8 @@ export default {
     noStations: 'No stations found nearby.',
     noStationsHint: 'Try expanding the distance filter or removing fuel type filters.',
     loading: 'Finding nearby stations…',
-    locationDenied: 'Location access denied. Enable location to see nearby stations.',
+    locationDenied: 'Location is off or denied. Turn on Location in your device Settings for this app (or browser), then tap again.',
+    tryAgain: 'Try again',
     filters: {
       allFuels: 'All fuels',
       allStatuses: 'All statuses',

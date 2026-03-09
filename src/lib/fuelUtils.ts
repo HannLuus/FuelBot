@@ -20,7 +20,7 @@ export const STATUS_DOT_COLORS: Record<FuelStatus, string> = {
   AVAILABLE: 'bg-green-500',
   LIMITED: 'bg-yellow-400',
   OUT: 'bg-red-500',
-  UNKNOWN: 'bg-gray-300',
+  UNKNOWN: 'bg-indigo-500',
 }
 
 export const STATUS_RING_COLORS: Record<FuelStatus, string> = {
@@ -54,10 +54,32 @@ export const REPORTER_ROLE_LABEL: Record<ReporterRole, { en: string; my: string 
 
 /**
  * Returns the "worst" (most alarming) fuel status from a set of statuses.
- * Used for colouring a station pin on the map.
+ * Used for colouring a station pin on the map when no fuel filter is applied.
  */
 export function worstStatus(statuses: Partial<Record<FuelCode, FuelStatus>>): FuelStatus {
   const values = Object.values(statuses) as FuelStatus[]
+  if (values.includes('OUT')) return 'OUT'
+  if (values.includes('LIMITED')) return 'LIMITED'
+  if (values.includes('AVAILABLE')) return 'AVAILABLE'
+  return 'UNKNOWN'
+}
+
+/**
+ * Returns the worst status among only the selected fuel types.
+ * Used for map dot colour when the user has filtered by fuel (e.g. 95 or Diesel):
+ * dot shows green/yellow/red for that fuel’s status at each station.
+ * If no fuels selected, falls back to worst across all fuels.
+ */
+export function worstStatusForFuels(
+  statuses: Partial<Record<FuelCode, FuelStatus>> | null | undefined,
+  selectedFuelCodes: FuelCode[],
+): FuelStatus {
+  if (!statuses || Object.keys(statuses).length === 0) return 'UNKNOWN'
+  if (selectedFuelCodes.length === 0) return worstStatus(statuses)
+  const values = selectedFuelCodes
+    .map((code) => statuses[code])
+    .filter((s): s is FuelStatus => s != null)
+  if (values.length === 0) return 'UNKNOWN'
   if (values.includes('OUT')) return 'OUT'
   if (values.includes('LIMITED')) return 'LIMITED'
   if (values.includes('AVAILABLE')) return 'AVAILABLE'

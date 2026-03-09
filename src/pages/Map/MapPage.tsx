@@ -7,7 +7,8 @@ import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useMapStyleStore, type MapStyle } from '@/stores/mapStyleStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
-import { STATUS_DOT_COLORS, worstStatus } from '@/lib/fuelUtils'
+import { STATUS_DOT_COLORS, worstStatusForFuels } from '@/lib/fuelUtils'
+import { getBrandInitial, getBrandLogoUrl } from '@/lib/brandLogos'
 import type { StationWithStatus } from '@/types'
 
 const CARTO_ATTRIBUTION =
@@ -33,20 +34,46 @@ const STATUS_HEX: Record<string, string> = {
   AVAILABLE: '#22c55e',
   LIMITED: '#facc15',
   OUT: '#ef4444',
-  UNKNOWN: '#9ca3af',
+  UNKNOWN: '#6366f1', // indigo – more visible than gray when status unknown
 }
+
+const MARKER_SIZE = 22
 
 function makeMarkerIcon(color: string): L.DivIcon {
   return L.divIcon({
     className: '',
     html: `<div style="
-      width:18px; height:18px; border-radius:50%;
+      width:${MARKER_SIZE}px; height:${MARKER_SIZE}px; border-radius:50%;
       background:${color}; border:2.5px solid white;
-      box-shadow:0 1px 4px rgba(0,0,0,0.35);
+      box-shadow:0 2px 6px rgba(0,0,0,0.4);
     "></div>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
+    iconSize: [MARKER_SIZE, MARKER_SIZE],
+    iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
   })
+}
+
+function escapeHtml(s: string): string {
+  const div = document.createElement('div')
+  div.textContent = s
+  return div.innerHTML
+}
+
+function buildStationTooltip(station: StationWithStatus): string {
+  const name = escapeHtml(station.name)
+  const brand = station.brand?.trim()
+  const logoUrl = brand ? getBrandLogoUrl(brand) : null
+  const initial = getBrandInitial(brand)
+  const brandLabel = brand ? escapeHtml(brand) : ''
+  const brandBlock =
+    logoUrl != null
+      ? `<img src="${escapeHtml(logoUrl)}" alt="" style="max-height:24px;max-width:24px;object-fit:contain;" onerror="this.onerror=null;this.replaceWith(this.nextElementSibling)"/><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e5e7eb;color:#374151;font-size:12px;font-weight:600;">${escapeHtml(initial)}</span>`
+      : brandLabel
+        ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e5e7eb;color:#374151;font-size:12px;font-weight:600;">${escapeHtml(initial)}</span> <span style="margin-left:4px;">${brandLabel}</span>`
+        : ''
+  return `<div style="padding:2px 0;min-width:80px;text-align:left;">
+    <div style="font-weight:600;font-size:13px;">${name}</div>
+    ${brandBlock ? `<div style="display:flex;align-items:center;margin-top:4px;font-size:12px;color:#6b7280;">${brandBlock}</div>` : ''}
+  </div>`
 }
 
 export function MapPage() {
@@ -56,7 +83,7 @@ export function MapPage() {
   const tileLayerRef = useRef<L.TileLayer | null>(null)
   const userLocationLayerRef = useRef<L.CircleMarker | null>(null)
   const navigate = useNavigate()
-  const { lat, lng, requestLocation, loading: locationLoading } = useLocationStore()
+  const { lat, lng, requestLocation, loading: locationLoading, error: locationError } = useLocationStore()
   const { filters } = useFilterStore()
   const { mapStyle, setMapStyle } = useMapStyleStore()
   const { t, i18n } = useTranslation()
@@ -89,7 +116,7 @@ export function MapPage() {
     if (lat != null && lng != null) {
       const circle = L.circleMarker([lat, lng], {
         radius: 8,
-        fillColor: '#3b82f6',
+        fillColor: '#f97316',
         color: '#fff',
         weight: 2,
         fillOpacity: 1,
@@ -126,7 +153,7 @@ export function MapPage() {
     userLocationLayerRef.current?.remove()
     userLocationLayerRef.current = L.circleMarker([lat, lng], {
       radius: 8,
-      fillColor: '#3b82f6',
+      fillColor: '#f97316',
       color: '#fff',
       weight: 2,
       fillOpacity: 1,
@@ -151,18 +178,24 @@ export function MapPage() {
 
     stations.forEach((station: StationWithStatus) => {
       const fs = station.current_status?.fuel_statuses_computed ?? {}
-      const worst = worstStatus(fs)
+      const worst = worstStatusForFuels(fs, filters.fuelTypes)
       const color = STATUS_HEX[worst] ?? STATUS_HEX.UNKNOWN
       const icon = makeMarkerIcon(color)
 
       const marker = L.marker([station.lat, station.lng], { icon })
         .addTo(mapRef.current!)
         .bindPopup(station.name)
+        .bindTooltip(buildStationTooltip(station), {
+          direction: 'top',
+          permanent: false,
+          sticky: true,
+          className: 'station-tooltip',
+        })
 
       marker.on('click', () => navigate(`/station/${station.id}`))
       markersRef.current.push(marker)
     })
-  }, [stations, navigate])
+  }, [stations, navigate, filters.fuelTypes])
 
   function handleMyLocation() {
     requestLocation({ highAccuracy: true })
@@ -223,6 +256,20 @@ export function MapPage() {
           <Crosshair className="h-5 w-5" />
         )}
       </button>
+
+      {/* Location denied / error — when user taps "my location" but permission is off (e.g. on Android) */}
+      {locationError && !locationLoading && (
+        <div className="absolute top-24 right-3 left-3 z-[1000] rounded-xl bg-orange-50 px-3 py-2.5 text-xs text-orange-800 shadow-lg dark:bg-orange-950/90 dark:text-orange-200">
+          <p className="font-medium">{t('home.locationDenied')}</p>
+          <button
+            type="button"
+            onClick={() => requestLocation({ highAccuracy: true })}
+            className="mt-1 font-semibold underline underline-offset-2"
+          >
+            {t('home.tryAgain')}
+          </button>
+        </div>
+      )}
 
       {/* Legend — follows app language (en / my) */}
       <div className="absolute bottom-10 left-3 z-[1000] rounded-xl bg-white/90 px-3 py-2 text-xs text-gray-800 shadow-lg backdrop-blur-sm dark:bg-gray-900/90 dark:text-gray-200">

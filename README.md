@@ -89,19 +89,26 @@ Reports are weighted by role (VERIFIED_STATION → TRUSTED → CROWD → ANON) a
 | CROWD | 1 hour |
 | ANON | 30 minutes |
 
-### Sourcing station data (Yangon / Mandalay)
+### Sourcing station data (Myanmar cities)
 
-To generate a CSV of fuel stations for Yangon and Mandalay using the Gemini API:
+To generate a CSV of fuel stations across multiple cities using the Gemini API:
 
 1. Add your Gemini API key to `.env`: `GEMINI_API_KEY=your_key` (get one at [Google AI Studio](https://aistudio.google.com/app/apikey)).
 2. Run: `npm run source-stations`
-3. Output is written to `data/stations-yangon-mandalay.csv` (columns: name, brand, lat, lng, address_text, township, city, country_code).
+3. Output is written to `data/stations-myanmar.csv` (Yangon, Mandalay, Naypyidaw, Mawlamyine, Bago, Taunggyi). Columns: name, brand, lat, lng, address_text, township, city, country_code.
 
 To import the CSV into your Supabase `stations` table (requires `VITE_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env`):
 
 ```bash
 npm run import-stations
 ```
+
+**Highway routes:** To add stations along major highways (e.g. Yangon–Mandalay), add a "highway" pass in `scripts/source-stations-gemini.mjs`: for each route, prompt Gemini with e.g. "List all fuel stations along the [Route Name] highway between [City A] and [City B], Myanmar, with name, brand, approximate lat/lng, nearest town/township" and merge those rows into the CSV before import. You can also add more cities to the `CITIES` array in the same script.
+
+- **More cities:** Add more city + township arrays (e.g. Naypyidaw, Mawlamyine, Taunggyi, Bago, Pathein) and run the same township-by-township + supplement flow. Add each city’s townships and a target count, then extend the script to loop over them and append to the same CSV (or separate CSVs per region).
+- **Highway routes:** Add a “highway” pass: for each major route (e.g. Yangon–Mandalay, Yangon–Naypyidaw, Yangon–Mawlamyine), prompt Gemini with: “List all fuel stations along the [Route Name] highway between [City A] and [City B], Myanmar, with name, brand, approximate lat/lng, nearest town/township.” Merge those rows into your CSV and re-run import. Highway stations are especially useful for long-distance drivers.
+
+You can run the script in stages (e.g. one region per run) and concatenate or re-import CSVs so coverage grows without re-fetching existing cities.
 
 ---
 
