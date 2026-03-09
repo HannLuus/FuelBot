@@ -17,10 +17,12 @@ CREATE INDEX IF NOT EXISTS b2b_subscriptions_user_id_valid_until
 
 ALTER TABLE public.b2b_subscriptions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS b2b_subscriptions_select_own ON public.b2b_subscriptions;
 CREATE POLICY b2b_subscriptions_select_own ON public.b2b_subscriptions
   FOR SELECT USING (auth.uid() = user_id);
 
 -- Only admins can insert/update/delete (via service role or admin Edge Functions).
+DROP POLICY IF EXISTS b2b_subscriptions_admin_all ON public.b2b_subscriptions;
 CREATE POLICY b2b_subscriptions_admin_all ON public.b2b_subscriptions
   FOR ALL USING (
     EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid())
@@ -38,9 +40,17 @@ CREATE TABLE IF NOT EXISTS public.routes (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE public.b2b_subscriptions
-  ADD CONSTRAINT b2b_subscriptions_route_id_fkey
-  FOREIGN KEY (route_id) REFERENCES public.routes(id) ON DELETE SET NULL;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'b2b_subscriptions_route_id_fkey' AND conrelid = 'public.b2b_subscriptions'::regclass
+  ) THEN
+    ALTER TABLE public.b2b_subscriptions
+      ADD CONSTRAINT b2b_subscriptions_route_id_fkey
+      FOREIGN KEY (route_id) REFERENCES public.routes(id) ON DELETE SET NULL;
+  END IF;
+END $$;
 
 -- Return current user's active B2B entitlements (plan_type, route_id).
 CREATE OR REPLACE FUNCTION public.get_my_b2b_entitlements()

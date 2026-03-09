@@ -217,9 +217,11 @@ export function OperatorPage() {
   }
 
   async function loadMyReferralCode() {
-    if (!user || !session) return
+    if (!user || !session?.access_token) return
     try {
-      const { data, error } = await supabase.functions.invoke('get-referral-code')
+      const { data, error } = await supabase.functions.invoke('get-referral-code', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       if (!error && data?.code) setMyReferralCode(data.code)
     } catch {
       referralCodeFetchedRef.current = false
