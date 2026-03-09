@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "source-stations": "node scripts/source-stations-gemini.mjs",
+    "import-stations": "node scripts/import-stations-from-csv.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
@@ -24,7 +26,9 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@google/genai": "^1.0.0",
     "@eslint/js": "^9.39.1",
+    "dotenv": "^16.4.5",
     "@tailwindcss/vite": "^4.2.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",

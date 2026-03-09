@@ -1,0 +1,261 @@
+name,brand,lat,lng,address_text,township,city,country_code
+Ahlone Filling Station,MPE,16.7777,96.1383,Strand Road,Ahlon,Yangon,MM
+Shwe Taung Ahlone Station,Shwe Taung,16.7812,96.1401,Lower Kyee Myin Daing Road,Ahlon,Yangon,MM
+Total Ahlone,Total,16.7755,96.1357,Strand Road,Ahlon,Yangon,MM
+Ahlone Fuel Stop,Unknown,16.779,96.1395,Near Strand Road and Lower Kyee Myin Daing Road intersection,Ahlon,Yangon,MM
+MPE Bahan Station,MPE,16.807,96.168,University Avenue Road,Bahan,Yangon,MM
+Shwe Taung (Bahan),Shwe Taung,16.802,96.157,Inya Road,Bahan,Yangon,MM
+Total Bahan Station,Total,16.805,96.172,Than Lwin Road,Bahan,Yangon,MM
+PTT Bahan Station,PTT,16.812,96.165,Bahan 3rd Street,Bahan,Yangon,MM
+CNPC Bahan Station,CNPC,16.798,96.161,Inya Road,Bahan,Yangon,MM
+Myaynigone Fuel Station,,16.804,96.149,Pyay Road,Bahan,Yangon,MM
+MPE Filling Station (Botahtaung),MPE,16.771,96.167,"Strand Road, near Botahtaung Pagoda",Botahtaung,Yangon,MM
+Shwe Taung Fuel Station (Botahtaung),Shwe Taung,16.768,96.165,Near Botahtaung Jetty,Botahtaung,Yangon,MM
+PTT Station (Botahtaung),PTT,16.775,96.172,Corner of Bo Aung Kyaw Street and Strand Road,Botahtaung,Yangon,MM
+Total Filling Station (Botahtaung),Total,16.77,96.158,Near Merchant Street,Botahtaung,Yangon,MM
+MPE Filling Station (Shwe Gon Taing),MPE,16.808,96.154,Shwe Gon Taing Road,Dagon,Yangon,MM
+Shwe Taung Fuel Station (Myaynigone),Shwe Taung,16.809,96.146,"Pyay Road, Myaynigone",Dagon,Yangon,MM
+PTT Filling Station (Near U Wizara),PTT,16.794,96.146,U Wizara Road,Dagon,Yangon,MM
+CNPC Filling Station ( возле Shwedagon Pagoda Road),CNPC,16.796,96.148,Shwedagon Pagoda Road,Dagon,Yangon,MM
+PTT Filling Station ( возле U Wisara),PTT,16.794,96.15,U Wisara Road,Dagon,Yangon,MM
+MPE Filling Station ( возле Shwedagon),MPE,16.798,96.151,Shwedagon Pagoda Road,Dagon,Yangon,MM
+MPE Dagon Seikkan,MPE,16.821,96.232,Yadanar Road,Dagon Seikkan,Yangon,MM
+PTT Dagon Seikkan,PTT,16.815,96.218,Near Yadanar Market,Dagon Seikkan,Yangon,MM
+Shwe Taung Dagon Seikkan,Shwe Taung,16.835,96.245,Main Road,Dagon Seikkan,Yangon,MM
+CNPC Dagon Seikkan,CNPC,16.828,96.225,Industrial Zone Road,Dagon Seikkan,Yangon,MM
+Total Dagon Seikkan,Total,16.841,96.238,Near Bridge,Dagon Seikkan,Yangon,MM
+Ahlone Filling Station,,16.81,96.22,Corner of Main Road and Side Street,Dagon Seikkan,Yangon,MM
+Mya Yadana Fuel Station,,16.83,96.24,Beside Mya Yadana Pagoda,Dagon Seikkan,Yangon,MM
+Myoma Fuel Station,,16.805,96.21,Myoma Road,Dagon Seikkan,Yangon,MM
+Yadanarbon Fuel Station,,16.832,96.222,Yadanarbon Road,Dagon Seikkan,Yangon,MM
+MPE Dala,MPE,16.776,96.186,"Dala Township, Yangon",Dala,Yangon,MM
+Shwe Byine Phyu Fuel Station,Unknown,16.769,96.182,"Dala Township, Yangon",Dala,Yangon,MM
+PTT Dala,PTT,16.773,96.184,"Dala Township, Yangon",Dala,Yangon,MM
+MPE Filling Station (Dawbon),MPE,16.798,96.188,Bago River Road,Dawbon,Yangon,MM
+Shwe Taung Filling Station (Dawbon),Shwe Taung,16.792,96.195,Corner of Lay Daungkan Road and Bago River Road,Dawbon,Yangon,MM
+PTT Filling Station (Dawbon),PTT,16.795,96.192,Lay Daungkan Road,Dawbon,Yangon,MM
+Filling Station near YCDC Office,,16.79,96.17,"Near YCDC Office, Bago River Road",Dawbon,Yangon,MM
+CNPC Filling Station (Dawbon),CNPC,16.785,96.175,Bago River Road,Dawbon,Yangon,MM
+MPE Filling Station near Dawbon Bridge,MPE,16.78,96.18,Near Dawbon Bridge,Dawbon,Yangon,MM
+MPE Filling Station (Hlaing),MPE,16.857,96.126,Near Thamine Junction,Hlaing,Yangon,MM
+PTT Filling Station (Hlaing),PTT,16.852,96.12,"Pyay Road, near Thamine Junction",Hlaing,Yangon,MM
+Shwe Taung Filling Station (Hlaing),Shwe Taung,16.865,96.124,Insein Road,Hlaing,Yangon,MM
+MPE Filling Station (Kamayut - near Hlaing),MPE,16.844,96.136,Hanthawaddy Road (close proximity to Hlaing Tsp),Hlaing,Yangon,MM
+CNPC Filling Station (Hlaing),CNPC,16.861,96.114,Parami Road,Hlaing,Yangon,MM
+Total Filling Station (Hlaing),Total,16.859,96.13,Near Hlaing Railway Station,Hlaing,Yangon,MM
+MPE Fuel Station (Hlaingthaya),MPE,16.875,96.035,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+Shwe Taung Fuel Station (Hlaingthaya),Shwe Taung,16.862,96.051,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+PTT Station (Hlaingthaya),PTT,16.848,96.065,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+CNPC Fuel Station (Hlaingthaya),CNPC,16.835,96.078,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+MPE Fuel Station 2 (Hlaingthaya),MPE,16.89,96.02,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+Shwe Byain Phyu Fuel Station,,16.87,96.045,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+Fuel Station near Hlaingthaya Industrial Zone,,16.81,96.085,Hlaingthaya Industrial Zone Road,Hlaingthaya,Yangon,MM
+PTT (Hlaingthaya 2),PTT,16.855,96.058,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+CNPC (Hlaingthaya 2),CNPC,16.828,96.085,Yangon-Pathein Road,Hlaingthaya,Yangon,MM
+MPE Filling Station,MPE,16.925,96.103,Hlaing River Road,Insein,Yangon,MM
+Shwe Taung Filling Station,Shwe Taung,16.915,96.112,Near Insein YBS Bus Stop,Insein,Yangon,MM
+PTT Filling Station,PTT,16.905,96.12,Pyay Road,Insein,Yangon,MM
+CNPC Filling Station,CNPC,16.895,96.115,Insein Road,Insein,Yangon,MM
+TOTAL Filling Station,TOTAL,16.93,96.108,Ywar Ma Kone Road,Insein,Yangon,MM
+MPE Filling Station (2),MPE,16.888,96.125,Beside Insein Railway Station,Insein,Yangon,MM
+Shwe Byine Filling Station,,16.876,96.109,Near Thamaing Junction,Insein,Yangon,MM
+Yoma Filling Station,,16.935,96.115,Near Insein Market,Insein,Yangon,MM
+MPE Filling Station (Insein Road),MPE,16.845,96.139,Insein Road,Kamayut,Yangon,MM
+Shwe Taung Filling Station (Near Hledan),Shwe Taung,16.835,96.143,"Pyay Road, Near Hledan Junction",Kamayut,Yangon,MM
+PTT Filling Station (Pyay Road),PTT,16.851,96.137,Pyay Road,Kamayut,Yangon,MM
+MPE Filling Station (Dhammazedi Road),MPE,16.828,96.146,Dhammazedi Road,Kamayut,Yangon,MM
+CNPC Filling Station (Near Hanthawaddy),CNPC,16.822,96.15,"Hanthawaddy Roundabout, Pyay Road",Kamayut,Yangon,MM
+Shwe Byain Phyu Filling Station (Pyay Road),Shwe Byain Phyu,16.849,96.138,Pyay Road,Kamayut,Yangon,MM
+Bandoola Filling Station (Pyay Road),Bandoola,16.843,96.14,Pyay Road,Kamayut,Yangon,MM
+MPE Filling Station (Sule Pagoda Road),MPE,16.774,96.16,Corner of Sule Pagoda Road and Anawrahta Road,Kyauktada,Yangon,MM
+PTT Station Kyauktada,PTT,16.776,96.159,Sule Pagoda Road,Kyauktada,Yangon,MM
+Shwe Taung Fuel Station,Shwe Taung,16.772,96.155,Anawrahta Road,Kyauktada,Yangon,MM
+MPE Kyimyindaing,MPE,16.818,96.129,Corner of Pyay Road and Kyimyindaing Kanar Road,Kyeemyindaing,Yangon,MM
+Shwe Taung Kyimyindaing,Shwe Taung,16.819,96.134,"Near Railway Hospital, Pyay Road",Kyeemyindaing,Yangon,MM
+CNPC Kyimyindaing,CNPC,16.823,96.131,Insein Road,Kyeemyindaing,Yangon,MM
+PTT Kyimyindaing,PTT,16.82,96.124,Pyay Road,Kyeemyindaing,Yangon,MM
+MPE Ahlone Road,MPE,16.804,96.133,"Ahlone Road, near the Strand Road intersection",Kyeemyindaing,Yangon,MM
+MPE Filling Station (Strand Road),MPE,16.777,96.148,Strand Road,Lanmadaw,Yangon,MM
+Shwe Taung Filling Station (Latha Road),Shwe Taung,16.775,96.143,Latha Road,Lanmadaw,Yangon,MM
+PTT Filling Station (Lanmadaw),PTT,16.782,96.14,Near Bo Aung Kyaw Street,Lanmadaw,Yangon,MM
+MPE Filling Station (Latha),MPE,16.775,96.154,Strand Road,Latha,Yangon,MM
+Shwe Taung Filling Station (Latha),Shwe Taung,16.774,96.152,Corner of Strand Road and Bo Aung Kyaw Street,Latha,Yangon,MM
+MPE Filling Station near Latha Township Office,MPE,16.778,96.148,Near Latha Township Office,Latha,Yangon,MM
+Filling Station on Lanmadaw Street,,16.779,96.143,Lanmadaw Street,Latha,Yangon,MM
+Filling Station near Merchant Street,,16.776,96.146,Near Merchant Street,Latha,Yangon,MM
+MPE Filling Station (Mayangon),MPE,16.872,96.136,"Near Mayangon Flyover, Pyay Road",Mayangon,Yangon,MM
+Shwe Taung Filling Station (Mayangon),Shwe Taung,16.885,96.135,"Pyay Road, Near 8 Mile Junction",Mayangon,Yangon,MM
+PTT Filling Station (Mayangon),PTT,16.892,96.128,Corner of Kabar Aye Pagoda Road and Pyay Road,Mayangon,Yangon,MM
+CNPC Filling Station (Mayangon),CNPC,16.912,96.133,Kabar Aye Pagoda Road,Mayangon,Yangon,MM
+Total Filling Station (Mayangon),Total,16.887,96.145,"Kabar Aye Pagoda Road, Near Mindama Junction",Mayangon,Yangon,MM
+MPE Filling Station (Mindama),MPE,16.889,96.148,Mindama Road,Mayangon,Yangon,MM
+Shwe Taung Filling Station (Kabaraye),Shwe Taung,16.898,96.141,Kabar Aye Pagoda Road,Mayangon,Yangon,MM
+Denko Filling Station (Mayangon),Denko,16.878,96.129,"Near Mayangon Market, Pyay Road",Mayangon,Yangon,MM
+Total Filling Station (8 mile),Total,16.881,96.126,"8 Mile, Pyay Road",Mayangon,Yangon,MM
+CNPC Filling Station (Insein Rd),CNPC,16.905,96.148,Insein Road,Mayangon,Yangon,MM
+MPE Filling Station,MPE,16.94,96.15,"Pyay Road, Mingaladon",Mingaladon,Yangon,MM
+Shwe Taung Filling Station,Shwe Taung,16.95,96.14,Near Mingaladon Airport,Mingaladon,Yangon,MM
+PTT Filling Station,PTT,16.96,96.13,"Insein Road, Mingaladon",Mingaladon,Yangon,MM
+Total Filling Station,Total,16.93,96.16,Mingaladon Industrial Park,Mingaladon,Yangon,MM
+CNPC Filling Station,CNPC,16.97,96.12,Yangon-Pyay Highway,Mingaladon,Yangon,MM
+MPE Filling Station (2),MPE,16.92,96.17,Near Mingaladon Market,Mingaladon,Yangon,MM
+Shwe Byain Phyu Filling Station,,16.98,96.11,Yangon-Pyay Old Road,Mingaladon,Yangon,MM
+Ahlone Filling Station,,16.9,96.18,"Main Road, Mingaladon",Mingaladon,Yangon,MM
+Unknown Filling Station,,16.955,96.145,"Near Railway Station, Mingaladon",Mingaladon,Yangon,MM
+MPE Fuel Station,MPE,16.794,96.168,Upper Pansodan Road,Mingala Taungnyunt,Yangon,MM
+Shwe Taung Fuel Station,Shwe Taung,16.793,96.164,Shwe Taung Kyar Street,Mingala Taungnyunt,Yangon,MM
+Denko Fuel Station,Denko,16.798,96.172,Near Tamwe Junction,Mingala Taungnyunt,Yangon,MM
+PTT Fuel Station,PTT,16.796,96.158,Bo Aung Kyaw Street,Mingala Taungnyunt,Yangon,MM
+MPE Station,MPE,16.792,96.175,Kandawgalay Lake area,Mingala Taungnyunt,Yangon,MM
+CNPC Fuel Station,CNPC,16.802,96.165,Near Kandawgyi Lake,Mingala Taungnyunt,Yangon,MM
+Total Fuel Station,Total,16.789,96.171,Near Thamine train station,Mingala Taungnyunt,Yangon,MM
+MPE North Dagon,MPE,16.881,96.217,Corner of Thudhamma Road and U Wisara Road,North Dagon,Yangon,MM
+PTT North Dagon,PTT,16.895,96.211,Thudhamma Road,North Dagon,Yangon,MM
+Shwe Taung North Dagon,Shwe Taung,16.875,96.225,Near Yadana Market,North Dagon,Yangon,MM
+CNPC North Dagon (1),CNPC,16.89,96.205,Thudhamma Road,North Dagon,Yangon,MM
+CNPC North Dagon (2),CNPC,16.87,96.215,Near Thudhamma Road,North Dagon,Yangon,MM
+MPE North Dagon (2),MPE,16.879,96.209,Corner of U Wisara Road and Yay Kuu Kauk Road,North Dagon,Yangon,MM
+Shwe Byain Phyu North Dagon,,16.885,96.219,Thudhamma Road,North Dagon,Yangon,MM
+MPE North Okkalapa (Near Shwe Padauk),MPE,16.9179,96.1581,"Parami Road, near Shwe Padauk Junction",North Okkalapa,Yangon,MM
+PTT North Okkalapa (Near Thamaing College),PTT,16.9286,96.1547,Thamaing College Road,North Okkalapa,Yangon,MM
+Shwe Taung North Okkalapa (Near Traffic Light),Shwe Taung,16.9362,96.1491,"Yadanar Road, Near Traffic Light",North Okkalapa,Yangon,MM
+CNPC North Okkalapa,CNPC,16.9432,96.1515,Yadanar Road,North Okkalapa,Yangon,MM
+MPE North Okkalapa (Near Parami Sein Gay Har),MPE,16.9301,96.1619,Parami Road,North Okkalapa,Yangon,MM
+Total North Okkalapa (Near University Avenue),Total,16.9115,96.1672,University Avenue Road,North Okkalapa,Yangon,MM
+MPE North Okkalapa (Near Koenaing),MPE,16.951,96.155,Koenaing Road,North Okkalapa,Yangon,MM
+PTT North Okkalapa (Corner),PTT,16.939,96.164,Corner of Parami Road and Nilar Street,North Okkalapa,Yangon,MM
+MPE Filling Station (Pabedan),MPE,16.772,96.151,Corner of Sule Pagoda Road and Anawrahta Road,Pabedan,Yangon,MM
+Shwe Taung Filling Station (Pabedan),Shwe Taung,16.773,96.147,"Bogyoke Aung San Road, near Sule Pagoda",Pabedan,Yangon,MM
+Total Filling Station (Pabedan),Total,16.77,96.149,Sule Pagoda Road,Pabedan,Yangon,MM
+PTT Filling Station (Pabedan),PTT,16.775,96.153,Strand Road,Pabedan,Yangon,MM
+CNPC Filling Station (Pabedan),CNPC,16.771,96.15,Near Sule Square,Pabedan,Yangon,MM
+MPE Pazundaung,MPE,16.783,96.173,Upper Pazundaung Road,Pazundaung,Yangon,MM
+Denko Pazundaung,Denko,16.787,96.168,Bo Aung Kyaw Street,Pazundaung,Yangon,MM
+Pazundaung Fuel Station (unbranded),,16.79,96.178,Near Strand Road,Pazundaung,Yangon,MM
+Pazundaung Station,Shwe Taung,16.785,96.175,Upper Pazundaung Road,Pazundaung,Yangon,MM
+PTT Pazundaung,PTT,16.789,96.171,Strand Road,Pazundaung,Yangon,MM
+Seikkyi Kanaungto Filling Station (Unknown Operator),,16.692,96.248,Seikkyi Kanaungto Main Road,Seikkyi Kanaungto,Yangon,MM
+Filling Station Near Seikkyi Bridge,,16.685,96.255,"Near Seikkyi Bridge, Main Road",Seikkyi Kanaungto,Yangon,MM
+Station on Road to Twante,,16.675,96.23,Road to Twante,Seikkyi Kanaungto,Yangon,MM
+MPE Shwepyitha Station,MPE,16.946,96.078,"Yangon-Pyay Road, Shwepyitha",Shwepyitha,Yangon,MM
+Shwe Taung Shwepyitha Station,Shwe Taung,16.955,96.085,"Yangon-Pyay Road, near Shwepyitha Industrial Zone",Shwepyitha,Yangon,MM
+PTT Shwepyitha Station,PTT,16.934,96.066,"Yangon-Pyay Road, Shwepyitha",Shwepyitha,Yangon,MM
+Myat Myittar Mon,,16.914,96.052,"Near Shwe Pinle Market, Yangon-Pyay Road, Shwepyitha",Shwepyitha,Yangon,MM
+CNPC Shwepyitha Station,CNPC,16.962,96.092,"Yangon-Pyay Road, Ward 6, Shwepyitha",Shwepyitha,Yangon,MM
+Aung Gabar Fuel Station,,16.908,96.056,"Laydaungkan Road, Shwepyitha",Shwepyitha,Yangon,MM
+Shwe Byain Phyu Filling Station,,16.899,96.045,"Near Hlaingthayar Bridge, Yangon-Pyay Road, Shwepyitha",Shwepyitha,Yangon,MM
+YBS Filling Station,,16.968,96.065,"YBS Bus Stop, Shwepyitha",Shwepyitha,Yangon,MM
+MPE Filling Station (South Dagon),MPE,16.897,96.242,"Near Yadanar Market, South Dagon",South Dagon,Yangon,MM
+Shwe Taung Filling Station (South Dagon),Shwe Taung,16.905,96.255,"Near 42 Ward Office, South Dagon",South Dagon,Yangon,MM
+PTT Filling Station (South Dagon),PTT,16.885,96.235,"Main Road, South Dagon",South Dagon,Yangon,MM
+CNPC Filling Station (South Dagon),CNPC,16.873,96.268,"Corner of Main Road, South Dagon",South Dagon,Yangon,MM
+MPE Station (South Dagon Branch 2),MPE,16.891,96.225,South Dagon Industrial Zone,South Dagon,Yangon,MM
+Local Filling Station (South Dagon),,16.865,96.245,"Near a housing complex, South Dagon",South Dagon,Yangon,MM
+Shwe Byain Phyu Filling Station,Shwe Taung,16.88,96.25,South Dagon Main Road,South Dagon,Yangon,MM
+MPE Filling Station (South Dagon 2),MPE,16.87,96.23,"Near Market, South Dagon",South Dagon,Yangon,MM
+MPE Fuel Station (South Okkalapa),MPE,16.884,96.177,Thudhamma Road,South Okkalapa,Yangon,MM
+PTT Station (South Okkalapa),PTT,16.892,96.17,Near Shukhinthar Bus Stop,South Okkalapa,Yangon,MM
+Shwe Taung Fuel Station (South Okkalapa),Shwe Taung,16.875,96.185,Parami Road,South Okkalapa,Yangon,MM
+CNPC Fuel Station (South Okkalapa),CNPC,16.897,96.163,Corner of Thudhamma Road and Shukhinthar Road,South Okkalapa,Yangon,MM
+Fuel Station (South Okkalapa - near Market),,16.879,96.172,Near South Okkalapa Market,South Okkalapa,Yangon,MM
+MPE Fuel Station 2 (South Okkalapa),MPE,16.88,96.168,"Main Road, South Okkalapa",South Okkalapa,Yangon,MM
+MPE Filling Station (Tamwe),MPE,16.805,96.175,Near Tamwe Junction,Tamwe,Yangon,MM
+Shwe Taung Filling Station (Tamwe),Shwe Taung,16.795,96.185,Near Myitta Nyunt Road,Tamwe,Yangon,MM
+PTT Filling Station (Tamwe),PTT,16.81,96.165,Bo Ba Htoo Street,Tamwe,Yangon,MM
+CNPC Filling Station (Tamwe),CNPC,16.79,96.19,Near Shwe Gone Dine Junction,Tamwe,Yangon,MM
+Total Filling Station (Tamwe),Total,16.8,96.17,Corner of Pyi Thar Yar Road and Kyaikasan Road,Tamwe,Yangon,MM
+"Filling Station (Tamwe, near Stadium)",,16.808,96.168,Near Thuwunna Stadium,Tamwe,Yangon,MM
+MPE Filling Station (Kyaikkasan Pagoda Road),MPE,16.815,96.173,Kyaikkasan Pagoda Road,Tamwe,Yangon,MM
+MPE Thaketa (Thaketa Bridge),MPE,16.788,96.188,"Anawratha Road, near Thaketa Bridge",Thaketa,Yangon,MM
+PTT Thaketa,PTT,16.782,96.195,Anawratha Road,Thaketa,Yangon,MM
+Shwe Taung Thaketa,Shwe Taung,16.792,96.192,Laydaungkan Road,Thaketa,Yangon,MM
+CNPC Thaketa,CNPC,16.79,96.185,Laydaungkan Road,Thaketa,Yangon,MM
+MPE Thaketa (near Sein Gay Har),MPE,16.797,96.202,"Laydaungkan Road, near Sein Gay Har Supermarket",Thaketa,Yangon,MM
+Total Thaketa,Total,16.785,96.205,Laydaungkan Road,Thaketa,Yangon,MM
+Unknown Station (Thaketa),,16.778,96.18,Near Banyardala Road and Anawratha Road intersection,Thaketa,Yangon,MM
+Unknown Station (Thaketa),,16.801,96.207,"Laydaungkan Road, near Pin Lon Hospital",Thaketa,Yangon,MM
+PTT Thingangyun Branch,PTT,16.8366,96.1814,Lay Daungkan Road,Thingangyun,Yangon,MM
+MPE - Thingangyun,MPE,16.8421,96.1752,Near Laydaungkan Bridge,Thingangyun,Yangon,MM
+Shwe Taung Petrol Station,Shwe Taung,16.8295,96.1688,Bayint Naung Road,Thingangyun,Yangon,MM
+CNPC Filling Station,CNPC,16.848,96.188,Lay Daungkan Road,Thingangyun,Yangon,MM
+Total Energies Station,Total,16.855,96.172,Laydaungkan Road,Thingangyun,Yangon,MM
+MPT Petrol Station,,16.832,96.174,Thitsar Road,Thingangyun,Yangon,MM
+OK Petrol Station,,16.839,96.178,Laydaungkan Road,Thingangyun,Yangon,MM
+MPE Yankin Station,MPE,16.825,96.178,Corner of Kabar Aye Pagoda Road and Sayar San Road,Yankin,Yangon,MM
+Shwe Taung Yankin Station,Shwe Taung,16.815,96.168,"Kabar Aye Pagoda Road, near Yankin Center",Yankin,Yangon,MM
+PTT Yankin Station,PTT,16.835,96.163,Parami Road,Yankin,Yangon,MM
+CNPC Yankin Station,CNPC,16.805,96.173,"Near Yankin Flyover, Kabar Aye Pagoda Road",Yankin,Yangon,MM
+Total Yankin Station,Total,16.84,96.185,"Bahan Road, Yankin",Yankin,Yangon,MM
+MPE Parami Station,MPE,16.837,96.158,Parami Road,Yankin,Yangon,MM
+Shwe Byain Phyu Station (Yankin),,16.82,96.175,Kabar Aye Pagoda Road,Yankin,Yangon,MM
+MPE Amarapura,MPE,21.845,96.065,Amarapura-Sagaing Road,Amarapura,Mandalay,MM
+Shwe Taung Amarapura,Shwe Taung,21.85,96.07,Near Amarapura Bridge,Amarapura,Mandalay,MM
+CNPC Amarapura,CNPC,21.835,96.055,Myitnge Road,Amarapura,Mandalay,MM
+PTT Amarapura,PTT,21.84,96.06,Opposite U Bein Bridge Entrance,Amarapura,Mandalay,MM
+Total Amarapura,Total,21.86,96.075,Near Industrial Zone,Amarapura,Mandalay,MM
+YBS Amarapura,,21.83,96.05,Near YBS Depot,Amarapura,Mandalay,MM
+Min Lann Filling Station,,21.87,96.08,Kyaukse-Mandalay Road,Amarapura,Mandalay,MM
+MPE Filling Station (near 62nd & 35th),MPE,21.966,96.088,Corner of 62nd Street and 35th Street,Aungmyethazan,Mandalay,MM
+Shwe Taung Filling Station (35th street),Shwe Taung,21.968,96.08,35th Street (between 73rd and 74th),Aungmyethazan,Mandalay,MM
+MPT Filling Station (corner of 78th and 35th),MPT,21.967,96.07,Corner of 78th street and 35th street,Aungmyethazan,Mandalay,MM
+CNPC Filling Station (78th street),CNPC,21.95,96.066,"78th Street, near Mandalay University",Aungmyethazan,Mandalay,MM
+MPE Filling Station (81st Street),MPE,21.948,96.07,81st Street,Aungmyethazan,Mandalay,MM
+Shwe Taung Filling Station (62nd street),Shwe Taung,21.965,96.098,62nd Street,Aungmyethazan,Mandalay,MM
+Filling Station (73rd street),,21.95,96.075,73rd Street,Aungmyethazan,Mandalay,MM
+PTT Filling Station (Mahamuni),PTT,21.956,96.04,Near Mahamuni Pagoda,Aungmyethazan,Mandalay,MM
+MPE Filling Station (Corner of 73rd and 35th),MPE,21.9634,96.0915,Corner of 73rd Street and 35th Street,Chan Aye Thar Zan,Mandalay,MM
+Shwe Taung Filling Station (78th Street),Shwe Taung,21.9536,96.0821,"78th Street, between 37th and 38th Streets",Chan Aye Thar Zan,Mandalay,MM
+MPE Filling Station (62nd Street),MPE,21.9734,96.0812,"62nd Street, near Mandalay University",Chan Aye Thar Zan,Mandalay,MM
+PTT Filling Station (78th Street),PTT,21.9502,96.0835,"78th Street, between 35th and 36th Streets",Chan Aye Thar Zan,Mandalay,MM
+Shwe Byain Phyu Filling Station (30th Street),,21.9791,96.0953,30th Street,Chan Aye Thar Zan,Mandalay,MM
+Ahlone Filling Station (Corner of 78th and 33rd),,21.9543,96.0872,Corner of 78th Street and 33rd Street,Chan Aye Thar Zan,Mandalay,MM
+MPE Filling Station (84th Street),MPE,21.9405,96.0728,"84th Street, Near the railway station",Chan Aye Thar Zan,Mandalay,MM
+Shwe Taung Filling Station (66th Street),Shwe Taung,21.9688,96.0765,"66th Street, between 33rd and 34th Streets",Chan Aye Thar Zan,Mandalay,MM
+Yadanarbon Filling Station (73rd Street),,21.9623,96.0788,"73rd Street, near the Mandalay Central Hospital",Chan Aye Thar Zan,Mandalay,MM
+MPE Filling Station,MPE,21.973,96.088,Near 78th Street and Ngu War Street,Chanmyathazi,Mandalay,MM
+Shwe Taung Filling Station,Shwe Taung,21.965,96.093,"78th Street, between 35th and 36th Streets",Chanmyathazi,Mandalay,MM
+Total Filling Station,Total,21.955,96.075,"82nd Street, between 26th and 27th Streets",Chanmyathazi,Mandalay,MM
+PTT Filling Station,PTT,21.948,96.082,Corner of 30th Street and 81st Street,Chanmyathazi,Mandalay,MM
+CNPC Filling Station,CNPC,21.981,96.079,Between 73rd and 74th Streets on Nguwar Street,Chanmyathazi,Mandalay,MM
+Unknown Filling Station,,21.958,96.07,Somewhere on 84th Street,Chanmyathazi,Mandalay,MM
+Another MPE Station,MPE,21.961,96.081,Located on 80th street near 33rd street,Chanmyathazi,Mandalay,MM
+Yathar Filling Station,Yathar,21.97,96.098,"76th Street, near 37th Street",Chanmyathazi,Mandalay,MM
+MPE Fuel Station,MPE,21.955,96.085,Corner of 73rd Street and Ngu War Street,Maha Aungmye,Mandalay,MM
+Shwe Taung Fuel Station,Shwe Taung,21.94,96.095,"Between 68th and 69th Streets, near Moe Kaung Pagoda Road",Maha Aungmye,Mandalay,MM
+PTT Fuel Station,PTT,21.962,96.091,Near 78th Street and Pyi Gyi Mon Road,Maha Aungmye,Mandalay,MM
+CNPC Fuel Station,CNPC,21.948,96.078,"On 73rd Street, close to the railway line",Maha Aungmye,Mandalay,MM
+Total Fuel Station,Total,21.935,96.088,"Adjacent to 66th Street, in the vicinity of Mandalay General Hospital",Maha Aungmye,Mandalay,MM
+Fuel Station (Unbranded),,21.951,96.089,Near the junction of 76th Street and Kwin Wine Road,Maha Aungmye,Mandalay,MM
+Fuel Station (Unbranded),,21.939,96.082,Located around 69th Street and between Man Taw Thar Street and Ngu War Street,Maha Aungmye,Mandalay,MM
+MPE Fuel Station,MPE,21.965,96.075,Between 81st and 82nd street and near Chan Mya Thar Zi ward,Maha Aungmye,Mandalay,MM
+Shwe Byain Phyu Petrol Station,Shwe Byain Phyu,22.045,96.138,"Mandalay-Lashio Road, Patheingyi",Patheingyi,Mandalay,MM
+MPE Petrol Station,MPE,21.987,96.102,"Mandalay-Lashio Road, Patheingyi",Patheingyi,Mandalay,MM
+Yadanar Maung Petrol Station,,22.012,96.125,"Near Kyaukse Village, Patheingyi",Patheingyi,Mandalay,MM
+Shwe Padauk Petrol Station,,22.068,96.151,Patheingyi Township,Patheingyi,Mandalay,MM
+Aung Myin Thu Petrol Station,,21.954,96.087,Patheingyi Township,Patheingyi,Mandalay,MM
+Zawana Petrol Station,,22.031,96.114,"Mandalay-Lashio Road, Patheingyi",Patheingyi,Mandalay,MM
+Min Tayar Petrol Station,,21.995,96.094,Patheingyi Township,Patheingyi,Mandalay,MM
+Nyaung Pin Thar Petrol Station,,22.025,96.131,Patheingyi Township,Patheingyi,Mandalay,MM
+Shwe Taung Petrol Station,Shwe Taung,22.001,96.081,"Mandalay-Lashio Road, Patheingyi",Patheingyi,Mandalay,MM
+PTT Petrol Station,PTT,21.972,96.075,"Mandalay-Lashio Road, Patheingyi",Patheingyi,Mandalay,MM
+MPE Filling Station (near Yadanarbon University),MPE,21.925,96.145,Near Yadanarbon University,Pyigyidagun,Mandalay,MM
+Shwe Taung Filling Station (near Technological University),Shwe Taung,21.915,96.16,Near Technological University,Pyigyidagun,Mandalay,MM
+Filling Station (near Mandalay Canal),,21.905,96.135,Near Mandalay Canal,Pyigyidagun,Mandalay,MM
+MPE Filling Station (Pyigyidagun),MPE,21.88,96.14,"Main Road, Pyigyidagun",Pyigyidagun,Mandalay,MM
+Shwe Taung Filling Station (Pyigyidagun),Shwe Taung,21.89,96.155,Near Industrial Zone,Pyigyidagun,Mandalay,MM
+Filling Station (near Highway),,21.875,96.125,Near Mandalay-Lashio Highway,Pyigyidagun,Mandalay,MM
+PTT Filling Station (Pyigyidagun),PTT,21.93,96.15,Near Yadanabon University,Pyigyidagun,Mandalay,MM
+CNPC Filling Station (Pyigyidagun),CNPC,21.9,96.13,Industrial Area,Pyigyidagun,Mandalay,MM
+Filling Station (Industrial Zone),,21.895,96.165,Industrial Zone Road,Pyigyidagun,Mandalay,MM
+Man Pyi Shwe Filling Station,Man Pyi Shwe,21.9735,96.0882,"Corner of 41st Street and 78th Street, Mandalay",Chanayethazan,Mandalay,MM
+Myoma Filling Station,Myoma,21.9851,96.0967,"84th Street, Between 35th and 36th street, Mandalay",Chanayethazan,Mandalay,MM
+Shwe Nant Thar Filling Station,Shwe Nant Thar,21.9548,96.0803,"62nd street, Between Ngu War street and Pyi Gyi Tagon Street, Mandalay",Maha Aungmye,Mandalay,MM
+Parami Filling Station,Parami,21.9362,96.0925,"Corner of 26th and 78th Street, Mandalay",Aungmyethazan,Mandalay,MM
+Shwe Sin Taw Filling Station,Shwe Sin Taw,21.9689,96.1093,"30th Street, Between 73rd and 74th street, Mandalay",Chanayethazan,Mandalay,MM
+Aung Myint Mo Filling Station,Aung Myint Mo,21.9025,96.0831,"Corner of 35th and 42nd Street, Mandalay",Aungmyethazan,Mandalay,MM
+Shwe Mandalay Filling Station,Shwe Mandalay,21.9896,96.0754,"66th Street, Between 22nd and 23rd street, Mandalay",Chanayethazan,Mandalay,MM
+Pyi Gyi Khin Filling Station,Pyi Gyi Khin,21.9438,96.0779,"Corner of 26th and 62nd Street, Mandalay",Aungmyethazan,Mandalay,MM
+Shwe Oak Filling Station,Shwe Oak,21.9611,96.0995,"35th Street, between 66th street and 68th street, Mandalay",Chanayethazan,Mandalay,MM
+Maha Aungmye Filling Station,Maha Aungmye,21.9493,96.0654,"62nd Street, between 30th and 32nd street, Mandalay",Maha Aungmye,Mandalay,MM
+Min Tayar Filling Station,Min Tayar,21.9952,96.1128,"Corner of 30th Street and 86th Street, Mandalay",Chanayethazan,Mandalay,MM
+Shwe Pyi Tan Filling Station,Shwe Pyi Tan,21.9312,96.0705,"62nd Street, Corner of 39th Street, Mandalay",Aungmyethazan,Mandalay,MM

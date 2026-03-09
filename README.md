@@ -89,6 +89,20 @@ Reports are weighted by role (VERIFIED_STATION → TRUSTED → CROWD → ANON) a
 | CROWD | 1 hour |
 | ANON | 30 minutes |
 
+### Sourcing station data (Yangon / Mandalay)
+
+To generate a CSV of fuel stations for Yangon and Mandalay using the Gemini API:
+
+1. Add your Gemini API key to `.env`: `GEMINI_API_KEY=your_key` (get one at [Google AI Studio](https://aistudio.google.com/app/apikey)).
+2. Run: `npm run source-stations`
+3. Output is written to `data/stations-yangon-mandalay.csv` (columns: name, brand, lat, lng, address_text, township, city, country_code).
+
+To import the CSV into your Supabase `stations` table (requires `VITE_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env`):
+
+```bash
+npm run import-stations
+```
+
 ---
 
 ## Features
