@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
 import { haversineDistanceMetres } from '@/lib/fuelUtils'
 import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import type { StationWithStatus, FuelCode, StatusFilter } from '@/types'
@@ -110,8 +111,10 @@ export function useNearbyStations({
     void fetchStations()
   }, [fetchStations])
 
-  // Realtime subscription for live updates
+  // Realtime subscription only when logged in (avoids WebSocket connection for anon users and reduces console errors when Realtime is blocked)
+  const user = useAuthStore((s) => s.user)
   useEffect(() => {
+    if (!user) return
     const channel = supabase
       .channel('station_status_changes')
       .on(
@@ -119,12 +122,16 @@ export function useNearbyStations({
         { event: '*', schema: 'public', table: 'station_current_status' },
         () => void fetchStations(),
       )
-      .subscribe()
+      .subscribe((status, err) => {
+        if (status === 'CHANNEL_ERROR' && channel) {
+          void supabase.removeChannel(channel)
+        }
+      })
 
     return () => {
       void supabase.removeChannel(channel)
     }
-  }, [fetchStations])
+  }, [user, fetchStations])
 
   return { stations, loading, error, refresh: fetchStations }
 }

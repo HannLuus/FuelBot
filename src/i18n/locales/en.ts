@@ -62,6 +62,7 @@ export default {
       distance50: '50 km',
       distance100: '100 km',
       wholeCountry: 'All Myanmar',
+      wholeCountryB2BOnly: 'Sign in with a B2B account to view all Myanmar, or contact us.',
       selectRoute: 'Route',
       b2bContact: 'Contact us for nationwide or route view',
     },

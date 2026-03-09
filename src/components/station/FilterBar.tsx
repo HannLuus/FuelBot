@@ -100,24 +100,28 @@ export function FilterBar() {
           )
         })}
 
-        {/* B2B: All Myanmar (only when entitled) */}
-        {hasNationalView && (
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedRouteId(null)
-              setMaxDistance(WHOLE_COUNTRY_KM)
-            }}
-            className={clsx(
-              'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-              filters.maxDistanceKm >= WHOLE_COUNTRY_KM && !filters.selectedRouteId
-                ? 'bg-amber-600 text-white active:bg-amber-700'
-                : 'bg-gray-100 text-gray-700 active:bg-gray-200',
-            )}
-          >
-            {t('home.filters.wholeCountry')}
-          </button>
-        )}
+        {/* B2B: All Myanmar — always visible; active only when entitled */}
+        <button
+          type="button"
+          title={!hasNationalView ? t('home.filters.wholeCountryB2BOnly') : undefined}
+          disabled={!hasNationalView}
+          onClick={() => {
+            if (!hasNationalView) return
+            setSelectedRouteId(null)
+            setMaxDistance(WHOLE_COUNTRY_KM)
+          }}
+          className={clsx(
+            'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+            !hasNationalView && 'cursor-not-allowed opacity-70',
+            hasNationalView && filters.maxDistanceKm >= WHOLE_COUNTRY_KM && !filters.selectedRouteId
+              ? 'bg-amber-600 text-white active:bg-amber-700'
+              : hasNationalView
+                ? 'bg-gray-100 text-gray-700 active:bg-gray-200'
+                : 'bg-gray-100 text-gray-400',
+          )}
+        >
+          {t('home.filters.wholeCountry')}
+        </button>
 
         {/* B2B: Route selector (only when entitled to at least one route) */}
         {routes.length > 0 && (
