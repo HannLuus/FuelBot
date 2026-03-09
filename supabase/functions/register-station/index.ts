@@ -7,6 +7,7 @@ const YANGON_LNG = 96.1561
 
 interface RegisterPayload {
   name: string
+  brand?: string | null
   address?: string | null
   township?: string
   city?: string
@@ -62,6 +63,7 @@ Deno.serve(async (req) => {
   const township = (body.township ?? '').trim() || '—'
   const city = (body.city ?? '').trim() || 'Yangon'
   const address_text = (body.address ?? '').trim() || null
+  const brand = (body.brand ?? '').trim() || null
   const requestedTier = body.subscription_tier_requested ?? null
   const referralCodeRaw = (body.referral_code ?? '').trim().toUpperCase()
 
@@ -87,6 +89,7 @@ Deno.serve(async (req) => {
     .from('stations')
     .insert({
       name,
+      brand,
       address_text,
       township,
       city,

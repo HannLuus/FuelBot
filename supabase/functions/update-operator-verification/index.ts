@@ -4,6 +4,8 @@ import { resolveReferral } from '../_shared/referralResolver.ts'
 
 interface Payload {
   station_id: string
+  name?: string | null
+  brand?: string | null
   subscription_tier_requested?: 'small' | 'medium' | 'large'
   referral_code?: string | null
   station_photo_urls?: string[]
@@ -59,6 +61,13 @@ Deno.serve(async (req) => {
   }
 
   const patch: Record<string, unknown> = {}
+  if (typeof payload.name !== 'undefined') {
+    const trimmed = (payload.name ?? '').toString().trim()
+    if (trimmed.length >= 2) patch.name = trimmed
+  }
+  if (typeof payload.brand !== 'undefined') {
+    patch.brand = (payload.brand ?? '').toString().trim() || null
+  }
   if (payload.subscription_tier_requested) {
     patch.subscription_tier_requested = payload.subscription_tier_requested
   }

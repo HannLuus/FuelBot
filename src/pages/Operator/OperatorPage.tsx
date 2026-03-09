@@ -53,7 +53,7 @@ export function OperatorPage() {
   const [postResult, setPostResult] = useState<'success' | 'error' | null>(null)
   const [registering, setRegistering] = useState(false)
   const [registerResult, setRegisterResult] = useState<'success' | 'error' | null>(null)
-  const [registerForm, setRegisterForm] = useState({ name: '', address: '', township: '', city: 'Yangon' })
+  const [registerForm, setRegisterForm] = useState({ name: '', brand: '', address: '', township: '', city: 'Yangon' })
   const [fuelStatuses, setFuelStatuses] = useState<Record<FuelCode, FuelStatusOrSkip>>({
     RON92: 'SKIP',
     RON95: 'SKIP',
@@ -76,6 +76,8 @@ export function OperatorPage() {
   const [myReferralRewards, setMyReferralRewards] = useState<ReferralRewardRow[]>([])
   const [reliability, setReliability] = useState<ReliabilityRow | null>(null)
   const [uptime, setUptime] = useState<UptimeRow | null>(null)
+  const [editableStationName, setEditableStationName] = useState('')
+  const [editableStationBrand, setEditableStationBrand] = useState('')
 
   const selectedTierPrice = useMemo(() => getTierPrice(tier), [tier])
   const selectedReferralAmount = useMemo(() => referralAmountForTier(tier), [tier])
@@ -153,9 +155,9 @@ export function OperatorPage() {
     if (!user) referralCodeFetchedRef.current = false
   }, [user])
 
-  // Only fetch referral code when we have a valid session (avoids 401s from calling before auth is ready). Run once per session.
+  // Fetch referral code only once per session when we have a valid token. Do not retry on failure (keeps page working for users who are not referred / no referral code needed).
   useEffect(() => {
-    if (!user?.id || !session || authLoading || referralCodeFetchedRef.current) return
+    if (!user?.id || !session?.access_token || authLoading || referralCodeFetchedRef.current) return
     referralCodeFetchedRef.current = true
     void loadMyReferralCode()
   }, [user?.id, session?.access_token, authLoading])
@@ -184,6 +186,8 @@ export function OperatorPage() {
       setStationPhotos(data.station_photo_urls ?? [])
       setLocationPhoto(data.location_photo_url ?? null)
       setRecognitionPhotoUrl(data.recognition_photo_url ?? null)
+      setEditableStationName(data.name ?? '')
+      setEditableStationBrand(data.brand ?? '')
       if (data.referrer_user_id) {
         setReferralCodeInput('ASSIGNED')
       }
@@ -223,8 +227,9 @@ export function OperatorPage() {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       if (!error && data?.code) setMyReferralCode(data.code)
+      // On error (e.g. 401): do not retry. User can still use the page; referral is optional.
     } catch {
-      referralCodeFetchedRef.current = false
+      // Leave referralCodeFetchedRef true so we don't retry and spam console. Page works without a code.
     }
   }
 
@@ -237,6 +242,7 @@ export function OperatorPage() {
       const { error } = await supabase.functions.invoke('register-station', {
         body: {
           name: registerForm.name.trim(),
+          brand: registerForm.brand.trim() || null,
           address: registerForm.address.trim() || null,
           township: registerForm.township.trim() || undefined,
           city: registerForm.city.trim() || 'Yangon',
@@ -246,7 +252,7 @@ export function OperatorPage() {
       })
       if (error) throw error
       setRegisterResult('success')
-      setRegisterForm({ name: '', address: '', township: '', city: 'Yangon' })
+      setRegisterForm({ name: '', brand: '', address: '', township: '', city: 'Yangon' })
       void loadMyStation()
     } catch {
       setRegisterResult('error')
@@ -294,6 +300,8 @@ export function OperatorPage() {
       const { data, error } = await supabase.functions.invoke('update-operator-verification', {
         body: {
           station_id: myStation.id,
+          name: editableStationName.trim() || null,
+          brand: editableStationBrand.trim() || null,
           subscription_tier_requested: tier,
           referral_code: referralToSend,
           station_photo_urls: stationPhotos,
@@ -446,7 +454,7 @@ export function OperatorPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Referrer earnings */}
+        {/* Referrer earnings – optional; no referral required to register */}
         <section className="rounded-2xl border border-green-200 bg-green-50 p-4">
           <h2 className="text-sm font-bold text-green-900 mb-2">{t('landing.whatYouEarnTitle')}</h2>
           <p className="text-xs text-green-800 mb-3">{t('landing.whatYouEarnBody')}</p>
@@ -483,8 +491,10 @@ export function OperatorPage() {
                 </div>
               ) : null}
             </div>
+          ) : user ? (
+            <p className="text-xs text-gray-700">{t('operator.referralCodeOptionalHint')}</p>
           ) : (
-            <p className="text-xs text-gray-700">—</p>
+            <p className="text-xs text-gray-700">{t('operator.referralCodeSignInHint')}</p>
           )}
         </section>
 
@@ -565,6 +575,18 @@ export function OperatorPage() {
                     onChange={(e) => setRegisterForm((f) => ({ ...f, name: e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder="e.g. Myanmar Petroleum Station"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    {t('operator.registerFormBrand')}
+                  </label>
+                  <input
+                    type="text"
+                    value={registerForm.brand}
+                    onChange={(e) => setRegisterForm((f) => ({ ...f, brand: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="e.g. MPE, PTT (optional)"
                   />
                 </div>
                 <div>
@@ -656,6 +678,29 @@ export function OperatorPage() {
                 <h3 className="font-semibold text-blue-900">{t('operator.completeVerification')}</h3>
                 <p className="mt-1 text-xs text-blue-800">{t('operator.paymentInstructions')}</p>
 
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-gray-700">{t('operator.registerFormName')}</label>
+                    <input
+                      type="text"
+                      value={editableStationName}
+                      onChange={(e) => setEditableStationName(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Station name"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-gray-700">{t('operator.registerFormBrand')}</label>
+                    <input
+                      type="text"
+                      value={editableStationBrand}
+                      onChange={(e) => setEditableStationBrand(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="e.g. MPE, PTT (optional)"
+                    />
+                  </div>
+                </div>
+
                 <div className="mt-3">
                   <label className="mb-1 block text-xs font-semibold text-gray-700">{t('operator.referralCode')}</label>
                   <input
@@ -664,6 +709,7 @@ export function OperatorPage() {
                     placeholder={t('operator.referralCodePlaceholder')}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
+                  <p className="mt-1 text-[11px] text-gray-600">{t('operator.referralCodeOptionalNote')}</p>
                 </div>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
