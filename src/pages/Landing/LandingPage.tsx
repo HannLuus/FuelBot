@@ -116,18 +116,20 @@ export function LandingPage() {
             <Store className="h-5 w-5 text-amber-600" />
             <h2 className="text-lg font-semibold text-gray-900">{t('landing.stationPricingTitle')}</h2>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {SUBSCRIPTION_TIERS.map((tier) => (
-              <div key={tier.key} className="rounded-xl border border-gray-200 p-3">
-                <p className="font-semibold text-gray-900">{tier.name[lang]}</p>
-                <p className="text-sm text-gray-700">{tier.description[lang]}</p>
-                <p className="mt-2 text-base font-bold text-gray-900">
-                  {formatMmk(tier.annualPriceMmk)} / {t('landing.perYear')}
-                </p>
-              </div>
-            ))}
+          <div className="rounded-xl border border-gray-200 p-4">
+            <p className="font-semibold text-gray-900">{SUBSCRIPTION_TIERS[0].name[lang]}</p>
+            <p className="mt-1 text-sm text-gray-700">{SUBSCRIPTION_TIERS[0].description[lang]}</p>
+            <p className="mt-2 text-base font-bold text-gray-900">
+              {formatMmk(SUBSCRIPTION_TIERS[0].annualPriceMmk)} / {t('landing.perYear')}
+            </p>
           </div>
           <p className="mt-3 text-sm text-gray-700">{t('landing.stationPricingFooter')}</p>
+          <p className="mt-3 text-sm font-medium text-gray-800">{t('landing.whatStationGetsTitle')}</p>
+          <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-gray-700">
+            <li>{t('landing.whatStationGetsReliability')}</li>
+            <li>{t('landing.whatStationGetsUptime')}</li>
+            <li>{t('landing.whatStationGetsCompare')}</li>
+          </ul>
         </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm">

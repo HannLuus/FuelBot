@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Store, CheckCircle, Send, Users, MapPin, Upload, Copy } from 'lucide-react'
@@ -13,11 +13,37 @@ import { referralAmountForTier } from '@/lib/referrals'
 
 type FuelStatusOrSkip = FuelStatus | 'SKIP'
 type SaveState = 'idle' | 'saving' | 'success' | 'error'
+interface ReliabilityRow {
+  reports_last_7d: number
+  reports_last_30d: number
+  verified_last_7d: number
+  verified_last_30d: number
+  last_updated_at: string | null
+  city_name: string | null
+  city_stations_count: number | null
+  city_avg_reports_7d: number | null
+  city_avg_reports_30d: number | null
+}
+interface UptimeRow {
+  has_sufficient_data: boolean
+  samples_count: number
+  expected_samples: number
+  uptime_pct: number | null
+}
+interface ReferralRewardRow {
+  id: string
+  station_id: string
+  amount_mmk: number
+  status: string
+  paid_at: string | null
+  created_at: string
+  stations: { name: string } | null
+}
 
 export function OperatorPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
-  const { user } = useAuthStore()
+  const { user, session, loading: authLoading } = useAuthStore()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [myStation, setMyStation] = useState<Station | null>(null)
@@ -46,11 +72,17 @@ export function OperatorPage() {
   const [submittingPaid, setSubmittingPaid] = useState(false)
   const [recognitionPhotoUrl, setRecognitionPhotoUrl] = useState<string | null>(null)
   const [recognitionConfirming, setRecognitionConfirming] = useState(false)
+  const referralCodeFetchedRef = useRef(false)
+  const [myReferralRewards, setMyReferralRewards] = useState<ReferralRewardRow[]>([])
+  const [reliability, setReliability] = useState<ReliabilityRow | null>(null)
+  const [uptime, setUptime] = useState<UptimeRow | null>(null)
 
   const selectedTierPrice = useMemo(() => getTierPrice(tier), [tier])
   const selectedReferralAmount = useMemo(() => referralAmountForTier(tier), [tier])
   const paymentInstructions = import.meta.env.VITE_PAYMENT_INSTRUCTIONS
   const paymentQrUrl = import.meta.env.VITE_PAYMENT_QR_URL
+  const paymentPhoneWavePay = import.meta.env.VITE_PAYMENT_PHONE_WAVEPAY?.trim() || ''
+  const paymentPhoneKpay = import.meta.env.VITE_PAYMENT_PHONE_KPAY?.trim() || ''
   const shareLink =
     myReferralCode && typeof window !== 'undefined'
       ? `${window.location.origin}/operator?ref=${encodeURIComponent(myReferralCode)}`
@@ -59,8 +91,74 @@ export function OperatorPage() {
   useEffect(() => {
     if (!user) return
     void loadMyStation()
-    void loadMyReferralCode()
+  }, [user?.id])
+
+  async function loadMyReferralRewards() {
+    if (!user) return
+    const { data } = await supabase
+      .from('referral_rewards')
+      .select('id, station_id, amount_mmk, status, paid_at, created_at, stations(name)')
+      .eq('referrer_user_id', user.id)
+      .order('created_at', { ascending: false })
+    setMyReferralRewards((data ?? []) as unknown as ReferralRewardRow[])
+  }
+
+  useEffect(() => {
+    if (!user) return
+    void loadMyReferralRewards()
+  }, [user?.id])
+
+  async function loadReliability() {
+    if (!myStation?.id) return
+    const { data, error } = await supabase.rpc('get_station_reliability', { p_station_id: myStation.id })
+    if (error) {
+      setReliability(null)
+      return
+    }
+    const row = Array.isArray(data) ? data[0] : data
+    setReliability(row ?? null)
+  }
+
+  useEffect(() => {
+    if (!myStation?.id) {
+      setReliability(null)
+      return
+    }
+    void loadReliability()
+  }, [myStation?.id])
+
+  async function loadUptime() {
+    if (!myStation?.id) return
+    const { data, error } = await supabase.rpc('get_station_uptime', {
+      p_station_id: myStation.id,
+      p_days: 30,
+    })
+    if (error) {
+      setUptime(null)
+      return
+    }
+    const row = Array.isArray(data) ? data[0] : data
+    setUptime(row ?? null)
+  }
+
+  useEffect(() => {
+    if (!myStation?.id) {
+      setUptime(null)
+      return
+    }
+    void loadUptime()
+  }, [myStation?.id])
+
+  useEffect(() => {
+    if (!user) referralCodeFetchedRef.current = false
   }, [user])
+
+  // Only fetch referral code when we have a valid session (avoids 401s from calling before auth is ready). Run once per session.
+  useEffect(() => {
+    if (!user?.id || !session || authLoading || referralCodeFetchedRef.current) return
+    referralCodeFetchedRef.current = true
+    void loadMyReferralCode()
+  }, [user?.id, session?.access_token, authLoading])
 
   useEffect(() => {
     const refFromUrl = searchParams.get('ref')?.trim() ?? ''
@@ -119,12 +217,12 @@ export function OperatorPage() {
   }
 
   async function loadMyReferralCode() {
-    if (!user) return
+    if (!user || !session) return
     try {
       const { data, error } = await supabase.functions.invoke('get-referral-code')
       if (!error && data?.code) setMyReferralCode(data.code)
     } catch {
-      // ignore
+      referralCodeFetchedRef.current = false
     }
   }
 
@@ -185,8 +283,8 @@ export function OperatorPage() {
     }
   }
 
-  async function saveVerificationInfo() {
-    if (!myStation) return
+  async function saveVerificationInfo(): Promise<boolean> {
+    if (!myStation) return false
     setSaveState('saving')
     setSaveMessage(null)
     try {
@@ -209,6 +307,7 @@ export function OperatorPage() {
           : t('operator.referralSaved')
       )
       await loadMyStation()
+      return true
     } catch (err) {
       const message = err instanceof Error ? err.message : t('errors.generic')
       if (message.toLowerCase().includes('own referral')) {
@@ -219,15 +318,29 @@ export function OperatorPage() {
         setSaveMessage(message)
       }
       setSaveState('error')
+      return false
     }
   }
 
   async function markIHavePaid() {
     if (!myStation || submittingPaid) return
     setSubmittingPaid(true)
+    setSaveMessage(null)
     try {
-      await saveVerificationInfo()
+      const saved = await saveVerificationInfo()
+      if (!saved) {
+        setSubmittingPaid(false)
+        return
+      }
+      const { data, error } = await supabase.functions.invoke('operator-report-payment', {
+        body: { station_id: myStation.id },
+      })
+      if (error) throw error
+      if (data?.error) throw new Error(data.error)
       setSaveMessage(t('operator.weWillVerifySoon'))
+      await loadMyStation()
+    } catch (err) {
+      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
     } finally {
       setSubmittingPaid(false)
     }
@@ -373,6 +486,31 @@ export function OperatorPage() {
           )}
         </section>
 
+        {/* My referral rewards */}
+        {user && (
+          <section className="rounded-2xl border border-gray-200 bg-white p-4">
+            <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.myReferralRewards')}</h2>
+            {myReferralRewards.length === 0 ? (
+              <p className="text-sm text-gray-700">{t('operator.noReferralRewardsYet')}</p>
+            ) : (
+              <ul className="space-y-2">
+                {myReferralRewards.map((reward) => (
+                  <li key={reward.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
+                    <p className="font-medium text-gray-900">{reward.stations?.name ?? reward.station_id.slice(0, 8)}</p>
+                    <p className="text-gray-700">{formatMmk(reward.amount_mmk)}</p>
+                    <p className="mt-1 text-xs text-gray-700">
+                      {reward.status === 'PENDING' && t('operator.rewardCollectAt', { station: reward.stations?.name ?? reward.station_id.slice(0, 8) })}
+                      {reward.status === 'PAID' && t('operator.rewardStatusPaid')}
+                      {reward.status === 'COLLECTED' && t('operator.rewardStatusCollected')}
+                      {(reward.status === 'PAID' || reward.status === 'COLLECTED') && reward.paid_at && ` · ${new Date(reward.paid_at).toLocaleDateString()}`}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
         {/* Tiers */}
         <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.tiersTitle')}</h2>
@@ -397,6 +535,12 @@ export function OperatorPage() {
               {t('operator.selectTier')} · {formatMmk(selectedTierPrice)} / {t('landing.perYear')} · 15% referral: {formatMmk(selectedReferralAmount)}
             </p>
           ) : null}
+          <p className="mt-4 text-sm font-medium text-gray-800">{t('operator.whatYouGetTitle')}</p>
+          <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-gray-700">
+            <li>{t('operator.whatYouGetReliability')}</li>
+            <li>{t('operator.whatYouGetUptime')}</li>
+            <li>{t('operator.whatYouGetCompare')}</li>
+          </ul>
         </section>
 
         {/* No station yet: Register (owner-first) or Claim existing */}
@@ -561,6 +705,24 @@ export function OperatorPage() {
                   <img src={paymentQrUrl} alt="Payment QR" className="mt-3 h-40 w-40 rounded border border-gray-200 object-cover" />
                 ) : null}
 
+                {(paymentPhoneWavePay || paymentPhoneKpay) ? (
+                  <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-700">
+                    <p className="font-medium text-gray-900">{t('operator.payVia')}</p>
+                    {paymentPhoneWavePay ? (
+                      <p className="mt-1">WavePay: <a href={`tel:${paymentPhoneWavePay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneWavePay}</a></p>
+                    ) : null}
+                    {paymentPhoneKpay ? (
+                      <p className="mt-1">KPay / KBZ Pay: <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneKpay}</a></p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {myStation.payment_reported_at ? (
+                  <p className="mt-3 text-xs text-gray-700">
+                    {t('operator.paymentReportedAt')}: {new Date(myStation.payment_reported_at).toLocaleString()}
+                  </p>
+                ) : null}
+
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button
                     size="sm"
@@ -577,7 +739,7 @@ export function OperatorPage() {
                     variant="primary"
                     loading={submittingPaid}
                     onClick={() => void markIHavePaid()}
-                    disabled={stationPhotos.length === 0 || !locationPhoto}
+                    disabled={stationPhotos.length === 0 || !locationPhoto || !!myStation.payment_reported_at}
                   >
                     {t('operator.iHavePaid')}
                   </Button>
@@ -605,6 +767,58 @@ export function OperatorPage() {
                 <p className="mt-2 text-xs text-gray-700">
                   {currentStatus.last_updated_at ? formatRelativeTime(currentStatus.last_updated_at) : '—'} · {QUEUE_LABEL[currentStatus.queue_bucket_computed ?? 'NONE'][lang]}
                 </p>
+              </div>
+            )}
+
+            {myStation.is_verified && (
+              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                <p className="font-semibold text-gray-900">{t('operator.yourStationReliability')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('operator.reliabilityDescription')}</p>
+                {reliability ? (
+                  <div className="mt-3 space-y-2 text-sm">
+                    <p className="text-gray-700">
+                      {t('operator.reportsLast7d')}: <strong>{reliability.reports_last_7d}</strong>
+                      {reliability.verified_last_7d > 0 && (
+                        <span className="ml-2 text-gray-700">({t('operator.verifiedUpdates')}: {reliability.verified_last_7d})</span>
+                      )}
+                    </p>
+                    <p className="text-gray-700">
+                      {t('operator.reportsLast30d')}: <strong>{reliability.reports_last_30d}</strong>
+                      {reliability.verified_last_30d > 0 && (
+                        <span className="ml-2 text-gray-700">({t('operator.verifiedUpdates')}: {reliability.verified_last_30d})</span>
+                      )}
+                    </p>
+                    {reliability.last_updated_at && (
+                      <p className="text-xs text-gray-700">{t('operator.lastUpdated')}: {formatRelativeTime(reliability.last_updated_at)}</p>
+                    )}
+                    {reliability.city_name != null && reliability.city_stations_count != null && reliability.city_avg_reports_7d != null && (
+                      <p className="text-xs text-gray-700 mt-2">
+                        {t('operator.vsCity', {
+                          city: reliability.city_name,
+                          count: reliability.city_stations_count,
+                          avg7: reliability.city_avg_reports_7d,
+                          avg30: reliability.city_avg_reports_30d ?? '—',
+                        })}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-gray-700">{t('operator.reliabilityNoData')}</p>
+                )}
+              </div>
+            )}
+
+            {myStation.is_verified && (
+              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                <p className="font-semibold text-gray-900">{t('operator.uptime30d')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('operator.uptimeDescription')}</p>
+                {uptime?.has_sufficient_data && uptime.uptime_pct != null ? (
+                  <p className="mt-3 text-sm text-gray-700">
+                    {t('operator.uptimeValue', { pct: uptime.uptime_pct })}
+                  </p>
+                ) : (
+                  <p className="mt-3 text-sm text-gray-700">{t('operator.uptimeCollectingData')}</p>
+                )}
               </div>
             )}
 

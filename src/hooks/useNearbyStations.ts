@@ -122,7 +122,7 @@ export function useNearbyStations({
         { event: '*', schema: 'public', table: 'station_current_status' },
         () => void fetchStations(),
       )
-      .subscribe((status, err) => {
+      .subscribe((status, _err) => {
         if (status === 'CHANNEL_ERROR' && channel) {
           void supabase.removeChannel(channel)
         }

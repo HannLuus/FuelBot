@@ -42,6 +42,7 @@ Deno.serve(async (req) => {
     .update({
       is_verified: false,
       payment_received_at: null,
+      payment_reported_at: null,
       payment_method: null,
       payment_reference: null,
       payment_confirmed_by: null,

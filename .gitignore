@@ -29,3 +29,6 @@ Untitled
 *.sln
 *.sw?
 .vercel
+
+# Supabase CLI local state (auto-generated)
+supabase/.temp/

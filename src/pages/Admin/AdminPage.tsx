@@ -8,8 +8,17 @@ import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
 
-type Tab = 'flagged' | 'registrations' | 'claims'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals'
 type PaymentMethod = 'KBZ_PAY' | 'WAVEPAY' | 'BANK_TRANSFER'
+
+interface PendingReferralRewardRow {
+  id: string
+  station_id: string
+  amount_mmk: number
+  status: string
+  created_at: string
+  stations: { name: string } | null
+}
 
 export function AdminPage() {
   const { t } = useTranslation()
@@ -18,10 +27,14 @@ export function AdminPage() {
   const [flagged, setFlagged] = useState<StationStatusReport[]>([])
   const [claims, setClaims] = useState<StationClaim[]>([])
   const [registrations, setRegistrations] = useState<Station[]>([])
+  const [pendingReferrals, setPendingReferrals] = useState<PendingReferralRewardRow[]>([])
   const [loading, setLoading] = useState(true)
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('KBZ_PAY')
   const [paymentReference, setPaymentReference] = useState('')
+  const [referralPaymentMethod, setReferralPaymentMethod] = useState<PaymentMethod>('WAVEPAY')
+  const [referralPaymentRef, setReferralPaymentRef] = useState('')
+  const [referralPayStationId, setReferralPayStationId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -31,7 +44,7 @@ export function AdminPage() {
   async function loadAll() {
     setLoading(true)
     setError(null)
-    const [flaggedRes, claimsRes, registrationsRes] = await Promise.all([
+    const [flaggedRes, claimsRes, registrationsRes, pendingRefRes] = await Promise.all([
       supabase
         .from('station_status_reports')
         .select('*')
@@ -49,10 +62,16 @@ export function AdminPage() {
         .eq('is_verified', false)
         .is('registration_rejected_at', null)
         .order('created_at', { ascending: false }),
+      supabase
+        .from('referral_rewards')
+        .select('id, station_id, amount_mmk, status, created_at, stations(name)')
+        .eq('status', 'PENDING')
+        .order('created_at', { ascending: false }),
     ])
     setFlagged(flaggedRes.data ?? [])
     setClaims(claimsRes.data ?? [])
     setRegistrations((registrationsRes.data ?? []) as Station[])
+    setPendingReferrals((pendingRefRes.data ?? []) as unknown as PendingReferralRewardRow[])
     setLoading(false)
   }
 
@@ -139,6 +158,46 @@ export function AdminPage() {
     }
   }
 
+  async function markReferralCollected(stationId: string) {
+    setWorkingId(stationId)
+    setError(null)
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('admin-mark-referral-collected', {
+        body: { station_id: stationId },
+      })
+      if (fnErr) throw fnErr
+      if (data?.error) throw new Error(data.error)
+      await loadAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setWorkingId(null)
+    }
+  }
+
+  async function markReferralPaid(stationId: string) {
+    setWorkingId(stationId)
+    setError(null)
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('admin-mark-referral-paid', {
+        body: {
+          station_id: stationId,
+          payment_method: referralPaymentMethod,
+          payment_reference: referralPaymentRef.trim() || undefined,
+        },
+      })
+      if (fnErr) throw fnErr
+      if (data?.error) throw new Error(data.error)
+      setReferralPayStationId(null)
+      setReferralPaymentRef('')
+      await loadAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setWorkingId(null)
+    }
+  }
+
   async function rejectRegistration(station: Station) {
     const rejectReason = window.prompt(t('admin.rejectReason'), t('admin.tierUnderDeclaredReject'))
     if (rejectReason === null) return
@@ -216,6 +275,18 @@ export function AdminPage() {
             </span>
           )}
         </button>
+        <button
+          onClick={() => setTab('referrals')}
+          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'referrals' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
+        >
+          <CreditCard className="h-4 w-4" />
+          {t('admin.referralPayouts')}
+          {pendingReferrals.length > 0 && (
+            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-xs text-white">
+              {pendingReferrals.length}
+            </span>
+          )}
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -244,6 +315,11 @@ export function AdminPage() {
                     <p className="text-xs text-gray-700">
                       Owner: {station.verified_owner_id?.slice(0, 8)}… · {new Date(station.created_at).toLocaleDateString()}
                     </p>
+                    {station.payment_reported_at && (
+                      <p className="mt-1 text-xs text-green-700 font-medium">
+                        {t('admin.paymentReportedAt')}: {new Date(station.payment_reported_at).toLocaleString()}
+                      </p>
+                    )}
 
                     <div className="mt-3">
                       <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.stationPhotos')}</p>
@@ -321,6 +397,71 @@ export function AdminPage() {
                   </div>
                 )
               })}
+            </div>
+          )
+        ) : tab === 'referrals' ? (
+          pendingReferrals.length === 0 ? (
+            <p className="py-12 text-center text-gray-700">{t('admin.noPendingReferrals')}</p>
+          ) : (
+            <div className="space-y-3">
+              {pendingReferrals.map((reward) => (
+                <div key={reward.id} className="rounded-xl border border-gray-200 bg-white p-4">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {reward.stations?.name ?? reward.station_id.slice(0, 8)}
+                  </p>
+                  <p className="text-xs text-gray-700">
+                    {t('admin.referralAmount')}: {reward.amount_mmk.toLocaleString('en-US')} MMK
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      loading={workingId === reward.station_id}
+                      onClick={() => void markReferralCollected(reward.station_id)}
+                    >
+                      {t('admin.markCollected')}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      loading={referralPayStationId === reward.station_id && workingId === reward.station_id}
+                      onClick={() => setReferralPayStationId(reward.station_id)}
+                    >
+                      {t('admin.markPaid')}
+                    </Button>
+                  </div>
+                  {referralPayStationId === reward.station_id && (
+                    <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                      <select
+                        value={referralPaymentMethod}
+                        onChange={(e) => setReferralPaymentMethod(e.target.value as PaymentMethod)}
+                        className="rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-900"
+                      >
+                        <option value="WAVEPAY">WavePay</option>
+                        <option value="KBZ_PAY">KBZ Pay</option>
+                        <option value="BANK_TRANSFER">Bank transfer</option>
+                      </select>
+                      <input
+                        value={referralPaymentRef}
+                        onChange={(e) => setReferralPaymentRef(e.target.value)}
+                        placeholder={t('admin.paymentReference')}
+                        className="rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-900"
+                      />
+                      <Button
+                        size="sm"
+                        loading={workingId === reward.station_id}
+                        onClick={() => void markReferralPaid(reward.station_id)}
+                        disabled={workingId === reward.station_id}
+                      >
+                        {t('admin.confirmPaid')}
+                      </Button>
+                      <Button size="sm" variant="secondary" onClick={() => { setReferralPayStationId(null); setReferralPaymentRef('') }}>
+                        {t('admin.cancel')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )
         ) : tab === 'flagged' ? (

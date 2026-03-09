@@ -29,13 +29,14 @@ Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the Supabase dashb
 
 Also configure:
 
-- `VITE_PAYMENT_INSTRUCTIONS`
-- `VITE_PAYMENT_QR_URL`
+- `VITE_PAYMENT_INSTRUCTIONS` — text shown to operators (e.g. "Pay 10,000 MMK/month via WavePay or KBZ Pay. Put your station name in the reference.")
+- `VITE_PAYMENT_QR_URL` — optional URL to your payment QR image
+- `VITE_PAYMENT_PHONE_WAVEPAY` — optional WavePay phone number for receiving payments
+- `VITE_PAYMENT_PHONE_KPAY` — optional KBZ Pay / KPay phone number
 - `ADMIN_NOTIFICATION_EMAIL` (for admin action emails; test: `best.iptvmm@gmail.com`)
-- Tier pricing:
-  - `VITE_TIER_PRICE_SMALL_MMK`
-  - `VITE_TIER_PRICE_MEDIUM_MMK`
-  - `VITE_TIER_PRICE_LARGE_MMK`
+- Station subscription (flat 10,000 MMK/month = 120,000 MMK/year):
+  - `VITE_STATION_SUBSCRIPTION_ANNUAL_MMK=120000`
+  - `STATION_SUBSCRIPTION_ANNUAL_MMK=120000` (Edge Functions)
 
 ### 2. Install dependencies
 
@@ -54,7 +55,13 @@ npm run dev
 ```bash
 supabase functions deploy submit-report
 supabase functions deploy send-fuel-alerts
+supabase functions deploy operator-report-payment
+supabase functions deploy admin-mark-referral-collected
+supabase functions deploy admin-mark-referral-paid
+supabase functions deploy snapshot-station-statuses
 ```
+
+Schedule `snapshot-station-statuses` to run **hourly** (e.g. Supabase Dashboard → Database → Cron, or an external cron hitting the function URL) so that uptime metrics can be computed after ~1 month of data.
 
 Set `SUPABASE_SERVICE_ROLE_KEY` in the Edge Function secrets via the Supabase dashboard.
 
@@ -71,6 +78,7 @@ All migrations are applied to the remote Supabase project. Key tables:
 | `station_status_reports` | Crowd + verified fuel status reports |
 | `status_votes` | Confirm / Disagree votes per report |
 | `station_current_status` | Computed best status per station (auto-updated by trigger) |
+| `station_status_snapshots` | Hourly snapshots for uptime calculation (filled by cron) |
 | `station_claims` | Operator claim requests (admin approval) |
 | `station_followers` | Users following a station for alerts |
 | `subscriptions` | Operator subscription tiers |
@@ -92,6 +100,24 @@ Reports are weighted by role (VERIFIED_STATION → TRUSTED → CROWD → ANON) a
 | TRUSTED | 2 hours |
 | CROWD | 1 hour |
 | ANON | 30 minutes |
+
+### Uptime: how it’s calculated and sabotage resistance
+
+**What feeds uptime**  
+The “current” status shown to drivers is a **single blended value** per station: it combines **station owner (verified) reports** and **crowd reports**, with **role weighting** (verified > trusted > crowd > anon) and **time decay**. So owner updates count more and stay longer; crowd and anon reports have less weight and expire sooner.
+
+**What we snapshot**  
+Every hour we snapshot that **computed** status into `station_status_snapshots`: fuel state and the **source role** that drove it (e.g. `VERIFIED_STATION`, `CROWD`, `ANON`).
+
+**How uptime is computed**  
+- Uptime = “% of snapshot hours in the last 30 days when the station had fuel (at least one type available)”.  
+- So it **is** a combination of owner and crowd: each hour we record whatever the blended status was at that time.
+
+**Sabotage resistance**  
+- **Reporting limits:** Each device can send at most **3 reports per station per hour** (rate limit in `submit-report`). So one person cannot flood “out of fuel” in a short burst.  
+- **Proximity:** Non-verified reports are only accepted if the reporter is within 1 km of the station.  
+- **Role weighting:** Verified and trusted reports outweigh crowd/anon in the blended status, so a single anon/crowd “OUT” does not override a recent owner “AVAILABLE”.  
+- **Uptime metric:** We only count an hour as **“no fuel”** (reducing uptime) when the snapshot’s **source** is `VERIFIED_STATION` or `TRUSTED`. If the status was “out” but the source was `CROWD` or `ANON`, that hour is **not** counted against uptime (we treat it as uncertain). So repeated “out” reports from one or a few crowd/anon users cannot drag down a station’s uptime.
 
 ### Sourcing station data (Myanmar cities)
 

@@ -53,6 +53,7 @@ export interface Station {
   verified_owner_id: string | null
   subscription_tier_requested?: SubscriptionTierRequested | null
   payment_received_at?: string | null
+  payment_reported_at?: string | null
   payment_method?: string | null
   payment_reference?: string | null
   payment_confirmed_by?: string | null

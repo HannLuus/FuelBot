@@ -17,29 +17,15 @@ export const SUBSCRIPTION_TIERS: TierConfig[] = [
   {
     key: 'small',
     sortOrder: 1,
-    name: { en: 'Small', my: 'အသေး' },
-    description: { en: '1–2 dispensers', my: 'ပമ്പ် ၁–၂ ခု' },
-    annualPriceMmk: envPrice(import.meta.env.VITE_TIER_PRICE_SMALL_MMK, 500000),
-  },
-  {
-    key: 'medium',
-    sortOrder: 2,
-    name: { en: 'Medium', my: 'အလတ်' },
-    description: { en: '3–5 dispensers', my: 'ပമ്പ် ၃–၅ ခု' },
-    annualPriceMmk: envPrice(import.meta.env.VITE_TIER_PRICE_MEDIUM_MMK, 1200000),
-  },
-  {
-    key: 'large',
-    sortOrder: 3,
-    name: { en: 'Large', my: 'အကြီး' },
-    description: { en: '6+ dispensers', my: 'ပമ്പ် ၆ ခုနှင့်အထက်' },
-    annualPriceMmk: envPrice(import.meta.env.VITE_TIER_PRICE_LARGE_MMK, 2500000),
+    name: { en: 'Standard', my: 'စံ' },
+    description: { en: '10,000 MMK / month', my: 'လစဉ် ၁၀,၀၀၀ ကျပ်' },
+    annualPriceMmk: envPrice(import.meta.env.VITE_STATION_SUBSCRIPTION_ANNUAL_MMK, 120000),
   },
 ]
 
 export function getTierPrice(tier: SubscriptionTierRequested | null | undefined): number | null {
   if (!tier) return null
-  return SUBSCRIPTION_TIERS.find((t) => t.key === tier)?.annualPriceMmk ?? null
+  return SUBSCRIPTION_TIERS[0].annualPriceMmk
 }
 
 export function formatMmk(amount: number): string {

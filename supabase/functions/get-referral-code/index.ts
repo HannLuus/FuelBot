@@ -8,7 +8,7 @@ function createReferralCode(seed: string): string {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders() })
+    return new Response(null, { status: 200, headers: corsHeaders() })
   }
 
   const authed = await requireAuthedUser(req.headers.get('Authorization'))

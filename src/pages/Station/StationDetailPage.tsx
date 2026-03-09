@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, MapPin, Navigation, Clock, CheckCircle, Bell, BellOff } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, MapPin, Navigation, Clock, CheckCircle, Bell, BellOff, TrendingUp } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useStationDetail } from '@/hooks/useNearbyStations'
+import { supabase } from '@/lib/supabase'
 import { FuelChip } from '@/components/ui/FuelChip'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -15,8 +16,25 @@ import {
   QUEUE_LABEL,
   REPORTER_ROLE_LABEL,
 } from '@/lib/fuelUtils'
-import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
+
+interface ReliabilityRow {
+  reports_last_7d: number
+  reports_last_30d: number
+  verified_last_7d: number
+  verified_last_30d: number
+  last_updated_at: string | null
+  city_name: string | null
+  city_stations_count: number | null
+  city_avg_reports_7d: number | null
+  city_avg_reports_30d: number | null
+}
+interface UptimeRow {
+  has_sufficient_data: boolean
+  samples_count: number
+  expected_samples: number
+  uptime_pct: number | null
+}
 
 export function StationDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -27,8 +45,40 @@ export function StationDetailPage() {
   const [isFollowing, setIsFollowing] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [claimMessage, setClaimMessage] = useState<string | null>(null)
+  const [reliability, setReliability] = useState<ReliabilityRow | null>(null)
+  const [uptime, setUptime] = useState<UptimeRow | null>(null)
 
   const { station, reports, loading, error, refresh } = useStationDetail(id!)
+
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    void (async () => {
+      const { data, error } = await supabase.rpc('get_station_reliability', { p_station_id: id })
+      if (cancelled || error) {
+        if (!cancelled) setReliability(null)
+        return
+      }
+      const row = Array.isArray(data) ? data[0] : data
+      setReliability(row ?? null)
+    })()
+    return () => { cancelled = true }
+  }, [id])
+
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    void (async () => {
+      const { data, error } = await supabase.rpc('get_station_uptime', { p_station_id: id, p_days: 30 })
+      if (cancelled || error) {
+        if (!cancelled) setUptime(null)
+        return
+      }
+      const row = Array.isArray(data) ? data[0] : data
+      setUptime(row ?? null)
+    })()
+    return () => { cancelled = true }
+  }, [id])
 
   function openInMaps() {
     if (!station) return
@@ -127,6 +177,12 @@ export function StationDetailPage() {
                 {t('station.verifiedOwnerClaimed')}
               </Badge>
             )}
+            {reliability && (reliability.reports_last_7d >= 3 || reliability.reports_last_30d >= 7) && (
+              <Badge variant="default" className="gap-0.5">
+                <TrendingUp className="h-3 w-3" />
+                {t('station.oftenUpdated')}
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-700">
             <MapPin className="h-3 w-3" />
@@ -183,6 +239,39 @@ export function StationDetailPage() {
                 : t('station.referrerRewarded')}
             </p>
           )}
+
+          {/* Reliability (activity-based) + Uptime when available */}
+          {(reliability && (reliability.reports_last_7d > 0 || reliability.reports_last_30d > 0)) ||
+          (uptime?.has_sufficient_data && uptime.uptime_pct != null) ? (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
+              <p className="text-xs font-semibold text-gray-700">{t('station.reliabilityTitle')}</p>
+              {reliability && (reliability.reports_last_7d > 0 || reliability.reports_last_30d > 0) && (
+                <>
+              <p className="mt-1 text-xs text-gray-700">
+                {t('station.reliabilitySummary', {
+                  count7: reliability.reports_last_7d,
+                  count30: reliability.reports_last_30d,
+                })}
+              </p>
+              {reliability.city_name != null && reliability.city_stations_count != null && reliability.city_avg_reports_7d != null && (
+                <p className="mt-1 text-xs text-gray-700">
+                  {t('station.reliabilityVsCity', {
+                    city: reliability.city_name,
+                    count: reliability.city_stations_count,
+                    avg7: reliability.city_avg_reports_7d,
+                    avg30: reliability.city_avg_reports_30d ?? '—',
+                  })}
+                </p>
+              )}
+                </>
+              )}
+              {uptime?.has_sufficient_data && uptime.uptime_pct != null && (
+                <p className="mt-2 text-xs font-medium text-gray-700">
+                  {t('station.uptime30d')}: {uptime.uptime_pct}%
+                </p>
+              )}
+            </div>
+          ) : null}
         </div>
 
         {/* Actions */}
