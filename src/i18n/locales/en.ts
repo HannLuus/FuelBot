@@ -44,6 +44,7 @@ export default {
   },
   home: {
     title: 'Nearby Stations',
+    showingAllStations: 'Showing all stations in Myanmar.',
     noStations: 'No stations found nearby.',
     noStationsHint: 'Try expanding the distance filter or removing fuel type filters.',
     loading: 'Finding nearby stations…',
@@ -56,6 +57,13 @@ export default {
       limited: 'Running low',
       empty: 'Empty',
       distance: 'Distance',
+      distance5: '5 km',
+      distance25: '25 km',
+      distance50: '50 km',
+      distance100: '100 km',
+      wholeCountry: 'All Myanmar',
+      selectRoute: 'Route',
+      b2bContact: 'Contact us for nationwide or route view',
     },
   },
   station: {

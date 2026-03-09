@@ -8,6 +8,7 @@ import { useFilterStore } from '@/stores/filterStore'
 import { useMapStyleStore, type MapStyle } from '@/stores/mapStyleStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
 import { STATUS_DOT_COLORS, worstStatusForFuels } from '@/lib/fuelUtils'
+import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { getBrandInitial, getBrandLogoUrl } from '@/lib/brandLogos'
 import type { StationWithStatus } from '@/types'
 
@@ -95,6 +96,7 @@ export function MapPage() {
     lat: effectiveLat,
     lng: effectiveLng,
     maxDistanceKm: lat !== null ? filters.maxDistanceKm : 25,
+    selectedRouteId: filters.selectedRouteId,
     fuelTypes: filters.fuelTypes,
     statusFilter: filters.statusFilter,
   })
@@ -196,6 +198,18 @@ export function MapPage() {
       markersRef.current.push(marker)
     })
   }, [stations, navigate, filters.fuelTypes])
+
+  // When showing whole country or a route, fit map bounds to all stations (and user location)
+  const isNationalView = filters.maxDistanceKm >= WHOLE_COUNTRY_KM
+  const isRouteView = !!filters.selectedRouteId
+  useEffect(() => {
+    if (!mapRef.current || (!isNationalView && !isRouteView) || stations.length === 0) return
+    const bounds = L.latLngBounds(
+      stations.map((s) => [s.lat, s.lng] as L.LatLngTuple),
+    )
+    if (lat != null && lng != null) bounds.extend([lat, lng])
+    mapRef.current.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 })
+  }, [isNationalView, isRouteView, stations, lat, lng])
 
   function handleMyLocation() {
     requestLocation({ highAccuracy: true })

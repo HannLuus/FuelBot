@@ -167,4 +167,6 @@ export interface StationFilters {
   fuelTypes: FuelCode[]
   statusFilter: StatusFilter
   maxDistanceKm: number
+  /** When set, B2B route view is active and stations are filtered to this route. */
+  selectedRouteId: string | null
 }

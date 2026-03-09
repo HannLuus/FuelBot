@@ -75,6 +75,10 @@ All migrations are applied to the remote Supabase project. Key tables:
 | `station_followers` | Users following a station for alerts |
 | `subscriptions` | Operator subscription tiers |
 | `alerts_log` | Dispatched alert records |
+| `b2b_subscriptions` | Paid B2B entitlements (national view, route view) |
+| `routes` | Predefined routes for transport companies (corridor view) |
+
+**B2B (national / route view):** Nationwide and route-scoped station data are gated. Only users with an active row in `b2b_subscriptions` (and `valid_until > now()`) see "All Myanmar" or the route selector. Migrations are applied to the remote project. Demo data is in place: log in as **hann.mandalay@gmail.com** to see the "All Myanmar" pill and the **Yangon–Mandalay** route in the filter bar. To add more demo users or routes, see `supabase/seeds/seed-b2b-demo.sql` and insert into `b2b_subscriptions` (and `routes`) with the user's `auth.users.id`.
 
 ### Confidence model
 

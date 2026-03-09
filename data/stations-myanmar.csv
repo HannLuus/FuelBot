@@ -409,6 +409,28 @@ Shwe Pyi Tan Fuel Station,Unknown,20.7815,97.0412,Taunggyi,Taunggyi,Taunggyi,MM
 Pa-O Region Fuel Station,Pa-O,20.7942,97.0528,Taunggyi,Taunggyi,Taunggyi,MM
 Taunggyi Main Fuel Station,Unknown,20.7759,97.0331,"Main Road, Taunggyi",Taunggyi,Taunggyi,MM
 Nant Thar Gon Fuel Station,Unknown,20.7911,97.0607,Taunggyi,Taunggyi,Taunggyi,MM
+Shwe Zabu Fuel Station,,20.78,97.03,Near Taunggyi University,Taunggyi,Taunggyi,MM
+Pinmya Fuel Station,,20.77,97.04,Pinmya Village,Taunggyi,Taunggyi,MM
+Aung Myin Thu Fuel Station,,20.79,97.02,Near Taunggyi General Hospital,Taunggyi,Taunggyi,MM
+Kalaw Fuel Station,,22.66,96.56,Kalaw-Aungban Road,Kalaw,Taunggyi,MM
+Aung Mingalar Fuel Station,,22.65,96.55,Near Kalaw Market,Kalaw,Taunggyi,MM
+Pyae Sone Filling Station,,22.67,96.57,Near Kalaw Railway Station,Kalaw,Taunggyi,MM
+Shwe Hnin Si Fuel Station,,22.65,96.56,Beside Main Road,Kalaw,Taunggyi,MM
+Shwe Inn Gyinn Fuel Station,,20.64,96.92,Nyaungshwe-Taunggyi Road,Nyaungshwe,Taunggyi,MM
+Yadanar Mann Fuel Station,,20.66,96.93,Nyaungshwe-Taunggyi Road,Nyaungshwe,Taunggyi,MM
+Kyauk Taing Fuel Station,,20.61,96.91,Nyaungshwe-Taunggyi Road,Nyaungshwe,Taunggyi,MM
+Shwe Sin Petrol Station,Shwe Sin,20.75,97.05,Hopong-Taunggyi Road,Hopong,Taunggyi,MM
+Pa-O National Filling Station,,20.73,97.03,Near Hopong Market,Hopong,Taunggyi,MM
+Myint Mo Fuel Station,,20.74,97.04,"Main Road, Hopong",Hopong,Taunggyi,MM
+Lawksawk Fuel Station,,20.69,97.13,"Main Road, Lawksawk",Lawksawk,Taunggyi,MM
+Shwe Lawksawk Petrol Station,Shwe Taung,20.7,97.12,Near Lawksawk Market,Lawksawk,Taunggyi,MM
+Myo Ma (Pekon),,20.6667,96.8333,,Pekon,Taunggyi,MM
+Pekon Filling Station,,20.6667,96.8333,,Pekon,Taunggyi,MM
+Pinlaung Main Fuel Station,,20.48,96.86,Pinlaung,Pinlaung,Taunggyi,MM
+Shwe Pinlaung Petrol Station,,20.49,96.87,Pinlaung,Pinlaung,Taunggyi,MM
+Ywangan Fuel Station,,21.25,96.58,"Main Road, Ywangan",Ywangan,Taunggyi,MM
+Aung Mingalar Fuel Station,,21.26,96.57,"Near Ywangan Market, Ywangan",Ywangan,Taunggyi,MM
+Shwe Hintha Fuel Station,,21.24,96.59,"Ywangan-Pindaya Road, Ywangan",Ywangan,Taunggyi,MM
 MPE Filling Station (Pathein),MPE,16.77,94.73,"Strand Road, Pathein",Pathein,Pathein,MM
 Shwe Taung Filling Station (Pathein),Shwe Taung,16.78,94.73,"Aung Chan Thar Road, Pathein",Pathein,Pathein,MM
 Unknown Filling Station (Pathein),,16.78,94.75,"Near Pathein University, Pathein",Pathein,Pathein,MM
@@ -496,57 +518,1052 @@ Yoma Filling Station,Unknown,18.8102,95.2415,"Pyay, Myanmar",Pyay,Pyay,MM
 Hinthar Gone Filling Station,Unknown,18.7823,95.2495,"Pyay, Myanmar",Pyay,Pyay,MM
 Minlwin Filling Station,Unknown,18.7775,95.2449,"Pyay, Myanmar",Pyay,Pyay,MM
 Moe Kaung Kin Filling Station,Unknown,18.7911,95.2567,"Pyay, Myanmar",Pyay,Pyay,MM
-MPE Filling Station,MPE,17.17,96.43,"Yangon-Mandalay Expressway, near mile marker 60",Waw Township,Yangon-Mandalay Highway,MM
-Shwe Taung Filling Station,Shwe Taung,18.55,96.4,"Yangon-Mandalay Expressway, near Bago",Bago,Yangon-Mandalay Highway,MM
-MPT Filling Station,MPT,19.74,96.32,"Yangon-Mandalay Expressway, near Pyu",Pyu,Yangon-Mandalay Highway,MM
-PTT Filling Station,PTT,20.82,96.18,"Yangon-Mandalay Expressway, near Zeyawaddy",Zeyawaddy,Yangon-Mandalay Highway,MM
-MPE Filling Station (Naypyidaw),MPE,21.79,96.12,"Yangon-Mandalay Expressway, Near Naypyidaw Entrance",Lewe,Yangon-Mandalay Highway,MM
-Filling Station (Naypyidaw),Unknown,21.83,96.09,"Yangon-Mandalay Expressway, near Naypyidaw",Lewe,Yangon-Mandalay Highway,MM
-Total Filling Station (Naypyidaw),Total,21.86,96.06,"Yangon-Mandalay Expressway, near Naypyidaw",Lewe,Yangon-Mandalay Highway,MM
-Shwe Taung Filling Station,Shwe Taung,20.98,96.16,Yangon-Mandalay Expressway,Tatkon,Yangon-Mandalay Highway,MM
-MPE Filling Station (Kyaukse),MPE,21.42,96.02,"Yangon-Mandalay Expressway, near Kyaukse",Kyaukse,Yangon-Mandalay Highway,MM
-PTT Filling Station (Myothar),PTT,21.64,95.96,"Yangon-Mandalay Expressway, near Myothar",Myothar,Yangon-Mandalay Highway,MM
-Shwe Taung Filling Station (Wundwin),Shwe Taung,21.82,95.86,"Yangon-Mandalay Expressway, near Wundwin",Wundwin,Yangon-Mandalay Highway,MM
-MPE Filling Station (Meiktila),MPE,20.87,95.87,"Yangon-Mandalay Expressway, near Meiktila",Meiktila,Yangon-Mandalay Highway,MM
-PTT Filling Station (Thazi),PTT,21.29,95.9,"Yangon-Mandalay Expressway, near Thazi",Thazi,Yangon-Mandalay Highway,MM
-MPE Filling Station,MPE,16.79,96.34,"Near Thanlyin Bridge, Yangon-Thanlyin Road",Thanlyin,Yangon-Mawlamyine Highway,MM
-Shwe Taung Filling Station,Shwe Taung,16.85,96.42,"Yangon-Thanlyin Road, near Thilawa SEZ",Kyauktan,Yangon-Mawlamyine Highway,MM
-PTT Filling Station,PTT,16.65,96.75,"NH1, near Thaketa Township Boundary",Thaketa,Yangon-Mawlamyine Highway,MM
-MPE Filling Station,MPE,16.7,96.9,"NH1, near Bago River Bridge",Hlegu,Yangon-Mawlamyine Highway,MM
-Shwe Taung Filling Station,Shwe Taung,16.95,97.05,"NH1, North of Hlegu",Hlegu,Yangon-Mawlamyine Highway,MM
-Total Filling Station,Total,17.33,97.22,"NH1, near Payagyi",Payagyi,Yangon-Mawlamyine Highway,MM
-MPE Filling Station,MPE,17.55,97.35,"NH1, between Payagyi and Nyaungkhashe",Nyaungkhashe,Yangon-Mawlamyine Highway,MM
-Shwe Taung Filling Station,Shwe Taung,17.75,97.5,"NH1, near Nyaungkhashe",Nyaungkhashe,Yangon-Mawlamyine Highway,MM
-PTT Filling Station,PTT,18.17,97.32,"NH1, Thaton Bypass",Thaton,Yangon-Mawlamyine Highway,MM
-MPE Filling Station,MPE,18.3,97.6,"NH1, east of Thaton",Thaton,Yangon-Mawlamyine Highway,MM
-Shwe Taung Filling Station,Shwe Taung,16.46,97.62,Near Kyaikto Pagoda,Kyaikto,Yangon-Mawlamyine Highway,MM
-PTT Filling Station,PTT,16.49,97.72,"Kyaikto, near highway",Kyaikto,Yangon-Mawlamyine Highway,MM
-MPE Filling Station,MPE,16.55,97.88,"NH1, near Theinzayat",Kyaikto,Yangon-Mawlamyine Highway,MM
-Shwe Taung Filling Station,Shwe Taung,16.33,97.96,Near Mottama,Mottama,Yangon-Mawlamyine Highway,MM
-PTT Filling Station,PTT,16.48,97.68,"Kyaikto, north of the main town",Kyaikto,Yangon-Mawlamyine Highway,MM
-MPE Filling Station,MPE,16.905,95.96,"NH8, near Twante Bridge",Twante,Yangon-Pathein Highway,MM
-Shwe Byain Phyu Filling Station,Shwe Byain Phyu,17.092,95.724,"NH8, near Kyee Myine Daing village",Kyee Myine Daing,Yangon-Pathein Highway,MM
-PTT Filling Station,PTT,17.05,95.55,"NH8, near Pantanaw",Pantanaw,Yangon-Pathein Highway,MM
-MPE Filling Station,MPE,17.15,95.35,"NH8, near Wakema",Wakema,Yangon-Pathein Highway,MM
-Shwe Taung Filling Station,Shwe Taung,17.02,95.08,"NH8, near Myaungmya",Myaungmya,Yangon-Pathein Highway,MM
-Unknown Filling Station,Unknown,16.85,94.78,"NH8, near Einme",Einme,Yangon-Pathein Highway,MM
-Shwe Than Lwin Filling Station,Shwe Than Lwin,16.78,94.75,"NH8, near Einme",Einme,Yangon-Pathein Highway,MM
-PTT Filling Station,PTT,16.77,94.73,"NH8, near Einme",Einme,Yangon-Pathein Highway,MM
-MPE Filling Station,MPE,17,96.15,"Yangon-Pyay Road, near Hlegu",Hlegu,Yangon-Pyay Highway,MM
-Shwe Taung Filling Station,Shwe Taung,17.5,95.8,"Yangon-Pyay Road, near Oakkan",Oakkan,Yangon-Pyay Highway,MM
-MPT Filling Station,MPT,17.8,95.6,"Yangon-Pyay Road, near Tharrawaddy",Tharrawaddy,Yangon-Pyay Highway,MM
-Filling Station,Unknown,18,95.5,"Yangon-Pyay Road, Letpadan",Letpadan,Yangon-Pyay Highway,MM
-PTT Filling Station,PTT,18.75,95.25,"Yangon-Pyay Road, north of Gyobingauk",Gyobingauk,Yangon-Pyay Highway,MM
-MPE Filling Station,MPE,18.85,95.22,"Yangon-Pyay Road, near Gyobingauk",Gyobingauk,Yangon-Pyay Highway,MM
-Filling Station,Unknown,18.95,95.2,"Yangon-Pyay Road, near Gyobingauk",Gyobingauk,Yangon-Pyay Highway,MM
-Shwe Taung Filling Station,Shwe Taung,18.9,95.21,"Yangon-Pyay Road, near Gyobingauk",Gyobingauk,Yangon-Pyay Highway,MM
-Filling Station,Unknown,19.05,95.15,Yangon-Pyay Road,Pyay,Yangon-Pyay Highway,MM
-Total Filling Station,Total,18.816,95.228,Yangon-Pyay Road,Gyobingauk,Yangon-Pyay Highway,MM
-PTT Filling Station,PTT,18.836,95.224,Yangon-Pyay Road,Gyobingauk,Yangon-Pyay Highway,MM
-MPE Filling Station,MPE,17.82,95.25,"Pathein-Hinthada Road, near Kyaukchaung Village",Kyonpyaw,Pathein-Hinthada Highway,MM
-Shwe Taung Filling Station,Shwe Taung,17.65,95.4,"Pathein-Hinthada Road, near Thaunggyi Village",Kyonpyaw,Pathein-Hinthada Highway,MM
-PTT Filling Station,PTT,17.4,95.55,"Pathein-Hinthada Road, near Ywathitkyi Village",Ingapu,Pathein-Hinthada Highway,MM
-MPE Filling Station,MPE,17.15,95.7,"Pathein-Hinthada Road, near Lemyethna Town",Lemyethna,Pathein-Hinthada Highway,MM
-Shwe Taung Filling Station,Shwe Taung,16.9,95.85,"Pathein-Hinthada Road, near Zalon Village",Zalon,Pathein-Hinthada Highway,MM
-Total Filling Station,Total,16.75,95.95,"Pathein-Hinthada Road, near Hinthada",Hinthada,Pathein-Hinthada Highway,MM
-MPE Filling Station,MPE,17.95,95.15,"Pathein-Hinthada Road, near Wakema",Wakema,Pathein-Hinthada Highway,MM
+Aung Myint Mo Filling Station,MPE,16.709,94.704,Myaungmya-Einme Road,Myaungmya,Myaungmya,MM
+Yadanar Maung Filling Station,Unknown,16.695,94.719,Myaungmya-Wakema Road,Myaungmya,Myaungmya,MM
+Shwe Pyi Tan Filling Station,Unknown,16.702,94.707,Strand Road,Myaungmya,Myaungmya,MM
+Einme YBS Filling Station,YBS,16.6809,94.9573,Einme-Myaungmya Rd,Einme,Myaungmya,MM
+Shwe Padauk Petrol Station,Shwe Padauk,16.6823,94.9552,Einme-Myaungmya Rd,Einme,Myaungmya,MM
+Wakema Filling Station,,16.733,94.933,Wakema,Wakema,Myaungmya,MM
+Shwe Than Lwin Filling Station,,16.728,94.939,Wakema,Wakema,Myaungmya,MM
+Myoma Filling Station,Unknown,16.703,94.897,"Myoma Road, Myaungmya",Myaungmya,Myaungmya,MM
+Aung Gabar Filling Station,Unknown,16.708,94.902,"Aung Gabar Quarter, Myaungmya",Myaungmya,Myaungmya,MM
+Shwe Hin Thar Filling Station,Unknown,16.695,94.89,"Near the river, Myaungmya",Myaungmya,Myaungmya,MM
+Pyi Taw Aye Filling Station,Unknown,16.712,94.91,"Pyi Taw Aye ward, Myaungmya",Myaungmya,Myaungmya,MM
+Min Tayar Filling Station,Unknown,16.698,94.885,"Min Tayar quarter, Myaungmya",Myaungmya,Myaungmya,MM
+Thazin Filling Station,Unknown,16.715,94.915,"Thazin village, Myaungmya",Myaungmya,Myaungmya,MM
+Aung Takon Filling Station,Unknown,16.705,94.9,"Aung Takon Quarter, Myaungmya",Myaungmya,Myaungmya,MM
+Shwe Myaing Filling Station,Unknown,16.69,94.895,"Shwe Myaing village, Myaungmya",Myaungmya,Myaungmya,MM
+Kant Kaw Filling Station,Unknown,16.718,94.92,"Kant Kaw Quarter, Myaungmya",Myaungmya,Myaungmya,MM
+Nga Yoke Kaung Filling Station,Unknown,16.685,94.88,"Nga Yoke Kaung Quarter, Myaungmya",Myaungmya,Myaungmya,MM
+May Yu Filling Station,Unknown,16.7,94.905,"May Yu Quarter, Myaungmya",Myaungmya,Myaungmya,MM
+Bo Bo Aung Filling Station,Unknown,16.72,94.925,"Bo Bo Aung Quarter, Myaungmya",Myaungmya,Myaungmya,MM
+Shwe Taung Filling Station,Unknown,16.678,94.875,"Shwe Taung village, Myaungmya",Myaungmya,Myaungmya,MM
+MPE Filling Station (Pyapon),MPE,16.27,95.69,Pyapon-Bogale Road,Pyapon,Pyapon,MM
+Shwe Taung Filling Station (Pyapon),Shwe Taung,16.28,95.68,Pyapon-Bogale Road,Pyapon,Pyapon,MM
+PTT Filling Station (Pyapon),PTT,16.29,95.67,"Strand Road, Pyapon",Pyapon,Pyapon,MM
+Aung Yadana Petrol Station,MPE,16.337,95.688,Kyaunggon-Pyapon Road,Kyaunggon,Pyapon,MM
+Hein Petrol Station,Unknown,16.332,95.692,Kyaunggon-Pyapon Road,Kyaunggon,Pyapon,MM
+Shwe Byain Phyu Filling Station,Shwe Byain Phyu,16.325,95.561,Dedaye-Bogale Road,Dedaye,Pyapon,MM
+MPE Filling Station,MPE,16.319,95.559,Dedaye-Bogale Road,Dedaye,Pyapon,MM
+MPT Filling Station,MPT,16.308,95.542,Unknown,Dedaye,Pyapon,MM
+Aung Gabar Filling Station,MPE,16.275,95.264,Bogale-Mawlamyinegyun Road,Bogale,Pyapon,MM
+Myat Gabar Filling Station,MPE,16.28,95.266,Bogale-Mawlamyinegyun Road,Bogale,Pyapon,MM
+Win Star Filling Station,Win Star,16.2833,95.6833,"Pyapon, Myanmar",Pyapon,Pyapon,MM
+Yuzana Filling Station,Yuzana,16.275,95.67,"Near Pyapon University, Pyapon",Pyapon,Pyapon,MM
+Shwe Padauk Filling Station,Shwe Padauk,16.268,95.665,"Along Main Road, Pyapon",Pyapon,Pyapon,MM
+Global Energy Filling Station,Global Energy,16.2883,95.6933,"Pyapon, near the bridge",Pyapon,Pyapon,MM
+Myat Mingalar Filling Station,Myat Mingalar,16.27,95.675,Pyapon Township,Pyapon,Pyapon,MM
+Aung Thitsar Filling Station,Aung Thitsar,16.265,95.66,"Close to the market, Pyapon",Pyapon,Pyapon,MM
+Shwe Nant Thar Filling Station,Shwe Nant Thar,16.28,95.68,On the outskirts of Pyapon,Pyapon,Pyapon,MM
+U & Me Filling Station,U & Me,16.29,95.695,"Along the river road, Pyapon",Pyapon,Pyapon,MM
+Tun Filling Station,Tun,16.278,95.673,"Near the city center, Pyapon",Pyapon,Pyapon,MM
+Golden Star Filling Station,Golden Star,16.263,95.658,Pyapon Industrial Zone,Pyapon,Pyapon,MM
+Forever Filling Station,Forever,16.285,95.688,"Pyapon, near the school",Pyapon,Pyapon,MM
+Shwe Hin Thar Filling Station,Shwe Hin Thar,16.273,95.678,Pyapon Main Road,Pyapon,Pyapon,MM
+MPE Maubin Branch,MPE,16.735,95.705,Corner of Strand Road and Bo Aung Kyaw Road,Maubin,Maubin,MM
+Shwe Taung Gas Station,Shwe Taung,16.74,95.715,"Strand Road, near the market",Maubin,Maubin,MM
+MPE Nyaungdon,MPE,16.625,95.705,Yangon-Pathein Road,Nyaungdon,Maubin,MM
+Shwe Taung Nyaungdon,Shwe Taung,16.615,95.71,Yangon-Pathein Road,Nyaungdon,Maubin,MM
+Aung Myint Mo Petrol Station,MPE,16.6808,95.4387,Near Pantanaw Hospital,Pantanaw,Maubin,MM
+Unknown Petrol Station,,16.6712,95.4366,Pantanaw-Maubin Road,Pantanaw,Maubin,MM
+Myoma Gas Station,MPE,16.703,95.482,Myoma Road,Danyingon,Maubin,MM
+Danyingon Highway Gas Station,Shwe Taung,16.695,95.478,Yangon-Pathein Highway,Danyingon,Maubin,MM
+Yoma Gas Station,MPT,16.7,95.485,Near Danyingon Market,Danyingon,Maubin,MM
+Zaw Zaw Win Petrol Station,Unknown,16.7377,95.7564,Maubin-Nyaungdon Road,Maubin,Maubin,MM
+Tun Family Fuel Station,Unknown,16.7412,95.7618,Maubin Township,Maubin,Maubin,MM
+Golden Star Petrol Station,Unknown,16.7345,95.7592,Maubin,Maubin,Maubin,MM
+Shwe Pyi Tan Petrol,Unknown,16.7398,95.7589,Maubin,Maubin,Maubin,MM
+Min Thar Gyi Station,Unknown,16.7445,95.7632,Maubin,Maubin,Maubin,MM
+Phyo Pa Pa Petrol Station,Unknown,16.7423,95.7601,Maubin,Maubin,Maubin,MM
+Aye Yarwady Fuel Station,Unknown,16.7369,95.7555,Maubin Township,Maubin,Maubin,MM
+Zawana Petrol,Unknown,16.7385,95.7575,Maubin,Maubin,Maubin,MM
+Yadanar Theingi Station,Unknown,16.7405,95.7599,Maubin,Maubin,Maubin,MM
+Myoma Fuel Station,MPE,16.45,94.75,Myoma Road,Labutta,Labutta,MM
+Shwe Pyi Tan Fuel Station,Shwe Taung,16.46,94.74,Strand Road,Labutta,Labutta,MM
+Yadanarbon Fuel Station,,16.44,94.76,Aung Mingalar Quarter,Labutta,Labutta,MM
+Mawlamyinegyun Filling Station,MPE,16.268,94.842,Mawlamyinegyun-Labutta Road,Mawlamyinegyun,Labutta,MM
+Shwe Taung Filling Station,Shwe Taung,16.255,94.851,Mawlamyinegyun-Labutta Road,Mawlamyinegyun,Labutta,MM
+Unknown Fuel Station,,15.964,94.735,Pyinsalu,Pyinsalu,Labutta,MM
+MPE Fuel Station,MPE,15.967,94.738,Near Pyinsalu Market,Pyinsalu,Labutta,MM
+Aung Gabar Fuel Station,Unknown,16.4456,94.7211,Labutta Township,Labutta,Labutta,MM
+Win Gabar Fuel Station,Unknown,16.4412,94.7189,"Near Labutta Hospital, Labutta Township",Labutta,Labutta,MM
+Shwe Hintha Fuel Station,Unknown,16.4387,94.7245,"Bayint Naung Road, Labutta Township",Labutta,Labutta,MM
+Parami Fuel Station,Unknown,16.4488,94.7192,"Near the Market, Labutta Township",Labutta,Labutta,MM
+Shwe Padauk Fuel Station,Unknown,16.4501,94.7233,"Main Road, Labutta Township",Labutta,Labutta,MM
+Aye Yarwaddy Fuel Station,Unknown,16.4355,94.7166,"Near the river, Labutta Township",Labutta,Labutta,MM
+Mya Padauk Fuel Station,Unknown,16.4422,94.7255,Labutta Township,Labutta,Labutta,MM
+Shwe Nanttha Fuel Station,Unknown,16.4477,94.72,"Near the clock tower, Labutta Township",Labutta,Labutta,MM
+Golden Land Fuel Station,Unknown,16.4395,94.7265,Labutta Township,Labutta,Labutta,MM
+Bogale Filling Station,MPE,16.18,95.28,Bogale Road,Bogale,Bogale,MM
+Shwe Taung Petrol Station,Shwe Taung,16.19,95.27,Main Road,Bogale,Bogale,MM
+Aung Myin Thu Petrol Station,Unknown,16.464,95.538,Kyaiklat-Bogale Road,Kyaiklat,Bogale,MM
+Zaw Win Htike Petrol Station,Unknown,16.459,95.535,Kyaiklat-Bogale Road,Kyaiklat,Bogale,MM
+Shwe Pyi Thar Petrol Station,Unknown,16.461,95.537,Kyaiklat-Bogale Road,Kyaiklat,Bogale,MM
+Myint Mo Petrol Station,Unknown,16.275,95.378,Bogale,Bogale,Bogale,MM
+Nga Yoke Kaung Petrol Station,Unknown,16.282,95.372,Bogale,Bogale,Bogale,MM
+Kyaw Lin Aung Petrol,Unknown,16.289,95.365,Bogale,Bogale,Bogale,MM
+Aye Yarwady Petrol Station,Unknown,16.278,95.385,Bogale,Bogale,Bogale,MM
+Shwe Hintha Petrol,Unknown,16.295,95.37,Bogale,Bogale,Bogale,MM
+Yadanar Theingi Fuel Station,Unknown,16.285,95.38,Bogale,Bogale,Bogale,MM
+New Light Petrol Station,Unknown,16.292,95.375,Bogale,Bogale,Bogale,MM
+Golden Land Fuel Stop,Unknown,16.27,95.37,Bogale,Bogale,Bogale,MM
+Min Tain Petrol Pump,Unknown,16.28,95.36,Bogale,Bogale,Bogale,MM
+Paing Htoo Filling Station,Unknown,16.29,95.385,Bogale,Bogale,Bogale,MM
+Thiri Mingalar Fuel,Unknown,16.265,95.375,Bogale,Bogale,Bogale,MM
+Shwe Taung Fuel Station (Twante),Shwe Taung,16.715,95.954,Yangon-Twante Rd,Twante,Twante,MM
+MPE Fuel Station (Twante),MPE,16.711,95.959,Yangon-Twante Rd,Twante,Twante,MM
+PTT Filling Station (Twante),PTT,16.699,95.948,Near Twante Canal,Twante,Twante,MM
+CNPC Fuel Station (Twante),CNPC,16.705,95.952,Yangon-Twante Rd,Twante,Twante,MM
+MPE Filling Station (Kungyangon),MPE,16.607,95.994,Yangon-Kungyangon Road,Kungyangon,Twante,MM
+Shwe Taung Filling Station (Kungyangon),Shwe Taung,16.593,95.985,Yangon-Kungyangon Road,Kungyangon,Twante,MM
+PTT Filling Station (Kungyangon),PTT,16.614,95.998,Yangon-Kungyangon Road,Kungyangon,Twante,MM
+Aung Yadana Fuel Station,Unknown,16.7345,96.0678,"Twante-Maubin Road, Twante",Twante,Twante,MM
+Aye Chan Thar Fuel Station,Unknown,16.7289,96.0721,"Near Twante Canal, Twante",Twante,Twante,MM
+Bo Bo Aung Fuel Station,Unknown,16.7412,96.0598,"Twante-Maubin Road, Twante",Twante,Twante,MM
+Htoo Aung Fuel Station,Unknown,16.7198,96.0812,"Twante-Dala Road, Twante",Twante,Twante,MM
+Kaung Set Thitsar Fuel Station,Unknown,16.7385,96.0634,"Twante, Near Market",Twante,Twante,MM
+Myat Mandalar Fuel Station,Unknown,16.7256,96.0754,"Twante, Main Road",Twante,Twante,MM
+New Light Fuel Station,Unknown,16.7311,96.0697,"Twante, Near the bridge",Twante,Twante,MM
+Phyo Pa Pa Win Fuel Station,Unknown,16.7223,96.0789,"Twante Township, Main Street",Twante,Twante,MM
+Shwe Pyi Tan Fuel Station,Unknown,16.7458,96.0556,"Twante, Near the river",Twante,Twante,MM
+Thiri Yadanar Fuel Station,Unknown,16.7368,96.0655,"Twante, close to the center",Twante,Twante,MM
+Yadanar Thike Fuel Station,Unknown,16.7295,96.0715,"Twante, on the main road",Twante,Twante,MM
+Zawana Fuel Station,Unknown,16.7432,96.0582,"Twante-Maubin Highway, Twante",Twante,Twante,MM
+Aung Myin Thu Petrol Station,MPE,17.523,94.746,Kyonpyaw-Pathein Road,Kyonpyaw,Kyonpyaw,MM
+Min Thadar Fuel Station,,17.518,94.741,Kyonpyaw-Pathein Road,Kyonpyaw,Kyonpyaw,MM
+Myat Thu Kha Petrol Station,,17.521,94.743,Kyonpyaw-Pathein Road,Kyonpyaw,Kyonpyaw,MM
+Unknown Fuel Station,,17.653,94.924,Ingapu-Kyonpyaw Road,Ingapu,Kyonpyaw,MM
+MPE Filling Station,MPE,17.65,94.921,Main Road,Ingapu,Kyonpyaw,MM
+Shwe Than Lwin Fuel Station,Shwe Than Lwin,17.6453,94.7891,"Kyonpyaw, Ayeyarwady Region",Kyonpyaw,Kyonpyaw,MM
+Yadanar Theingi Fuel Station,Yadanar Theingi,17.6512,94.7934,"Near Kyonpyaw Market, Kyonpyaw",Kyonpyaw,Kyonpyaw,MM
+Aung Zeya Fuel Station,Aung Zeya,17.6488,94.7867,"Main Road, Kyonpyaw",Kyonpyaw,Kyonpyaw,MM
+Myo Paing Fuel Station,Myo Paing,17.6395,94.7952,"Kyonpyaw Township, Ayeyarwady",Kyonpyaw,Kyonpyaw,MM
+Htoo Paing Fuel Station,Htoo Paing,17.6556,94.7905,"Kyonpyaw, Ayeyarwady",Kyonpyaw,Kyonpyaw,MM
+Zaw Gyi Fuel Station,Zaw Gyi,17.6422,94.7879,"Near the bus station, Kyonpyaw",Kyonpyaw,Kyonpyaw,MM
+Aye Chan Thar Fuel Station,Aye Chan Thar,17.6499,94.7968,North of Kyonpyaw,Kyonpyaw,Kyonpyaw,MM
+Mya Thandar Fuel Station,Mya Thandar,17.6378,94.7911,Kyonpyaw Main Road,Kyonpyaw,Kyonpyaw,MM
+Ngar Maung Gyi Fuel Station,Ngar Maung Gyi,17.6533,94.7845,Close to Kyonpyaw hospital,Kyonpyaw,Kyonpyaw,MM
+Shwe Pyi Tan Fuel Station,Shwe Pyi Tan,17.6411,94.7986,"Near the river, Kyonpyaw",Kyonpyaw,Kyonpyaw,MM
+Thu Kha Yadana Fuel Station,Thu Kha Yadana,17.6466,94.7944,Kyonpyaw,Kyonpyaw,Kyonpyaw,MM
+Aye Myint Zu Fuel Station,Aye Myint Zu,17.6355,94.7857,On the outskirts of Kyonpyaw,Kyonpyaw,Kyonpyaw,MM
+Wakema Highway Fuel Station,MPE,16.8812,95.1745,Wakema-Myaungmya Road,Wakema,Wakema,MM
+Shwe Taung Wakema Fuel Station,Shwe Taung,16.865,95.1762,Near Wakema Market,Wakema,Wakema,MM
+Unknown Fuel Station,,16.73,95.02,Lemyethna-Wakema Road,Lemyethna,Wakema,MM
+Aung Myint Mo Fuel Station,Unknown,16.7324,94.7851,Wakema,Wakema,Wakema,MM
+Yadanar Maung Fuel Station,Unknown,16.7345,94.7872,Wakema,Wakema,Wakema,MM
+Win Star Fuel Station,Unknown,16.7366,94.7893,Wakema,Wakema,Wakema,MM
+Myoma Fuel Station,Unknown,16.7387,94.7914,Wakema,Wakema,Wakema,MM
+Hlaing Thar Yar Fuel Station,Unknown,16.7408,94.7935,Wakema,Wakema,Wakema,MM
+Shwe Pyi Tan Fuel Station,Unknown,16.7429,94.7956,Wakema,Wakema,Wakema,MM
+Nawarat Fuel Station,Unknown,16.745,94.7977,Wakema,Wakema,Wakema,MM
+Thiri Mingalar Fuel Station,Unknown,16.7471,94.7998,Wakema,Wakema,Wakema,MM
+Myat Thazin Fuel Station,Unknown,16.7492,94.8019,Wakema,Wakema,Wakema,MM
+Kyaw Zaya Fuel Station,Unknown,16.7513,94.804,Wakema,Wakema,Wakema,MM
+Aye Yarwady Fuel Station,Unknown,16.7534,94.8061,Wakema,Wakema,Wakema,MM
+Min Thandar Fuel Station,Unknown,16.7555,94.8082,Wakema,Wakema,Wakema,MM
+Thet Htar Ni Fuel Station,Unknown,16.7576,94.8103,Wakema,Wakema,Wakema,MM
+MPE Filling Station (Magway),MPE,20.14,94.93,Near Magway University,Magway,Magway,MM
+Shwe Taung Filling Station (Magway),Shwe Taung,20.15,94.95,Yangon-Magway Road,Magway,Magway,MM
+PTT Filling Station (Magway),PTT,20.13,94.92,Magway-Minbu Road,Magway,Magway,MM
+CNPC Filling Station (Magway),CNPC,20.16,94.94,Beside Ayeyarwady River,Magway,Magway,MM
+MPE Filling Station,MPE,20.46,94.86,Yenangyaung-Chauk Road,Yenangyaung,Magway,MM
+Shwe Taung Filling Station,Shwe Taung,20.45,94.87,Near Yenangyaung University,Yenangyaung,Magway,MM
+YBS Filling Station,,20.43,94.88,North of Yenangyaung,Yenangyaung,Magway,MM
+Aung Myin Thar Filling Station,MPE,20.882,94.819,Yangon-Chauk Road,Chauk,Magway,MM
+Shwe Padauk Phyu Filling Station,MPE,20.873,94.828,Yangon-Chauk Road,Chauk,Magway,MM
+Win Kyae Filling Station,,20.876,94.832,Unknown,Chauk,Magway,MM
+Thiri Sandar Filling Station,,20.866,94.82,Unknown,Chauk,Magway,MM
+Aung Yadana Filling Station,,20.334,95.188,"Near Natmauk Myoma Market, Natmauk",Natmauk,Magway,MM
+Natmauk Shwe Taung,Shwe Taung,20.335,95.19,"Natmauk-Magway Road, Natmauk",Natmauk,Magway,MM
+Yadanar Thike Filling Station,,20.33,95.185,"Natmauk, Myanmar",Natmauk,Magway,MM
+MPE Taungdwingyi,MPE,19.76,95.29,Yangon-Mandalay Road,Taungdwingyi,Magway,MM
+Shwe Taung Taungdwingyi,Shwe Taung,19.75,95.3,Near Taungdwingyi Town,Taungdwingyi,Magway,MM
+Aye Chan Thar Petrol Station,,19.74,95.28,Taungdwingyi,Taungdwingyi,Magway,MM
+Aung Lan Yadanar Fuel Station,MPT,19.7266,95.2533,Aunglan-Mindon Road,Aunglan,Magway,MM
+Aung Lan Min Tar Fuel Station,Unknown,19.719,95.2555,Aunglan-Mindon Road,Aunglan,Magway,MM
+Shwe Padauk Fuel Station,Unknown,19.7179,95.2544,Aunglan-Mindon Road,Aunglan,Magway,MM
+Myoma Fuel Station,Unknown,20.145,94.945,"Myoma Road, Magway",Magway,Magway,MM
+Yadanabon Fuel Station,Unknown,20.15,94.95,"Near Yadanabon Pagoda, Magway",Magway,Magway,MM
+Min Thar Filling Station,Unknown,20.055,95.055,"Min Thar Village, Magway Township",Magway,Magway,MM
+Shwe Pyi Tan Fuel Station,Unknown,19.76,95.26,Taungdwingyi,Taungdwingyi,Magway,MM
+Aung Thitsar Fuel Station,Unknown,19.77,95.27,Taungdwingyi,Taungdwingyi,Magway,MM
+Sein Yadanar Fuel Station,Unknown,19.855,95.155,"Near Sein Yadanar Market, Taungdwingyi",Taungdwingyi,Magway,MM
+Pin Chaung Fuel Station,Unknown,20.456,94.654,"Pin Chaung Village, Magway",Magway,Magway,MM
+Pakokku Fuel Station,Unknown,21.333,95.111,Pakokku,Pakokku,Magway,MM
+Yesagyo Fuel Station,Unknown,21.444,94.888,Yesagyo,Yesagyo,Magway,MM
+Myaing Fuel Station,Unknown,21.666,94.666,Myaing,Myaing,Magway,MM
+Gangaw Fuel Station,Unknown,22.111,94.333,Gangaw,Gangaw,Magway,MM
+Htilin Fuel Station,Unknown,22.333,94.111,Htilin,Htilin,Magway,MM
+Saw Fuel Station,Unknown,21.888,94.444,Saw,Saw,Magway,MM
+Aung Chan Thar (Natmauk),Unknown,20.35,95.3,Natmauk,Natmauk,Magway,MM
+Shwe Zedi Fuel Station,Unknown,20.09,94.93,"Near Shwe Zedi Pagoda, Magway",Magway,Magway,MM
+Pauk Fuel Station,Unknown,21.5,94.9,Pauk,Pauk,Magway,MM
+MPE Minbu Station,MPE,20.18,94.88,Near Minbu-Ann Road,Minbu,Minbu,MM
+Shwe Taung Minbu Station,Shwe Taung,20.19,94.87,Minbu-Magway Road,Minbu,Minbu,MM
+CNPC Minbu Station,CNPC,20.2,94.86,Near Minbu Airport,Minbu,Minbu,MM
+Shwe Padauk Oil Station,MPE,20.3371,94.7473,Sagu-Minbu Road,Sagu,Minbu,MM
+Unknown Fuel Station,,20.3066,94.7281,Near Sagu,Sagu,Minbu,MM
+Mya Yadana Petrol Station,,20.3288,94.7446,Sagu,Sagu,Minbu,MM
+Ngape Filling Station,MPE,19.875,94.64,Ngape-Minbu Road,Ngape,Minbu,MM
+Pwintbyu Petrol Station,MPE,20.04,94.65,"Main Road, Pwintbyu",Pwintbyu,Minbu,MM
+Shwe Taung Filling Station,Shwe Taung,20.03,94.66,Yangon-Bagan Road,Pwintbyu,Minbu,MM
+CNPC Pwintbyu,CNPC,20.02,94.64,Near Pwintbyu Market,Pwintbyu,Minbu,MM
+Salin Fuel Station,MPE,20.253,94.788,Near Salin Town Entrance,Salin,Minbu,MM
+Shwe Taung Petrol Station,Shwe Taung,20.245,94.78,Salin-Minbu Road,Salin,Minbu,MM
+CNPC Fuel Station,CNPC,20.26,94.795,"Main Road, Salin",Salin,Minbu,MM
+Aung Myin Fuel Station,,20.189,94.882,Minbu Township,Minbu,Minbu,MM
+Yadanar Thike Fuel Station,,20.185,94.878,Minbu Township,Minbu,Minbu,MM
+Win Star Fuel Station,,20.192,94.885,Minbu Township,Minbu,Minbu,MM
+Myoma Fuel Station,,20.198,94.891,Minbu Township,Minbu,Minbu,MM
+Zaw Zaw Fuel Station,,20.175,94.87,Minbu Township,Minbu,Minbu,MM
+Nilar Fuel Station,,20.18,94.875,Minbu Township,Minbu,Minbu,MM
+Aye Myint Thu Fuel Station,,20.183,94.88,Minbu Township,Minbu,Minbu,MM
+Mya Nandar Fuel Station,,20.178,94.873,Minbu Township,Minbu,Minbu,MM
+Shwe Pyi Tan Fuel Station,,20.195,94.888,Minbu Township,Minbu,Minbu,MM
+Kyaw Zaya Fuel Station,,20.187,94.883,Minbu Township,Minbu,Minbu,MM
+Phyo Thiri Fuel Station,,20.173,94.868,Minbu Township,Minbu,Minbu,MM
+Htet Htet Wai Fuel Station,,20.19,94.886,Minbu Township,Minbu,Minbu,MM
+Pyi Hein Fuel Station,,20.193,94.889,Minbu Township,Minbu,Minbu,MM
+MPE Filling Station,MPE,19.32,95.205,Minbu - Thayet Road,Thayet,Thayet,MM
+Shwe Taung Filling Station,Shwe Taung,19.305,95.18,Near Thayet Bridge,Thayet,Thayet,MM
+PTT Filling Station,PTT,19.315,95.21,Thayet-Aunglan Road,Thayet,Thayet,MM
+Unknown Station,,19.65,94.73,Mindon-Aunglan Road,Mindon,Thayet,MM
+Unknown Station,,19.63,94.72,Mindon,Mindon,Thayet,MM
+Kyaw Kyaw Bo Filling Station,MPE,19.654,95.207,"Main Road, Kamma",Kamma,Thayet,MM
+Unknown Filling Station,,19.661,95.215,Kamma-Aunglan Road,Kamma,Thayet,MM
+Sinbaungwe Fuel Station,,19.78,95.24,"Main Road, Sinbaungwe",Sinbaungwe,Thayet,MM
+MPE Fuel Station,MPE,19.77,95.23,Near Sinbaungwe Market,Sinbaungwe,Thayet,MM
+Aung Myin Thu Filling Station,Unknown,19.3045,95.2012,Thayet,Thayet,Thayet,MM
+Myint Mo Filling Station,Unknown,19.3082,95.1897,Thayet,Thayet,Thayet,MM
+Zaw Zaw Filling Station,Unknown,19.3129,95.1944,Thayet,Thayet,Thayet,MM
+Shwe Byain Nyo Filling Station,Unknown,19.3068,95.1975,Thayet,Thayet,Thayet,MM
+Aung Tagun Filling Station,Unknown,19.2991,95.2053,Thayet,Thayet,Thayet,MM
+Kyaw Zeya Filling Station,Unknown,19.3051,95.1911,Thayet,Thayet,Thayet,MM
+Mya Yadanar Filling Station,Unknown,19.3105,95.1859,Thayet,Thayet,Thayet,MM
+Yadanarpon Filling Station,Unknown,19.3027,95.1937,Thayet,Thayet,Thayet,MM
+Shwe Nant Thar Filling Station,Unknown,19.3094,95.2038,Thayet,Thayet,Thayet,MM
+Htoo Aung Filling Station,Unknown,19.3132,95.1981,Thayet,Thayet,Thayet,MM
+Aung Gabar Filling Station,Unknown,19.3076,95.2079,Thayet,Thayet,Thayet,MM
+Win Filling Station,Unknown,19.4285,95.2534,Thayet,Thayet,Thayet,MM
+MPE Filling Station,MPE,21.337,95.091,Near Pakokku University,Pakokku,Pakokku,MM
+Shwe Taung Filling Station,Shwe Taung,21.349,95.11,Yangon-Pakokku Road,Pakokku,Pakokku,MM
+YBS Filling Station,,21.343,95.103,Pakokku-Myaing Road,Pakokku,Pakokku,MM
+Total Filling Station,Total,21.355,95.118,Near Pakokku Airport,Pakokku,Pakokku,MM
+Aung Yadanar Fuel Station,,21.638,94.781,Yesagyo-Pakokku Road,Yesagyo,Pakokku,MM
+Shwe Padauk Fuel Station,,21.634,94.785,Yesagyo-Pakokku Road,Yesagyo,Pakokku,MM
+Hein Min Fuel Station,,21.64,94.779,Yesagyo-Pakokku Road,Yesagyo,Pakokku,MM
+Pauk Min Thandar Filling Station,,21.612,94.525,Pauk-Kyaukhtu Road,Pauk,Pakokku,MM
+Shwe Padauk Oil Station,,21.606,94.531,Pauk-Kyaukhtu Road,Pauk,Pakokku,MM
+Aung Myint Mo Petrol Station,,20.9125,94.5833,Seikphyu-Yesagyo Road,Seikphyu,Pakokku,MM
+Min Thar Gyi Petrol Station,,20.9083,94.575,Seikphyu,Seikphyu,Pakokku,MM
+Myo Setkya Petrol Station,,20.8667,94.5833,Seikphyu,Seikphyu,Pakokku,MM
+Aung Myin Thar Petrol Station,,21.414,94.635,Myaing-Pakokku Road,Myaing,Pakokku,MM
+Min Thar Gyi Petrol Station,,21.416,94.637,Myaing-Pakokku Road,Myaing,Pakokku,MM
+Shwe Nant Thar Fuel Station,Unknown,21.3397,95.1042,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Win Star Fuel Station,Unknown,21.3356,95.0987,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Aye Chan Thar Fuel Station,Unknown,21.3412,95.1111,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Shwe Pyi Thar Fuel Station,Unknown,21.3289,95.1005,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Aung Takon Fuel Station,Unknown,21.3322,95.1078,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Myitta Yaung Chi Fuel Station,Unknown,21.3375,95.115,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Shwe Hintha Fuel Station,Unknown,21.325,95.095,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Emerald Green Fuel Station,Unknown,21.345,95.1,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+New Light Fuel Station,Unknown,21.33,95.11,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Golden Arrow Fuel Station,Unknown,21.32,95.09,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Maha Bandoola Fuel Station,Unknown,21.35,95.115,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Pinlon Fuel Station,Unknown,21.3425,95.105,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Yadana Bone Fuel Station,Unknown,21.3375,95.0975,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Thitsar Fuel Station,Unknown,21.3225,95.1025,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Myo Ma Fuel Station,Unknown,21.3475,95.1125,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Kyaw Zaya Fuel Station,Unknown,21.335,95.1,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Power Fuel Station,Unknown,21.34,95.105,"Pakokku, Myanmar",Pakokku,Pakokku,MM
+Aung Myin Thar Fuel Station,Unknown,22.345,94.21,Gangaw-Htilin Road,Gangaw,Gangaw,MM
+Yadanar Fuel Station,Unknown,22.34,94.2,Gangaw-Htilin Road,Gangaw,Gangaw,MM
+Unknown Fuel Station,,22.161,94.011,Near Tilin-Htilin Road Junction,Tilin,Gangaw,MM
+Unknown Fuel Station,,22.158,94.012,Tilin,Tilin,Gangaw,MM
+Saw Petrol Station,MPE,22.008,94.085,"Main Road, Saw",Saw,Gangaw,MM
+Shwe Taung Filling Station,Shwe Taung,22.015,94.092,Near Saw Market,Saw,Gangaw,MM
+Htilin Fuel Station,Unknown,22.018,94.086,Htilin-Gangaw Road,Htilin,Gangaw,MM
+MPE Htilin,MPE,22.015,94.083,Near Htilin Market,Htilin,Gangaw,MM
+Htilin Petrol Station,Unknown,22.02,94.089,Main Road,Htilin,Gangaw,MM
+Gangaw Petrol Station,Unknown,22.0667,94.0833,"Gangaw, Myanmar",Gangaw,Gangaw,MM
+Min Thar Fuel Station,Unknown,22.1,94.1,"Near Gangaw Market, Gangaw",Gangaw,Gangaw,MM
+Shwe Pyi Tan Fuel Station,Unknown,22.05,94.07,"On the way to Htilin, Gangaw",Gangaw,Gangaw,MM
+Aung Zeya Fuel Station,Unknown,22.08,94.09,"Near Gangaw University, Gangaw",Gangaw,Gangaw,MM
+Myoma Fuel Station,Unknown,22.07,94.08,"Myoma Quarter, Gangaw",Gangaw,Gangaw,MM
+Pin Chaung Fuel Station,Unknown,22.09,94.06,"Near Pin Chaung Bridge, Gangaw",Gangaw,Gangaw,MM
+Kyauk Htut Fuel Station,Unknown,22.11,94.05,"Kyauk Htut Village, Gangaw",Gangaw,Gangaw,MM
+Bo Gyoke Fuel Station,Unknown,22.06,94.1,"Bo Gyoke Road, Gangaw",Gangaw,Gangaw,MM
+Nawarat Fuel Station,Unknown,22.04,94.09,"Nawarat Quarter, Gangaw",Gangaw,Gangaw,MM
+Thanlyin Fuel Station,Unknown,22.085,94.075,"Thanlyin Village, Gangaw",Gangaw,Gangaw,MM
+Nyaung Kone Fuel Station,Unknown,22.075,94.095,"Nyaung Kone Village, Gangaw",Gangaw,Gangaw,MM
+Mya Yadanar Fuel Station,Unknown,22.055,94.085,"Between Gangaw and Htilin, Gangaw",Gangaw,Gangaw,MM
+MPE Filling Station,MPE,22.02,96.47,Near Pyin Oo Lwin-Lashio Road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Shwe Taung Petrol Station,Shwe Taung,22.01,96.47,Pyin Oo Lwin-Lashio Road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+CNPC Filling Station,CNPC,22,96.46,Near National Kandawgyi Botanical Gardens,Pyin Oo Lwin,Pyin Oo Lwin,MM
+MPT Filling Station,MPT,22.03,96.48,Close to Pyin Oo Lwin city center,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Pin Lon Filling Station,,21.99,96.45,Near Pyin Oo Lwin Market,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Mogok Yadanar Filling Station,Unknown,22.929,96.526,"Main Road, Mogok",Mogok,Pyin Oo Lwin,MM
+Shwe Taung Petrol Station,Shwe Taung,22.928,96.524,Mogok,Mogok,Pyin Oo Lwin,MM
+MPE Filling Station,MPE,22.926,96.529,Mogok,Mogok,Pyin Oo Lwin,MM
+Shwe Padauk Filling Station,Shwe Taung,22.668,96.065,Mandalay - Mogok Road,Thabeikkyin,Pyin Oo Lwin,MM
+MPE Filling Station,MPE,22.665,96.06,Mandalay - Mogok Road,Thabeikkyin,Pyin Oo Lwin,MM
+Yadanarbon Oil,,22.707,96.079,Mandalay - Mogok Road,Thabeikkyin,Pyin Oo Lwin,MM
+Shwe Taung Gas Station,Shwe Taung,22.133,96.153,Sintgaing-Madaya Road,Sintgaing,Pyin Oo Lwin,MM
+MPE Gas Station,MPE,22.14,96.15,Near Sintgaing town entrance,Sintgaing,Pyin Oo Lwin,MM
+Aung Myin Mo Filling Station,,22.0475,96.4732,Near Pyin Oo Lwin - Mandalay Road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Kyaukse Gyi Filling Station,,22.035,96.468,Pyin Oo Lwin - Mandalay Road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Nann Htike Filling Station,,22.039,96.4705,Near Pyin Oo Lwin - Mandalay Road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Shwe Nan Taw Filling Station,,22.0285,96.4655,Close to Pyin Oo Lwin - Mandalay Road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Aye Mya Thazin Filling Station,,22.042,96.4715,Near the Highway,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Paing Soe Thu Filling Station,,22.049,96.474,Close to main road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Yadanar Maung Filling Station,,22.037,96.4695,Pyin Oo Lwin Area,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Win Yadanar Filling Station,,22.0295,96.466,Close to exit of city,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Myat Mandalar Filling Station,,22.036,96.469,Near highway exit,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Shwe Pyi Tan Filling Station,,22.04,96.471,Pyin Oo Lwin main thoroughfare,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Zawana Filling Station,,22.0385,96.47,On the main road,Pyin Oo Lwin,Pyin Oo Lwin,MM
+New Generation Filling Station,,22.0465,96.4725,Close to highway,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Phyu Sin Filling Station,,22.0395,96.4707,On the main route,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Shwe Hintha Filling Station,,22.0485,96.4737,Close proximity to highway,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Yadanar Pwint Filling Station,,22.0375,96.4697,On main thoroughfare,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Myat Thu Kha Filling Station,,22.0455,96.4722,Near Highway,Pyin Oo Lwin,Pyin Oo Lwin,MM
+Aung Thitsar Filling Station,,22.0325,96.4675,Close to the city exit,Pyin Oo Lwin,Pyin Oo Lwin,MM
+MPE Kyaukse Branch,MPE,21.615,96.128,"Yangon-Mandalay Old Road, near Kyaukse University",Kyaukse,Kyaukse,MM
+Shwe Taung Kyaukse,Shwe Taung,21.61,96.125,Yangon-Mandalay Old Road,Kyaukse,Kyaukse,MM
+PTT Kyaukse,PTT,21.595,96.135,Near Kyaukse Myoma Market,Kyaukse,Kyaukse,MM
+Myittha Filling Station,MPE,21.33,96.21,Myittha-Kyaukse Road,Myittha,Kyaukse,MM
+Shwe Taung Myittha,Shwe Taung,21.34,96.22,Near Myittha Town,Myittha,Kyaukse,MM
+Kyaukse YBS Filling Station,YBS,21.697,96.126,Yangon-Mandalay Old Rd,Tada-U,Kyaukse,MM
+Aung Myin Filling Station,Unknown,21.612,96.125,Kyaukse,Kyaukse,Kyaukse,MM
+Shwe Sin Filling Station,Unknown,21.598,96.132,Kyaukse,Kyaukse,Kyaukse,MM
+Min Tar Gyi Filling Station,Unknown,21.605,96.129,Kyaukse,Kyaukse,Kyaukse,MM
+Yadanar Theingi Filling Station,Unknown,21.618,96.121,Kyaukse,Kyaukse,Kyaukse,MM
+Shwe Pyi Thar Filling Station,Unknown,21.588,96.135,Kyaukse,Kyaukse,Kyaukse,MM
+Win Star Filling Station,Unknown,21.602,96.127,Kyaukse,Kyaukse,Kyaukse,MM
+Myint Mo Filling Station,Unknown,21.595,96.138,Kyaukse,Kyaukse,Kyaukse,MM
+Aung Gabar Filling Station,Unknown,21.615,96.123,Kyaukse,Kyaukse,Kyaukse,MM
+Shwe Padauk Filling Station,Unknown,21.591,96.131,Kyaukse,Kyaukse,Kyaukse,MM
+Yee Htat Filling Station,Unknown,21.608,96.126,Kyaukse,Kyaukse,Kyaukse,MM
+Shwe Nan Taw Filling Station,Unknown,21.5945,96.1305,Kyaukse,Kyaukse,Kyaukse,MM
+Obo Filling Station,Unknown,21.6015,96.1285,Kyaukse,Kyaukse,Kyaukse,MM
+Zayar Lin Filling Station,Unknown,21.61,96.124,Kyaukse,Kyaukse,Kyaukse,MM
+U Chit Filling Station,Unknown,21.5875,96.1335,Kyaukse,Kyaukse,Kyaukse,MM
+New Light Filling Station,Unknown,21.607,96.122,Kyaukse,Kyaukse,Kyaukse,MM
+Tun Brothers Filling Station,Unknown,21.59,96.129,Kyaukse,Kyaukse,Kyaukse,MM
+Paradise Filling Station,Unknown,21.613,96.136,Kyaukse,Kyaukse,Kyaukse,MM
+Zawana Filling Station,Unknown,21.596,96.139,Kyaukse,Kyaukse,Kyaukse,MM
+Pann Myo Thu Filling Station,Unknown,21.609,96.142,Kyaukse,Kyaukse,Kyaukse,MM
+MPE Myingyan (1),MPE,21.467,95.388,Yangon-Mandalay Rd,Myingyan,Myingyan,MM
+Shwe Taung Myingyan,Shwe Taung,21.464,95.391,Yangon-Mandalay Rd,Myingyan,Myingyan,MM
+CNPC Myingyan,CNPC,21.468,95.386,Yangon-Mandalay Rd,Myingyan,Myingyan,MM
+PTT Myingyan,PTT,21.466,95.389,Yangon-Mandalay Rd,Myingyan,Myingyan,MM
+U Ko Ko Filling Station,,21.243,95.681,Natogyi-Myingyan Road,Natogyi,Myingyan,MM
+Shwe Taung Station,Shwe Taung,21.225,95.675,Near Natogyi,Natogyi,Myingyan,MM
+Unknown Filling Station,,21.235,95.68,Natogyi-Myingyan Road,Natogyi,Myingyan,MM
+Taungtha Yadanar Fuel Station,,21.168,95.135,Taungtha-Myingyan Road,Taungtha,Myingyan,MM
+Shwe Than Lwin Fuel Station,,21.171,95.134,Taungtha,Taungtha,Myingyan,MM
+Aung Myin Filling Station,Unknown,21.4657,95.3842,"Myingyan-Nyaung U Road, Myingyan",Myingyan,Myingyan,MM
+Yadanarbon Fuel Station,Unknown,21.4712,95.3895,"Near Myingyan University, Myingyan",Myingyan,Myingyan,MM
+Min Thandar Filling Station,Unknown,21.4589,95.3761,"Myingyan-Meiktila Road, Myingyan",Myingyan,Myingyan,MM
+Myoma Fuel Station,Unknown,21.4523,95.3698,"Myoma Market Area, Myingyan",Myingyan,Myingyan,MM
+Shwe Pauk Kan Filling Station,Unknown,21.4821,95.3954,"Shwe Pauk Kan Village, Myingyan",Myingyan,Myingyan,MM
+Kyaw Zeya Filling Station,Unknown,21.4465,95.3632,"Near Railway Station, Myingyan",Myingyan,Myingyan,MM
+Nge Lay Filling Station,Unknown,21.4601,95.3799,"Near Industrial Zone, Myingyan",Myingyan,Myingyan,MM
+U Ba Swe Filling Station,Unknown,21.4774,95.3911,"On the way to Natogyi, Myingyan",Myingyan,Myingyan,MM
+Shwe Nan Taw Filling Station,Unknown,21.4555,95.3733,"Near Shwe Nan Taw Pagoda, Myingyan",Myingyan,Myingyan,MM
+Aung Takon Filling Station,Unknown,21.4688,95.3866,"Aung Takon Quarter, Myingyan",Myingyan,Myingyan,MM
+Shwe Kabar Filling Station,Unknown,21.4491,95.3664,"Near Kabar Aye Pagoda, Myingyan",Myingyan,Myingyan,MM
+Yan Gyi Aung Filling Station,Unknown,21.4735,95.3884,"Near Yan Gyi Aung Village, Myingyan",Myingyan,Myingyan,MM
+Min Shin Filling Station,Unknown,21.4624,95.3817,"Near Min Shin Monastery, Myingyan",Myingyan,Myingyan,MM
+Lay Thar Gone Filling Station,Unknown,21.4568,95.3748,"Lay Thar Gone Quarter, Myingyan",Myingyan,Myingyan,MM
+Aung Zabu Filling Station,Unknown,21.4797,95.3935,"Aung Zabu Village, Myingyan",Myingyan,Myingyan,MM
+Myingyan South Filling Station,Unknown,21.4432,95.3601,"Southern Part of Myingyan, Myingyan",Myingyan,Myingyan,MM
+MPE Filling Station,MPE,21.18,94.92,Near Nyaung U Airport,Nyaung-U,Nyaung-U,MM
+Shwe Taung Filling Station,Shwe Taung,21.17,94.91,"Main Road, Nyaung-U",Nyaung-U,Nyaung-U,MM
+CNPC Filling Station,CNPC,21.18,94.93,Near Nyaung U,Nyaung-U,Nyaung-U,MM
+Mya Yadana Petrol Station,,20.815,95.08,Kyaukpadaung-Natogyi Road,Kyaukpadaung,Nyaung-U,MM
+Shwe Taung Petrol Station,Shwe Taung,20.81,95.07,Near Kyaukpadaung Hospital,Kyaukpadaung,Nyaung-U,MM
+MPE Petrol Station,MPE,20.79,95.06,"Main Road, Kyaukpadaung",Kyaukpadaung,Nyaung-U,MM
+MPE Filling Station,MPE,21.17,94.87,Near Nyaung-U Airport,Bagan,Nyaung-U,MM
+Shwe Taung Filling Station,Shwe Taung,21.18,94.88,"Main Road, Nyaung-U",Bagan,Nyaung-U,MM
+CNPC Filling Station,CNPC,21.16,94.86,Near Nyaung-U Junction,Bagan,Nyaung-U,MM
+PTT Filling Station,PTT,21.19,94.89,Nyaung-U Bypass Road,Bagan,Nyaung-U,MM
+Filling Station (Unnamed),,21.15,94.85,Near Wetkyi-in Village,Bagan,Nyaung-U,MM
+Aung Myin Filling Station,Unknown,21.1833,94.925,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Min Thar Gyi Filling Station,Unknown,21.179,94.931,"Near Nyaung-U Airport, Nyaung-U",Nyaung-U,Nyaung-U,MM
+Shwe Pyi Tan Filling Station,Unknown,21.1655,94.9188,Nyaung-U Township,Nyaung-U,Nyaung-U,MM
+Kyaw Zaya Filling Station,Unknown,21.1812,94.9287,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Lin Thar Oo Filling Station,Unknown,21.19,94.935,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Yadanarpon Filling Station,Unknown,21.175,94.922,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Aung Gabar Filling Station,Unknown,21.1853,94.9301,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Shwe Lamin Filling Station,Unknown,21.1777,94.9244,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Myitta Yaung Chi Filling Station,Unknown,21.1695,94.92,Nyaung-U Township,Nyaung-U,Nyaung-U,MM
+Phyo Thiri Filling Station,Unknown,21.187,94.932,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Moe Thu Ka Filling Station,Unknown,21.173,94.926,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Aung Zeya Filling Station,Unknown,21.189,94.934,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Yadanar Sein Filling Station,Unknown,21.181,94.927,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Shwe Nan Taw Filling Station,Unknown,21.176,94.923,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+May Thu Kha Filling Station,Unknown,21.17,94.919,Nyaung-U Township,Nyaung-U,Nyaung-U,MM
+Aung Thitsar Filling Station,Unknown,21.184,94.929,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Shwe Pauk Kan Filling Station,Unknown,21.178,94.925,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Min Tayar Filling Station,Unknown,21.171,94.921,Nyaung-U Township,Nyaung-U,Nyaung-U,MM
+Maha Aung Myay Filling Station,Unknown,21.191,94.936,"Nyaung-U, Myanmar",Nyaung-U,Nyaung-U,MM
+Yamethin MPE Station,MPE,19.72,96.32,Yangon-Mandalay Road,Yamethin,Yamethin,MM
+Shwe Taung Yamethin,Shwe Taung,19.7,96.3,Near Yamethin Town,Yamethin,Yamethin,MM
+Aung Myint Mo Fuel Station,Private,19.7458,96.3125,"Near Yamethin Hospital, Yamethin",Yamethin,Yamethin,MM
+Myoma Fuel Station,Private,19.7392,96.3078,"Myoma Quarter, Yamethin",Yamethin,Yamethin,MM
+Yadanarbon Fuel Station,Private,19.7511,96.3189,"Pyi Taw Thar Ward, Yamethin",Yamethin,Yamethin,MM
+Shwe Phee Oo Fuel Station,Private,19.7433,96.3211,"Beside the Yangon-Mandalay Highway, Yamethin",Yamethin,Yamethin,MM
+Min Tayar Fuel Station,Private,19.7366,96.3045,"Near the Yamethin Market, Yamethin",Yamethin,Yamethin,MM
+Aung Thitsar Fuel Station,Private,19.7543,96.3256,"North of the town center, Yamethin",Yamethin,Yamethin,MM
+Nawarat Fuel Station,Private,19.7321,96.2998,"Southern part of Yamethin, near the railway",Yamethin,Yamethin,MM
+Shwe Oak Fuel Station,Private,19.7477,96.3155,"Central Yamethin, near the main road",Yamethin,Yamethin,MM
+Golden City Fuel Station,Private,19.741,96.309,"In the heart of Yamethin, near the clock tower",Yamethin,Yamethin,MM
+New Generation Fuel Station,Private,19.7565,96.3278,"On the outskirts of Yamethin, towards Pyawbwe",Yamethin,Yamethin,MM
+Myat Mandalar Fuel Station,Private,19.7344,96.3022,"Close to the bus station, Yamethin",Yamethin,Yamethin,MM
+Kyaw Zeya Fuel Station,Private,19.7499,96.3177,"Near the district office, Yamethin",Yamethin,Yamethin,MM
+Shwe Pyi Tan Fuel Station,Private,19.7587,96.329,"On the road to Tatkon, Yamethin",Yamethin,Yamethin,MM
+Myo Ma Zay Fuel Station,Private,19.73,96.298,"South of Myoma Market, Yamethin",Yamethin,Yamethin,MM
+Yaung Chi Oo Fuel Station,Private,19.7444,96.3133,"Near the main roundabout, Yamethin",Yamethin,Yamethin,MM
+Htoo Zaw Fuel Station,Private,19.7522,96.32,"North of Yamethin, closer to the Highway",Yamethin,Yamethin,MM
+Sein Lei Fuel Station,Private,19.7377,96.3055,"Close to the police station, Yamethin",Yamethin,Yamethin,MM
+Myat Thu Kha Fuel Station,Private,19.76,96.33,"On the road to the North, Yamethin",Yamethin,Yamethin,MM
+MPE Filling Station,MPE,20.87,95.87,Yangon-Mandalay Road,Meiktila,Meiktila,MM
+Shwe Taung Filling Station,Shwe Taung,20.87,95.88,Yangon-Mandalay Road,Meiktila,Meiktila,MM
+PTT Filling Station,PTT,20.86,95.86,Near Meiktila Airport,Meiktila,Meiktila,MM
+CNPC Filling Station,CNPC,20.88,95.89,Yangon-Mandalay Road,Meiktila,Meiktila,MM
+Golden Petrol Station,Golden Star,20.824,95.684,Yangon-Mandalay Rd,Mahlaing,Meiktila,MM
+Shwe Taung Petrol Station,Shwe Taung,20.815,95.688,Yangon-Mandalay Rd,Mahlaing,Meiktila,MM
+Aung Yadanar Filling Station,,20.574,96.053,Yangon-Mandalay Road,Thazi,Meiktila,MM
+Zawana Filling Station,,20.579,96.055,Yangon-Mandalay Road,Thazi,Meiktila,MM
+MPE Filling Station,MPE,20.576,96.054,Yangon-Mandalay Road,Thazi,Meiktila,MM
+Aung Myint Mo Filling Station,,20.8328,95.9311,Yangon-Mandalay Old Highway,Wundwin,Meiktila,MM
+Shwe Padauk Filling Station,,20.8336,95.9322,Yangon-Mandalay Old Highway,Wundwin,Meiktila,MM
+Min Sithu Filling Station,,20.8377,95.9348,Yangon-Mandalay Old Highway,Wundwin,Meiktila,MM
+Yadanar Maung Filling Station,,20.8754,95.8702,Near Meiktila Airport,Meiktila,Meiktila,MM
+Kyaw Zaya Filling Station,,20.8821,95.8815,Yangon-Mandalay Expressway,Meiktila,Meiktila,MM
+Myoma Filling Station,,20.879,95.8755,Myoma Market Area,Meiktila,Meiktila,MM
+Paing Ko Filling Station,,20.8772,95.873,Near Railway Station,Meiktila,Meiktila,MM
+Hein Thu Filling Station,,20.8699,95.8687,Highway Road,Meiktila,Meiktila,MM
+Shwe Pyi Tan Filling Station,,20.8735,95.8695,North of the City,Meiktila,Meiktila,MM
+Min Teza Filling Station,,20.8703,95.8718,On the main road,Meiktila,Meiktila,MM
+Myat Thandar Filling Station,,20.867,95.875,Near the hospital,Meiktila,Meiktila,MM
+Aung Hein Filling Station,,20.8715,95.876,On the outskirts of town,Meiktila,Meiktila,MM
+Nawarat Filling Station,,20.8728,95.8785,In the industrial area,Meiktila,Meiktila,MM
+Shwe Nan Taw Filling Station,,20.8655,95.865,Close to the lake,Meiktila,Meiktila,MM
+Yadanar Thike Filling Station,,20.8695,95.8735,Highway entrance,Meiktila,Meiktila,MM
+Myo Setkya Filling Station,,20.8765,95.8775,Near bus terminal,Meiktila,Meiktila,MM
+Shin Mahar Filling Station,,20.871,95.869,Downtown,Meiktila,Meiktila,MM
+Kyaw Myanmar Filling Station,,20.8745,95.8725,Residential Area,Meiktila,Meiktila,MM
+Zay Yar Lin Filling Station,,20.8685,95.871,On the road to the pagoda,Meiktila,Meiktila,MM
+Aung Gabar Filling Station,,20.877,95.8745,By the river,Meiktila,Meiktila,MM
+Myint Aung Filling Station,,20.8733,95.868,Near the market,Meiktila,Meiktila,MM
+Nandar Aung Filling Station,,20.8693,95.877,Opposite the park,Meiktila,Meiktila,MM
+Padauk Pin Filling Station,,20.875,95.879,Near the school,Meiktila,Meiktila,MM
+Yadanar Htun Filling Station,,20.8673,95.867,On the west side of town,Meiktila,Meiktila,MM
+Nay Min Filling Station,,20.869,95.8715,Near the police station,Meiktila,Meiktila,MM
+Shwe Pon Nya Filling Station,,20.876,95.875,In the town center,Meiktila,Meiktila,MM
+Shwe Byain Phyu Fuel Station,Shwe Byain Phyu,22.937,97.751,Lashio-Muse Road,Lashio,Lashio,MM
+MPE Fuel Station,MPE,22.945,97.758,Circular Road,Lashio,Lashio,MM
+PTT Fuel Station,PTT,22.931,97.755,Lashio-Muse Road,Lashio,Lashio,MM
+Shwe Taung Fuel Station,Shwe Taung,22.94,97.761,Near Lashio General Hospital,Lashio,Lashio,MM
+CNPC Fuel Station,CNPC,22.927,97.748,Lashio-Muse Road,Lashio,Lashio,MM
+Kutkai Fuel Station,MPE,23.42,97.75,"Main Road, Kutkai",Kutkai,Lashio,MM
+Shwe Taung Fuel Station,Shwe Taung,23.43,97.76,Kutkai-Muse Road,Kutkai,Lashio,MM
+Kutkai Petrol Pump,,23.41,97.74,Near Kutkai Market,Kutkai,Lashio,MM
+Shwe Byine Phyu Filling Station,Unknown,23.319,97.742,Namkham-Muse Road,Namkham,Lashio,MM
+U Sai Phone Aung Fuel Station,Unknown,23.323,97.746,Namkham-Muse Road,Namkham,Lashio,MM
+MPE Fuel Station Muse,MPE,23.9833,97.8917,Muse,Muse,Lashio,MM
+Shwe Taung Fuel Station Muse,Shwe Taung,23.9867,97.8883,Muse,Muse,Lashio,MM
+CNPC Fuel Station Muse,CNPC,23.99,97.89,Muse,Muse,Lashio,MM
+PTT Fuel Station Muse,PTT,23.985,97.893,Muse,Muse,Lashio,MM
+Unknown Station,,22.764,97.885,Mongyai-Lashio Road,Mongyai,Lashio,MM
+Aung Myint Mo Fuel Station,Unknown,22.9345,97.7562,"Lashio, Myanmar",Lashio,Lashio,MM
+Kyaw Zaya Fuel Station,Unknown,22.9312,97.7498,"Lashio, Myanmar",Lashio,Lashio,MM
+Myoma Fuel Station,Unknown,22.945,97.751,"Myoma, Lashio",Lashio,Lashio,MM
+Yadanar Thike Fuel Station,Unknown,22.928,97.759,"Lashio, Myanmar",Lashio,Lashio,MM
+Win Star Fuel Station,Unknown,22.9365,97.7433,"Lashio, Myanmar",Lashio,Lashio,MM
+Shwe Lin Yone Fuel Station,Unknown,22.94,97.765,"Lashio, Myanmar",Lashio,Lashio,MM
+Htoo Aung Fuel Station,Unknown,22.9355,97.7505,"Lashio, Myanmar",Lashio,Lashio,MM
+Nilar Fuel Station,Unknown,22.9295,97.7555,"Lashio, Myanmar",Lashio,Lashio,MM
+Zawana Fuel Station,Unknown,22.9415,97.7485,"Lashio, Myanmar",Lashio,Lashio,MM
+Yoma 3 Fuel Station,Unknown,22.933,97.761,"Lashio, Myanmar",Lashio,Lashio,MM
+Min Dama Fuel Station,Unknown,22.938,97.745,"Lashio, Myanmar",Lashio,Lashio,MM
+Golden Hill Fuel Station,Unknown,22.946,97.758,"Lashio, Myanmar",Lashio,Lashio,MM
+Shwe Hinn Thar Fuel Station,Unknown,22.932,97.752,"Lashio, Myanmar",Lashio,Lashio,MM
+Aung Gabar Fuel Station,Unknown,22.943,97.763,"Lashio, Myanmar",Lashio,Lashio,MM
+Myint Mo Fuel Station,Unknown,22.939,97.746,"Lashio, Myanmar",Lashio,Lashio,MM
+Lashio Star Fuel Station,Unknown,22.9375,97.7545,"Lashio, Myanmar",Lashio,Lashio,MM
+Shwe Pyi Tan Fuel Station,Unknown,22.9445,97.7495,"Lashio, Myanmar",Lashio,Lashio,MM
+Nang Cho Fuel Station,Unknown,22.931,97.757,"Lashio, Myanmar",Lashio,Lashio,MM
+Yadanar Maung Fuel Station,Unknown,22.942,97.76,"Lashio, Myanmar",Lashio,Lashio,MM
+Aung Taung Gone Fuel Station,Unknown,22.935,97.742,"Lashio, Myanmar",Lashio,Lashio,MM
+MPE Petrol Station (Taunggyi-Kyaing Tong Road),MPE,21.286,99.603,Taunggyi-Kyaing Tong Road,Kengtung,Kengtung,MM
+Shwe Taung Petrol Station (Near Kengtung Airport),Shwe Taung,21.309,99.655,Airport Road (approximate),Kengtung,Kengtung,MM
+Unknown Petrol Station (Eastern Bypass),,21.281,99.617,Eastern Bypass Road (approximate),Kengtung,Kengtung,MM
+MPE Filling Station,MPE,20.446,99.886,Main Road (likely near border crossing),Tachileik,Kengtung,MM
+Shwe Taung Filling Station,Shwe Taung,20.44,99.89,Tachileik-Kyaing Tong Road,Tachileik,Kengtung,MM
+PTT Tachileik,PTT,20.435,99.883,Near Tachileik Airport (approximate),Tachileik,Kengtung,MM
+Unknown Fuel Station Tachileik,,20.442,99.892,Unconfirmed location in Tachileik,Tachileik,Kengtung,MM
+MPE Fuel Station,MPE,21.297,99.304,"Main Road, Mong Hsat",Mong Hsat,Kengtung,MM
+Shwe Taung Fuel Station,Shwe Taung,21.295,99.307,"Near the market, Mong Hsat",Mong Hsat,Kengtung,MM
+Local Fuel Shop,,21.293,99.302,"Unknown Road, Mong Hsat",Mong Hsat,Kengtung,MM
+MPE Fuel Station Mong Hpayak,MPE,20.854,99.094,Mong Hpayak-Mong Yawng Road,Mong Hpayak,Kengtung,MM
+Shwe Byine Phyu Fuel Station,,20.852,99.097,Mong Hpayak,Mong Hpayak,Kengtung,MM
+Petrol Station,,20.855,99.092,Mong Hpayak,Mong Hpayak,Kengtung,MM
+PTT Station,PTT,20.849,99.099,Mong Hpayak,Mong Hpayak,Kengtung,MM
+Mong La Fuel Station 1,,21.49,99.15,"Main Road, Mong La",Mong La,Kengtung,MM
+Mong La Fuel Station 2,,21.48,99.16,"Near the Market, Mong La",Mong La,Kengtung,MM
+Kengtung Main Fuel Depot,State-Owned,21.29,99.6,"Near Kengtung General Hospital, Kengtung",Kengtung,Kengtung,MM
+Aung Mingalar Fuel Station,Local,21.28,99.61,"Aung Mingalar Quarter, Kengtung",Kengtung,Kengtung,MM
+Naung Tone Fuel Stop,Local,21.31,99.58,"Naung Tone Village, Kengtung",Kengtung,Kengtung,MM
+Shwe Inle Fuel Station,Local,21.27,99.62,"Inle Market Area, Kengtung",Kengtung,Kengtung,MM
+Yan Aung Myin Fuel Depot,Local,21.25,99.59,"Yan Aung Myin Quarter, Kengtung",Kengtung,Kengtung,MM
+Highway Fuel Stop,Independent,21.29,99.57,"Highway Entrance, Kengtung",Kengtung,Kengtung,MM
+Myoma Fuel Service,Local,21.3,99.63,"Myoma Market Area, Kengtung",Kengtung,Kengtung,MM
+Kham Gawng Fuel Supply,Local,21.26,99.6,"Kham Gawng Village, Kengtung",Kengtung,Kengtung,MM
+Yae Zon Fuel Center,Independent,21.32,99.61,"Near Yae Zon Monastery, Kengtung",Kengtung,Kengtung,MM
+Pin Tauk Fuel Shop,Local,21.28,99.56,"Pin Tauk Village, Kengtung",Kengtung,Kengtung,MM
+Loi Mwe Road Fuel Stop,Local,21.27,99.63,"Loi Mwe Road Junction, Kengtung",Kengtung,Kengtung,MM
+Kengtung Airport Road Fuel,Local,21.31,99.59,"Near Kengtung Airport Entrance, Kengtung",Kengtung,Kengtung,MM
+Nansang Fuel Depot,Local,21.29,99.62,"Nansang Quarter, Kengtung",Kengtung,Kengtung,MM
+Mong Khun Road Fuel,Local,21.26,99.58,"Along Mong Khun Road, Kengtung",Kengtung,Kengtung,MM
+Hsipaw Zaw Gyi Filling Station,,22.837,97.307,Hsipaw-Namtu Road,Hsipaw,Hsipaw,MM
+MPE Filling Station,MPE,22.832,97.309,Hsipaw - Lashio Road,Hsipaw,Hsipaw,MM
+Shwe Taung Filling Station,Shwe Taung,22.833,97.305,Hsipaw,Hsipaw,Hsipaw,MM
+Shwe Taung Petrol Station,Shwe Taung,22.865,97.23,Kyaukme-Hsipaw Road,Kyaukme,Hsipaw,MM
+MPE Petrol Station,MPE,22.87,97.235,Near Kyaukme Market,Kyaukme,Hsipaw,MM
+Namtu Fuel Station (Likely),,23.06,97.37,Likely near the center of Namtu,Namtu,Hsipaw,MM
+Unknown Filling Station,,23.17,97.38,Near Mantong,Mantong,Hsipaw,MM
+Unknown Filling Station,,23.2,97.4,Near Mantong,Mantong,Hsipaw,MM
+Aye Chan Thar Filling Station,Unknown,22.769,97.301,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Yadanar Maung Filling Station,Unknown,22.755,97.295,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Shwe Nan Taw Filling Station,Unknown,22.762,97.305,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Kyaw Zaya Filling Station,Unknown,22.772,97.299,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Lin Yaung Chi Filling Station,Unknown,22.759,97.308,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Myoma Filling Station,Unknown,22.753,97.302,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Pin Lon Filling Station,Unknown,22.748,97.298,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Paing Kone Filling Station,Unknown,22.775,97.303,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Yadanar Pone Filling Station,Unknown,22.765,97.292,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Aung Myin Filling Station,Unknown,22.751,97.312,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Shwe Pyi Tan Filling Station,Unknown,22.778,97.296,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Zin Yaw Ma Filling Station,Unknown,22.757,97.31,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Htoo Eain Thin Filling Station,Unknown,22.76,97.29,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Zawana Filling Station,Unknown,22.746,97.305,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Nang Cho Filling Station,Unknown,22.754,97.288,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Pan Pyoe Filling Station,Unknown,22.77,97.315,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Thet Zin Filling Station,Unknown,22.767,97.318,"Hsipaw, Myanmar",Hsipaw,Hsipaw,MM
+Shwe Taung Petrol Station,Shwe Taung,21.835,97.745,Loilen-Panglong Road,Loilen,Loilen,MM
+MPE Petrol Station,MPE,21.83,97.74,Loilen Town,Loilen,Loilen,MM
+Langkho Filling Station,MPE,20.83,97.93,"Main Road, Langkho",Langkho,Loilen,MM
+Shwe Taung Fuel Station,Shwe Taung,20.82,97.92,Near Langkho Market,Langkho,Loilen,MM
+Nansang Fuel Station,MPE,20.97,97.783,"Main Road, Nansang",Nansang,Loilen,MM
+Loilen Petrol Station,,20.965,97.778,Near Nansang Market,Nansang,Loilen,MM
+Kunhing Filling Station,MPE,20.83,97.75,"Main Road, Kunhing",Kunhing,Loilen,MM
+Shwe Taung Fuel Station,Shwe Taung,20.84,97.76,Near Kunhing Market,Kunhing,Loilen,MM
+Htoo Trading Fuel Station,Htoo Trading,20.9234,97.7351,"Loilen, Southern Shan State, Myanmar",Loilen,Loilen,MM
+Aung Myin Thar Fuel Station,Unknown,20.8912,97.7123,"Near Loilen-Nansang Road, Loilen",Loilen,Loilen,MM
+Phayargyi Fuel Station,Unknown,20.945,97.745,Loilen Township,Loilen,Loilen,MM
+Kyaw Zaya Filling Station,Unknown,20.912,97.725,"Loilen, Southern Shan State",Loilen,Loilen,MM
+Shwe Padauk Fuel Station,Unknown,20.887,97.701,"Near Nansang, Loilen",Loilen,Loilen,MM
+Pinlone Fuel Station,Unknown,20.957,97.713,"Pinlone Village, Loilen",Loilen,Loilen,MM
+Yaung Hnin Si Fuel Station,Unknown,20.934,97.702,"Loilen, Southern Shan State",Loilen,Loilen,MM
+Myoma Fuel Station,Unknown,20.905,97.731,"Myoma Ward, Loilen",Loilen,Loilen,MM
+Kyaukku Fuel Station,Unknown,20.921,97.754,"Kyaukku Village, Loilen",Loilen,Loilen,MM
+Hopong Fuel Station,Unknown,20.899,97.749,"Hopong area, Loilen Township",Loilen,Loilen,MM
+Naunglon Fuel Station,Unknown,20.918,97.705,"Naunglon Village, Loilen",Loilen,Loilen,MM
+Tarik Fuel Station,Unknown,20.875,97.728,"Tarik area, Loilen Township",Loilen,Loilen,MM
+Wan Hai Fuel Station,Unknown,20.941,97.722,"Wan Hai Village, Loilen",Loilen,Loilen,MM
+Panglong Fuel Station,Unknown,20.881,97.739,"Panglong area, Loilen",Loilen,Loilen,MM
+Nam Hu Fuel Station,Unknown,20.928,97.716,"Nam Hu area, Loilen",Loilen,Loilen,MM
+Kong Sar Fuel Station,Unknown,20.908,97.742,"Kong Sar area, Loilen",Loilen,Loilen,MM
+Tar Khilek Fuel Station,Unknown,20.937,97.757,"Tar Khilek Area, Loilen Township",Loilen,Loilen,MM
+Wan Tar Kham Fuel Station,Unknown,20.872,97.715,"Wan Tar Kham, Loilen Township",Loilen,Loilen,MM
+MPE Sagaing,MPE,21.906,95.997,"Myo Thit Ward, Sagaing",Sagaing,Sagaing,MM
+Yoma Thitsar Fuel Station,Yoma Thitsar,21.905,95.996,"Near Sagaing University, Sagaing",Sagaing,Sagaing,MM
+Shwe Taung Sagaing,Shwe Taung,21.908,95.995,"Sagaing-Mandalay Road, Sagaing",Sagaing,Sagaing,MM
+MPE Filling Station,MPE,22.11,95.13,Monywa-Amyint Road,Monywa,Sagaing,MM
+Shwe Taung Filling Station,Shwe Taung,22.12,95.15,Near Monywa University,Monywa,Sagaing,MM
+PTT Filling Station,PTT,22.1,95.14,Monywa-Alon Road,Monywa,Sagaing,MM
+CNPC Filling Station,CNPC,22.13,95.16,Near Bogyoke Aung San Statue,Monywa,Sagaing,MM
+Total Filling Station,Total,22.1,95.12,Monywa-Budalin Road,Monywa,Sagaing,MM
+Unknown Filling Station,,22.115,95.145,Near the city center,Monywa,Sagaing,MM
+Aung Myin Thar Filling Station,,22.181,94.969,Yinmabin-Kani Road,Yinmabin,Sagaing,MM
+Unknown Filling Station,,22.175,94.972,Near Yinmabin Bus Station,Yinmabin,Sagaing,MM
+Shwe Taung Petrol Station,Shwe Taung,22.367,94.883,Near Kani-Monywa Road,Kani,Sagaing,MM
+MPE Fuel Station,MPE,22.355,94.895,Kani Main Road,Kani,Sagaing,MM
+Yadanar Maung,,22.349,94.892,Kani-Pale Road,Kani,Sagaing,MM
+Myaung Petrol Station,,22.03,95.05,Myaung,Myaung,Sagaing,MM
+Aung Myin Petrol Station,,22.02,95.04,Myaung,Myaung,Sagaing,MM
+Shwe Padauk Petrol Station,Unknown,22.333,95.216,Budalin-Ye U Road,Budalin,Sagaing,MM
+Aung Myin Petrol Station,Unknown,22.337,95.211,"Near Budalin Hospital, Budalin-Ye U Road",Budalin,Sagaing,MM
+Shwe Sin Yay Fuel Station,Unknown,21.8845,95.9732,"Sagaing-Monywa Road, Sagaing",Sagaing,Sagaing,MM
+Myoma Fuel Station,Unknown,22.3356,95.1328,"Shwebo Road, Myinmu",Myinmu,Sagaing,MM
+Yadanarbon Fuel Station,Unknown,23.0123,95.0045,"Katha-Indaw Road, Katha",Katha,Sagaing,MM
+Aung Takon Fuel Station,Unknown,22.5578,95.6689,"Pale-Gangaw Road, Pale",Pale,Sagaing,MM
+Shwe Pyi Thar Fuel Station,Unknown,22.119,95.3476,"Monywa-Amyint Road, Monywa",Monywa,Sagaing,MM
+Min Set Kyar Fuel Station,Unknown,22.4412,94.889,"Ayadaw-Monywa Road, Ayadaw",Ayadaw,Sagaing,MM
+Nway Oo Fuel Station,Unknown,23.1234,94.6789,"Homalin, Sagaing Division",Homalin,Sagaing,MM
+Pan Chay Fuel Station,Unknown,21.6543,95.4321,"Budalin, Sagaing Division",Budalin,Sagaing,MM
+Kyaukka Fuel Station,Unknown,21.9876,95.7654,"Kyaukka, Sagaing Division",Kyaukka,Sagaing,MM
+Chaung Oo Fuel Station,Unknown,22.321,95.9876,"Chaung Oo, Sagaing Division",Chaung-U,Sagaing,MM
+Shwe Nagar Fuel Station,Unknown,22.6543,95.2109,"Ye-U, Sagaing Division",Ye-U,Sagaing,MM
+Global Fuel Station,Unknown,22.8765,95.4321,"Kyunhla, Sagaing Division",Kyunhla,Sagaing,MM
+Moe Kaung Kin Fuel Station,Unknown,22.0123,94.9012,"Tamu, Sagaing Division",Tamu,Sagaing,MM
+Phyar Gyi Fuel Station,Unknown,23.2345,95.6789,"Htigyaing, Sagaing Division",Htigyaing,Sagaing,MM
+Inn Ma Fuel Station,Unknown,21.7654,95.1234,"Ingyi Chaung, Sagaing Division",Ingyi Chaung,Sagaing,MM
+Zalon Taung Filling Station,Unknown,21.5432,94.8765,"Zalon Taung Village, Sagaing",Sagaing,Sagaing,MM
+Mya Waddy Fuel Station,Unknown,22.9876,95.3456,"Pinlebu, Sagaing Division",Pinlebu,Sagaing,MM
+MPE Filling Station (North),MPE,22.11,95.13,Yangon-Monywa Road,Monywa,Monywa,MM
+Shwe Taung Filling Station (Near University),Shwe Taung,22.1,95.13,Near Monywa University,Monywa,Monywa,MM
+CNPC Filling Station (South),CNPC,22.07,95.13,Yangon-Monywa Road,Monywa,Monywa,MM
+PTT Filling Station (Monywa),PTT,22.12,95.14,"Aung Mingalar Quarter, Monywa",Monywa,Monywa,MM
+MPE Filling Station (City Center),MPE,22.11,95.12,Monywa City,Monywa,Monywa,MM
+Aung Myin Thar Filling Station,,22.135,95.095,Budalin-Monywa Road,Budalin,Monywa,MM
+Kyaw Zaya Filling Station,,22.145,95.105,Budalin-Monywa Road,Budalin,Monywa,MM
+Ayadaw Petrol Station,MPE,22.12,95.08,Near Ayadaw Main Road,Ayadaw,Monywa,MM
+Shwe Taung Ayadaw,Shwe Taung,22.11,95.07,Ayadaw-Monywa Road,Ayadaw,Monywa,MM
+Aung Myin Thar Filling Station,MPE,22.119,95.155,Monywa-Chaung-U Road,Chaung-U,Monywa,MM
+Shwe Taung Filling Station,Shwe Taung,22.057,95.146,Chaung-U - Monywa Rd,Chaung-U,Monywa,MM
+CNPC Filling Station,CNPC,22.125,95.152,Monywa-Chaung-U Road,Chaung-U,Monywa,MM
+Shwe Byine Phyu Filling Station,MPE,22.039,95.158,Chaung-U - Monywa Rd,Chaung-U,Monywa,MM
+Global Energy Filling Station,Global Energy,22.1123,95.1345,"Near Monywa General Hospital, Monywa",Monywa,Monywa,MM
+Yadanar Maung Filling Station,Unknown,22.1287,95.1201,"Monywa-Mandalay Road, Monywa",Monywa,Monywa,MM
+Paing Filling Station,Unknown,22.1456,95.1055,"Monywa Industrial Zone, Monywa",Monywa,Monywa,MM
+Myoma Filling Station,Unknown,22.1002,95.1489,"Myoma Market Area, Monywa",Monywa,Monywa,MM
+Shwe Oak Filling Station,Unknown,22.0876,95.1122,"Near Monywa Airport, Monywa",Monywa,Monywa,MM
+Golden Land Filling Station,Unknown,22.1344,95.1567,"Near Monywa University, Monywa",Monywa,Monywa,MM
+Sun Shine Filling Station,Unknown,22.0987,95.13,"Downtown Monywa, Monywa",Monywa,Monywa,MM
+Aung Takon Filling Station,Unknown,22.1155,95.1678,"Near the Chindwin River, Monywa",Monywa,Monywa,MM
+Yuzana Filling Station,Unknown,22.12,95.14,"Between Pyi Road and Bogyoke Aung San Road, Monywa",Monywa,Monywa,MM
+Shwe Pyi Thar Filling Station,Unknown,22.13,95.115,"Near the highway exit, Monywa",Monywa,Monywa,MM
+Thanlwin Filling Station,Unknown,22.105,95.155,"Near the Thanlwin Bridge, Monywa",Monywa,Monywa,MM
+Shwe Li Win Filling Station,Unknown,22.1175,95.1275,"On the way to the railway station, Monywa",Monywa,Monywa,MM
+Win Star Filling Station,Unknown,22.135,95.1375,"Near the City Park, Monywa",Monywa,Monywa,MM
+Myat Mandalar Filling Station,Unknown,22.09,95.145,"Near the bus station, Monywa",Monywa,Monywa,MM
+New Generation Filling Station,Unknown,22.1475,95.1175,"Industrial Zone, Monywa",Monywa,Monywa,MM
+Shwe Nan Taw Filling Station,Unknown,22.1225,95.1075,"Near the market, Monywa",Monywa,Monywa,MM
+Nwe Ni Filling Station,Unknown,22.1075,95.1375,"In front of the Hospital, Monywa",Monywa,Monywa,MM
+MPE Shwebo 1,MPE,22.56,95.7,Yangon-Myitkyina Road,Shwebo,Shwebo,MM
+Shwebo YBS Filling Station,,22.57,95.69,Shwebo,Shwebo,Shwebo,MM
+MPE Shwebo 2,MPE,22.56,95.68,Shwebo,Shwebo,Shwebo,MM
+Unknown Gas Station,,23.09,95.48,Khin-U-Ye-U Road,Khin-U,Shwebo,MM
+Unknown Gas Station,,23.1,95.47,Khin-U-Ye-U Road,Khin-U,Shwebo,MM
+MPE Petrol Station,MPE,22.58,95.48,Shwebo-Monywa Road,Wetlet,Shwebo,MM
+Shwe Taung Petrol Station,Shwe Taung,22.55,95.51,Near Wetlet Town,Wetlet,Shwebo,MM
+Shwe Taung Petrol Station,Shwe Taung,22.53,95.33,"Main Road, Tabayin",Tabayin,Shwebo,MM
+MPE Filling Station,MPE,22.52,95.32,Near Tabayin Market,Tabayin,Shwebo,MM
+CNPC Gas Station,CNPC,22.54,95.34,"Highway Road, Tabayin",Tabayin,Shwebo,MM
+Aung Myin Thar Filling Station,Unknown,22.5678,95.7012,"Shwebo-Myitkyina Road, Shwebo",Shwebo,Shwebo,MM
+Shwebo Min Filling Station,Unknown,22.5612,95.689,"Near Shwebo University, Shwebo",Shwebo,Shwebo,MM
+Yadanarbon Filling Station,Unknown,22.5555,95.6955,"Between Quarter 3 and 4, Shwebo",Shwebo,Shwebo,MM
+Thit Sar Filling Station,Unknown,22.5734,95.6789,"Near Shwebo General Hospital, Shwebo",Shwebo,Shwebo,MM
+Win Myint Moe Filling Station,Unknown,22.568,95.711,"East of Shwebo, Main Road",Shwebo,Shwebo,MM
+Myint Zu Filling Station,Unknown,22.549,95.699,"South of Shwebo Market, Shwebo",Shwebo,Shwebo,MM
+Htoo Myat Filling Station,Unknown,22.562,95.67,"West of Shwebo, Main Road",Shwebo,Shwebo,MM
+Shwe Pyi Tan Filling Station,Unknown,22.571,95.693,Beside the Shwebo-Mandalay Road,Shwebo,Shwebo,MM
+Aye Chan Thar Filling Station,Unknown,22.558,95.705,Shwebo Industrial Zone,Shwebo,Shwebo,MM
+New Light Filling Station,Unknown,22.545,95.685,Near Shwebo Railway Station,Shwebo,Shwebo,MM
+Golden Land Filling Station,Unknown,22.565,95.665,On the way to Kyauk Myaung,Shwebo,Shwebo,MM
+Paing Htoo Filling Station,Unknown,22.551,95.715,Outskirt of Shwebo town,Shwebo,Shwebo,MM
+Myat Mandalar Filling Station,Unknown,22.575,95.685,Corner of Main Road and Hospital Road,Shwebo,Shwebo,MM
+Emerald Green Filling Station,Unknown,22.56,95.655,"West side of Shwebo, near the river",Shwebo,Shwebo,MM
+Sein Lei Filling Station,Unknown,22.54,95.7,"South Shwebo, near the highway entrance",Shwebo,Shwebo,MM
+Star Shine Filling Station,Unknown,22.58,95.71,"North Shwebo, near the village",Shwebo,Shwebo,MM
+New Generation Filling Station,Unknown,22.55,95.66,"Western part of Shwebo, closer to the fields",Shwebo,Shwebo,MM
+Pin Lone Filling Station,Unknown,22.57,95.675,"Near the monastery, Shwebo",Shwebo,Shwebo,MM
+MPE Fuel Station,MPE,24.182,96.327,Katha-Indaw Road,Katha,Katha,MM
+Shwe Taung Fuel Station,Shwe Taung,24.175,96.32,Near Katha Clock Tower,Katha,Katha,MM
+Inn Daw Myoma Petrol Station,MPE,24.491,96.134,Myoma Road,Indaw,Katha,MM
+Shwe Myanmar Filling Station,Shwe Taung,24.488,96.13,Near Indaw railway station,Indaw,Katha,MM
+Tigyaing Fuel Station,MPE,24.23,96.46,"Main Road, Tigyaing",Tigyaing,Katha,MM
+Shwe Taung Petrol,Shwe Taung,24.22,96.45,Near Tigyaing Market,Tigyaing,Katha,MM
+CNPC Tigyaing,CNPC,24.24,96.47,Tigyaing-Katha Road,Tigyaing,Katha,MM
+Banmauk Fuel Station,,24.3667,95.8333,Banmauk,Banmauk,Katha,MM
+MPE Fuel Station,MPE,24.35,95.85,Near Banmauk Main Road,Banmauk,Katha,MM
+Aung Myint Mo Fuel Station,Unknown,24.1768,96.3452,"Katha, Myanmar",Katha,Katha,MM
+Myoma Fuel Station (Katha),Unknown,24.1745,96.3428,"Myoma Ward, Katha",Katha,Katha,MM
+Shwe Pyi Tan Fuel Station,Unknown,24.1692,96.3385,"Katha - Indaw Road, Katha",Katha,Katha,MM
+Zin Yaw Fuel Station,Unknown,24.2231,96.3714,"Katha Township, Near Railway Station",Katha,Katha,MM
+Yadanar Kyaw Fuel Station,Unknown,24.1722,96.3401,"Katha, Near Hospital",Katha,Katha,MM
+New Light Fuel Station,Unknown,24.1789,96.3467,"Katha, Main Road",Katha,Katha,MM
+Kyaw Zaya Fuel Station,Unknown,24.1805,96.3481,"Katha, Central Area",Katha,Katha,MM
+Shwe Nagar Fuel Station,Unknown,24.225,96.373,"Katha Township, Outskirts",Katha,Katha,MM
+Min Thitsar Fuel Station,Unknown,24.1675,96.3367,"Katha, Near Market",Katha,Katha,MM
+Aung Takon 2 Fuel Station,Unknown,24.1708,96.3393,"Katha, Near Park",Katha,Katha,MM
+Golden Gate Fuel Station,Unknown,24.1821,96.3497,"Katha, Downtown Area",Katha,Katha,MM
+Shwe Hintha Fuel Station,Unknown,24.2267,96.3747,"Katha Township, Rural Area",Katha,Katha,MM
+Yadanarpon Fuel Station,Unknown,24.1659,96.3351,"Katha, Industrial Area",Katha,Katha,MM
+Thitsar Kyaw Fuel Station,Unknown,24.1739,96.3416,"Katha, Residential Area",Katha,Katha,MM
+Kyaw Myanmar Fuel Station,Unknown,24.1753,96.3435,"Katha, Close to the River",Katha,Katha,MM
+Naung Cho Fuel Station,Unknown,24.2003,96.3652,"Naung Cho, Katha Township",Katha,Katha,MM
+Unknown Fuel Station,,24.36,94.94,Kawlin-Wuntho Road,Kawlin,Kawlin,MM
+MPE Fuel Station,MPE,24.36,94.94,Near Kawlin Town,Kawlin,Kawlin,MM
+Unknown Fuel Station,,24.205,95.735,Wuntho-Kawlin Road (Likely),Wuntho,Kawlin,MM
+MPE Fuel Station,MPE,24.208,95.738,Wuntho,Wuntho,Kawlin,MM
+Pinlebu Fuel Station,,24.33,95.72,Pinlebu-Kawlin Road,Pinlebu,Kawlin,MM
+MPT Fuel Station,MPT,24.32,95.71,Near Pinlebu Market,Pinlebu,Kawlin,MM
+Shwe Thanlwin Fuel Station,Shwe Thanlwin,24.3112,95.1876,"Kawlin-Wuntho Road, Kawlin",Kawlin,Kawlin,MM
+Aye Yarwady Fuel Station,Aye Yarwady,24.2985,95.1792,"Near Kawlin Market, Kawlin",Kawlin,Kawlin,MM
+Global Energy Fuel Station,Global Energy,24.305,95.191,"On the outskirts of Kawlin, Kawlin",Kawlin,Kawlin,MM
+Myoma Fuel Station,Myoma,24.3,95.1825,"Myoma Ward, Kawlin",Kawlin,Kawlin,MM
+Yadanar Fuel Station,Yadanar,24.315,95.175,"North of Kawlin, Kawlin",Kawlin,Kawlin,MM
+Aung Myint Mo Fuel Station,Aung Myint Mo,24.295,95.185,"South Kawlin, Kawlin",Kawlin,Kawlin,MM
+Shwe Pyi Tan Fuel Station,Shwe Pyi Tan,24.3075,95.18,"Near the bus station, Kawlin",Kawlin,Kawlin,MM
+Min Tayar Fuel Station,Min Tayar,24.31,95.195,"East of Kawlin, Kawlin",Kawlin,Kawlin,MM
+Nilar Fuel Station,Nilar,24.29,95.17,"West of Kawlin, Kawlin",Kawlin,Kawlin,MM
+Golden Star Fuel Station,Golden Star,24.3025,95.189,"Central Kawlin, Kawlin",Kawlin,Kawlin,MM
+Shwe Hnin Si Fuel Station,Shwe Hnin Si,24.3125,95.1775,"Kawlin Main Road, Kawlin",Kawlin,Kawlin,MM
+Kyaw Zaya Fuel Station,Kyaw Zaya,24.2975,95.181,"Near the river, Kawlin",Kawlin,Kawlin,MM
+Than Lwin Oo Fuel Station,Than Lwin Oo,24.3015,95.1935,"Towards the village, Kawlin",Kawlin,Kawlin,MM
+Zawana Fuel Station,Zawana,24.285,95.165,"Adjacent to the school, Kawlin",Kawlin,Kawlin,MM
+MPE Fuel Station (Aung Mingalar),MPE,23.185,94.054,"Aung Mingalar Ward, Kalay-Tamu Road",Kalay,Kalay,MM
+Shwe Taung Fuel Station,Shwe Taung,23.178,94.048,"Near Kalay University, Kalay-Tamu Road",Kalay,Kalay,MM
+PTT Fuel Station (Kalay),PTT,23.192,94.057,"Myoma Ward, Kalay-Tamu Road",Kalay,Kalay,MM
+MPE Fuel Station (City Center),MPE,23.198,94.052,"Near City Center, Kalay",Kalay,Kalay,MM
+CNPC Fuel Station (Kalay),CNPC,23.188,94.059,Kalay-Gangaw Road,Kalay,Kalay,MM
+Yadanar Maung Filling Station,,24.327,94.382,Tamu-Kalay Road,Tamu,Kalay,MM
+Tun Thitsar Filling Station,,24.324,94.384,Tamu-Kalay Road,Tamu,Kalay,MM
+Zaw Win Htike Filling Station,,24.335,94.386,Tamu-Kalay Road,Tamu,Kalay,MM
+Myoma Filling Station,,24.337,94.385,Tamu,Tamu,Kalay,MM
+Unknown Fuel Station,,22.65,94.35,Mingin-Kalaywa Road,Mingin,Kalay,MM
+Unknown Fuel Station,,22.6,94.3,Mingin-Kalaywa Road,Mingin,Kalay,MM
+Yadanarpon Petrol Station,MPE,23.1925,94.3222,Kalewa-Gangaw Road,Kalewa,Kalay,MM
+Aung Zaya Petrol Station,,23.186,94.3265,Near Kalewa Bridge,Kalewa,Kalay,MM
+Shwe Pyi Tan Petrol Station,,23.197,94.32,Unknown,Kalewa,Kalay,MM
+Win Myanmar Petrol Station,,23.1905,94.3245,Unknown,Kalewa,Kalay,MM
+Shwe Sin Setkya Fuel Station,Unknown,23.188,94.038,"Near Kalay University, Kalay",Kalay,Kalay,MM
+Aye Mya Thandar Fuel Station,Unknown,23.18,94.045,"Sittwe Road, Kalay",Kalay,Kalay,MM
+Kyaw Zaya Fuel Station,Unknown,23.175,94.03,"Near Kalay Myoma Market, Kalay",Kalay,Kalay,MM
+Phyo Min Thu Fuel Station,Unknown,23.168,94.025,"Behind General Hospital, Kalay",Kalay,Kalay,MM
+Htoo Eain Thin Fuel Station,Unknown,23.195,94.05,"Tamu Road, Kalay",Kalay,Kalay,MM
+Nga Laung Bo Bo Fuel Station,Unknown,23.182,94.018,"North of Kalay Airport, Kalay",Kalay,Kalay,MM
+Oak Pho Fuel Station,Unknown,23.17,94.035,"Close to Kalay Railway Station, Kalay",Kalay,Kalay,MM
+Zin Yaw Myint Fuel Station,Unknown,23.162,94.02,"Southern Kalay, near Industrial Zone",Kalay,Kalay,MM
+Myat Mandalar Fuel Station,Unknown,23.19,94.04,Beside Kalay-Tamu Highway,Kalay,Kalay,MM
+Shwe Nan Taw Fuel Station,Unknown,23.177,94.027,"Near Technological University, Kalay",Kalay,Kalay,MM
+Min Tayar Fuel Station,Unknown,23.185,94.047,Along the main road,Kalay,Kalay,MM
+Yadanar Thike Filling Station,Unknown,23.173,94.033,Near the bus station,Kalay,Kalay,MM
+Aung Barani Petrol Station,Unknown,23.165,94.023,On the outskirts of town,Kalay,Kalay,MM
+Shwe Hintha Filling Station,Unknown,23.183,94.036,Close to the city center,Kalay,Kalay,MM
+Myat Phone Maw Fuel Station,Unknown,23.178,94.042,"Main Street, Kalay",Kalay,Kalay,MM
+Mawlaik Highway Fuel Station,Unknown,23.657,94.412,Mawlaik-Kalay Road,Mawlaik,Mawlaik,MM
+MPE Fuel Station Mawlaik,MPE,23.655,94.415,Near Mawlaik town entrance,Mawlaik,Mawlaik,MM
+Paungbyin Fuel Station,,24.25,94.65,Paungbyin,Paungbyin,Mawlaik,MM
+Aung Myin Fuel Station,Unknown,24.1485,94.4022,Mawlaik Township,Mawlaik,Mawlaik,MM
+Shwe Taung Yoe Fuel Station,Unknown,24.1458,94.4055,"Mawlaik-Kalay Road, Mawlaik Township",Mawlaik,Mawlaik,MM
+Myoma Fuel Station,Unknown,24.152,94.398,"Myoma Quarter, Mawlaik Township",Mawlaik,Mawlaik,MM
+Yadanarbon Fuel Station,Unknown,24.1392,94.4125,"Near Mawlaik Airport, Mawlaik Township",Mawlaik,Mawlaik,MM
+Mawlaik Main Fuel Depot,Unknown,24.1471,94.4008,"West of Mawlaik, Mawlaik Township",Mawlaik,Mawlaik,MM
+Kyaw Zeya Fuel Station,Unknown,24.1502,94.4031,"Mawlaik, Near the Market",Mawlaik,Mawlaik,MM
+New Generation Fuel Station,Unknown,24.1428,94.4097,East of Mawlaik City,Mawlaik,Mawlaik,MM
+San Lwin Fuel Station,Unknown,24.1545,94.3952,North Mawlaik,Mawlaik,Mawlaik,MM
+Shwe Pyi Tan Fuel Station,Unknown,24.1369,94.4154,"Near the River, Mawlaik",Mawlaik,Mawlaik,MM
+Aung Thapyay Fuel Station,Unknown,24.1493,94.4015,"Mawlaik Township, Downtown Area",Mawlaik,Mawlaik,MM
+Mawlaik Yoma Fuel Station,Unknown,24.1411,94.4119,"Highway, East of Mawlaik",Mawlaik,Mawlaik,MM
+Min Thar Gyi Fuel Station,Unknown,24.1532,94.3969,Northwest Mawlaik,Mawlaik,Mawlaik,MM
+Golden Land Fuel Station,Unknown,24.1385,94.4138,Close to the Airport Road,Mawlaik,Mawlaik,MM
+Shwe Hintha Fuel Station,Unknown,24.1465,94.4041,"Main Street, Mawlaik",Mawlaik,Mawlaik,MM
+Thet Shay Fuel Station,Unknown,24.1511,94.3994,"Mawlaik, Near the Clinic",Mawlaik,Mawlaik,MM
+Lin Lat Fuel Station,Unknown,24.1445,94.4073,"Opposite the School, Mawlaik",Mawlaik,Mawlaik,MM
+Hkamti Fuel Station 1,,25.83,95.72,Hkamti Road,Hkamti,Hkamti,MM
+Hkamti Petrol Station,MPE,25.84,95.71,,Hkamti,Hkamti,MM
+Fuel Station Hkamti,,25.82,95.73,Near Market,Hkamti,Hkamti,MM
+Homalin Filling Station,,24.86,94.88,Homalin,Homalin,Hkamti,MM
+Homalin Fuel Station,,24.87,94.87,Homalin,Homalin,Hkamti,MM
+Leshi Fuel Station,,26.1667,95.7833,Leshi Main Road,Leshi,Hkamti,MM
+MPE Fuel Station Leshi,MPE,26.17,95.79,Near Leshi Market,Leshi,Hkamti,MM
+Aung Myint Myat Fuel Station,Unknown,25.8345,95.6789,Hkamti Township,Hkamti,Hkamti,MM
+Shwe Thanlwin Fuel Station,Unknown,25.8456,95.689,Near Hkamti Airport,Hkamti,Hkamti,MM
+Nang Pin Fuel Station,Unknown,25.8234,95.6678,Hkamti Main Road,Hkamti,Hkamti,MM
+Hkamti Yoma Fuel Station,Unknown,25.8567,95.6901,Upper Hkamti,Hkamti,Hkamti,MM
+Zawgyi Fuel Station,Unknown,25.8123,95.6567,Southern Hkamti,Hkamti,Hkamti,MM
+Myit Sone Fuel Station,Unknown,25.8678,95.7012,Northern Hkamti,Hkamti,Hkamti,MM
+Hkamti Thitsar Fuel Station,Unknown,25.8012,95.6456,Near the market,Hkamti,Hkamti,MM
+Shwe Pyi Tan Fuel Station,Unknown,25.8789,95.7123,Outskirts of Hkamti,Hkamti,Hkamti,MM
+Emerald Region Fuel Station,Unknown,25.83,95.67,Hkamti near hospital,Hkamti,Hkamti,MM
+Kachin Land Fuel Station,Unknown,25.85,95.69,Hkamti Near School,Hkamti,Hkamti,MM
+Sinphyu Myaing Fuel Station,Unknown,25.81,95.65,West Hkamti,Hkamti,Hkamti,MM
+Maha Bandula Fuel Station,Unknown,25.87,95.71,East Hkamti,Hkamti,Hkamti,MM
+Aye Yarwady Fuel Station,Unknown,25.834,95.68,On Hkamti Main Road,Hkamti,Hkamti,MM
+MPE Gas Station,MPE,17.24,96.43,"Yangon-Mandalay Expressway, near mile marker 60",Bago,Yangon-Mandalay Highway,MM
+Shwe Taung Gas Station,Shwe Taung,18.78,96.32,"Yangon-Mandalay Expressway, near mile marker 140",Pyu,Yangon-Mandalay Highway,MM
+MPT Gas Station,MPT,19.73,96.35,"Yangon-Mandalay Expressway, near mile marker 200",Tatkon,Yangon-Mandalay Highway,MM
+PTT Gas Station,PTT,20.92,96.12,"Yangon-Mandalay Expressway, near mile marker 280",Yamethin,Yangon-Mandalay Highway,MM
+MPE Gas Station,MPE,21.65,96.08,"Yangon-Mandalay Expressway, near mile marker 320",Meiktila,Yangon-Mandalay Highway,MM
+Shwe Byain Phyu Gas Station,Shwe Byain Phyu,21.98,96.06,"Yangon-Mandalay Expressway, near mile marker 340",Thazi,Yangon-Mandalay Highway,MM
+Total Gas Station,Total,20.35,96.25,Yangon-Mandalay Expressway,Lewe,Yangon-Mandalay Highway,MM
+Gas Station,Unknown,17.76,96.42,"Yangon-Mandalay Expressway, near Bago",Bago,Yangon-Mandalay Highway,MM
+Gas Station,Unknown,19.32,96.37,Yangon-Mandalay Expressway,Pyinmana,Yangon-Mandalay Highway,MM
+Gas Station,Unknown,21.45,96.05,Yangon-Mandalay Expressway,Meiktila,Yangon-Mandalay Highway,MM
+MPE Gas Station,MPE,16.78,96.33,"NH1, near Hlegu",Hlegu,Yangon-Mawlamyine Highway,MM
+Shwe Taung Gas Station,Shwe Taung,16.65,96.45,"NH1, near Bago River Bridge",Hlegu,Yangon-Mawlamyine Highway,MM
+MPE Gas Station,MPE,16.5,96.55,"NH1, near Thanatpin",Thanatpin,Yangon-Mawlamyine Highway,MM
+PTT Gas Station,PTT,16.75,97.03,"NH1, near Waw",Waw,Yangon-Mawlamyine Highway,MM
+Shwe Taung Gas Station,Shwe Taung,16.9,97.25,"NH1, near Payagyi",Payagyi,Yangon-Mawlamyine Highway,MM
+MPE Gas Station,MPE,17.05,97.35,"NH1, near Kyaikto",Kyaikto,Yangon-Mawlamyine Highway,MM
+PTT Gas Station,PTT,16.48,97.58,"NH1, near Theinzayat",Kyaikto,Yangon-Mawlamyine Highway,MM
+Shwe Taung Gas Station,Shwe Taung,16.45,97.63,"NH1, near Theinzayat",Kyaikto,Yangon-Mawlamyine Highway,MM
+MPE Gas Station,MPE,16.92,97.68,"NH1, near Mottama",Mottama,Yangon-Mawlamyine Highway,MM
+PTT Gas Station,PTT,16.5,97.65,"NH1, near Kyaikkhami",Thanbyuzayat,Yangon-Mawlamyine Highway,MM
+Total Gas Station,Total,16.48,97.7,"NH1, near Thanbyuzayat",Thanbyuzayat,Yangon-Mawlamyine Highway,MM
+MPE Filling Station,MPE,16.903,95.962,"Yangon-Pathein Rd, near Yay Twin Kone Village",Hlegu,Yangon-Pathein Highway,MM
+Shwe Taung Filling Station,Shwe Taung,17.125,95.748,"Yangon-Pathein Rd, near Nattalin Junction",Nattalin,Yangon-Pathein Highway,MM
+PTT Filling Station,PTT,17.351,95.532,"Yangon-Pathein Rd, near Zalon",Zalon,Yangon-Pathein Highway,MM
+Total Filling Station,Total,17.628,95.315,"Yangon-Pathein Rd, near Ingapu",Ingapu,Yangon-Pathein Highway,MM
+MPE Filling Station,MPE,17.854,95.101,"Yangon-Pathein Rd, near Myanaung",Myanaung,Yangon-Pathein Highway,MM
+Shwe Taung Filling Station,Shwe Taung,18.077,94.886,"Yangon-Pathein Rd, near Kangyidaung",Kangyidaung,Yangon-Pathein Highway,MM
+PTT Filling Station,PTT,18.302,94.671,"Yangon-Pathein Rd, on the outskirts of Pathein",Pathein,Yangon-Pathein Highway,MM
+MPE Filling Station,MPE,18.453,94.733,Corner of Strand Rd and Thit Sar Street,Pathein,Yangon-Pathein Highway,MM
+MPE Filling Station,MPE,17.05,96.15,"Yangon-Pyay Highway, near Hlegu",Hlegu,Yangon-Pyay Highway,MM
+Shwe Taung Filling Station,Shwe Taung,17.85,95.75,"Yangon-Pyay Highway, near Oakkan",Oakkan,Yangon-Pyay Highway,MM
+PTT Filling Station,PTT,18.35,95.5,"Yangon-Pyay Highway, near Tharrawaddy",Tharrawaddy,Yangon-Pyay Highway,MM
+Total Filling Station,Total,17.6,95.4,Near Letpadan,Letpadan,Yangon-Pyay Highway,MM
+MPE Filling Station,MPE,18.8,95.3,Yangon-Pyay Highway,Gyobingauk,Yangon-Pyay Highway,MM
+Shwe Byain Phyu Filling Station,Unknown,18.95,95.2,Near Zigon,Zigon,Yangon-Pyay Highway,MM
+Filling Station,Unknown,19.1,95.2,Yangon-Pyay Highway,Minhla,Yangon-Pyay Highway,MM
+Filling Station,Unknown,18.8188,95.1749,Yangon-Pyay Highway,Gyobingauk,Yangon-Pyay Highway,MM
+PTT Filling Station,PTT,18.6,95.1,"Yangon-Pyay Highway, near Gyobingauk",Gyobingauk,Yangon-Pyay Highway,MM
+MPE Gas Station,MPE,17.635,95.234,"Pathein-Hinthada Road, near Kyonpyaw",Kyonpyaw,Pathein-Hinthada Highway,MM
+Shwe Taung Gas Station,Shwe Taung,17.312,95.456,"Pathein-Hinthada Road, near Kangyi Daunk",Kangyi Daunk,Pathein-Hinthada Highway,MM
+PTT Gas Station,PTT,17.012,95.678,"Pathein-Hinthada Road, near Pantanaw",Pantanaw,Pathein-Hinthada Highway,MM
+Total Gas Station,Total,17.645,95.789,"Pathein-Hinthada Road, near Nyaungdon",Nyaungdon,Pathein-Hinthada Highway,MM
+MPE Gas Station,MPE,17.456,95.901,Pathein-Hinthada Road,Danubyu,Pathein-Hinthada Highway,MM
+Shwe Taung Gas Station,Shwe Taung,17.89,96.012,Pathein-Hinthada Road,Zalun,Pathein-Hinthada Highway,MM
+Gas Station,Unknown,18.023,95.423,"Pathein-Hinthada Road, near Laymyethna",Laymyethna,Pathein-Hinthada Highway,MM
+Gas Station,Unknown,18.222,95.623,"Pathein-Hinthada Road, near Hinthada",Hinthada,Pathein-Hinthada Highway,MM
+MPE Filling Station (Twante),MPE,16.74,95.92,"Yangon-Twante Road, near Twante bridge",Twante,Yangon-Twante Highway,MM
+Shwe Taung Filling Station (Twante),Shwe Taung,16.73,95.92,"Yangon-Twante Road, near Twante",Twante,Yangon-Twante Highway,MM
+Filling Station (Dala),Unknown,16.77,96.14,"Yangon-Twante Road, Dala",Dala,Yangon-Twante Highway,MM
+MPE Petrol Station,MPE,16.77,94.74,Pathein-Myaungmya Road,Pathein,Pathein-Myaungmya Highway,MM
+Shwe Taung Petrol Station,Shwe Taung,16.74,94.71,Pathein-Myaungmya Road,Pathein,Pathein-Myaungmya Highway,MM
+PTT Petrol Station,PTT,16.68,94.65,Pathein-Myaungmya Road,Kangyi Daunk,Pathein-Myaungmya Highway,MM
+Unknown Petrol Station,Unknown,16.54,94.52,Pathein-Myaungmya Road,Wakema,Pathein-Myaungmya Highway,MM
+MPE Petrol Station,MPE,16.5,94.48,Pathein-Myaungmya Road,Wakema,Pathein-Myaungmya Highway,MM
+Shwe Taung Petrol Station,Shwe Taung,16.4,94.41,Pathein-Myaungmya Road,Myaungmya,Pathein-Myaungmya Highway,MM
+PTT Petrol Station,PTT,16.38,94.39,Pathein-Myaungmya Road,Myaungmya,Pathein-Myaungmya Highway,MM
+Unknown Fuel Station,Unknown,16.56,95.4,"Myaungmya-Pyapon Road, near Kyauk Chaung village",Myaungmya,Myaungmya-Pyapon Highway,MM
+Unknown Fuel Station,Unknown,16.44,95.54,"Myaungmya-Pyapon Road, near Kadonkan village",Einme,Myaungmya-Pyapon Highway,MM
+Unknown Fuel Station,Unknown,16.41,95.6,Myaungmya-Pyapon Road,Einme,Myaungmya-Pyapon Highway,MM
+Unknown Fuel Station,Unknown,16.34,95.68,"Myaungmya-Pyapon Road, near Ngaputaw junction",Einme,Myaungmya-Pyapon Highway,MM
+Unknown Fuel Station,Unknown,16.25,95.78,Myaungmya-Pyapon Road,Einme,Myaungmya-Pyapon Highway,MM
+Unknown Fuel Station,Unknown,16.14,95.88,Myaungmya-Pyapon Road,Pyapon,Myaungmya-Pyapon Highway,MM
+Unknown Fuel Station,Unknown,16.09,95.94,"Myaungmya-Pyapon Road, close to Pyapon",Pyapon,Myaungmya-Pyapon Highway,MM
+MPE Filling Station,MPE,19.18,95.22,"Pyay-Magway Road, near Thayet",Thayet,Pyay-Magway Highway,MM
+Shwe Taung Filling Station,Shwe Taung,19.15,95.25,"Pyay-Magway Road, Thayet",Thayet,Pyay-Magway Highway,MM
+MPE Filling Station,MPE,20.78,94.92,"Pyay-Magway Road, Natmauk Township",Natmauk,Pyay-Magway Highway,MM
+Unknown Filling Station,Unknown,20.95,94.9,"Pyay-Magway Road, near Taungdwingyi",Taungdwingyi,Pyay-Magway Highway,MM
+Magway Filling Station,Unknown,20.14,94.88,Myothit,Myothit,Pyay-Magway Highway,MM
+MPE Filling Station,MPE,20.14,94.93,"Magway-Pakokku Road, near Magway",Magway,Magway-Pakokku Highway,MM
+Shwe Taung Filling Station,Shwe Taung,20.45,94.85,"Magway-Pakokku Road, near Minbu",Minbu,Magway-Pakokku Highway,MM
+Yenangyaung Filling Station (Unknown Brand),Unknown,20.46,94.74,"Magway-Pakokku Road, Yenangyaung",Yenangyaung,Magway-Pakokku Highway,MM
+PTT Filling Station,PTT,20.93,94.62,"Magway-Pakokku Road, near Chauk",Chauk,Magway-Pakokku Highway,MM
+Total Filling Station,Total,21.34,94.98,"Magway-Pakokku Road, Pakokku",Pakokku,Magway-Pakokku Highway,MM
+MPE Filling Station (Pakokku),MPE,21.33,95,"Near Pakokku University, Pakokku",Pakokku,Magway-Pakokku Highway,MM
+MPE Filling Station,MPE,21.35,95.2,"Pakokku-Mandalay Road, near Pakokku",Pakokku,Pakokku-Mandalay Highway,MM
+Shwe Taung Filling Station,Shwe Taung,21.1,95.4,"Pakokku-Mandalay Road, near Yesagyo turnoff",Pakokku,Pakokku-Mandalay Highway,MM
+MPT Filling Station,MPT,21,95.5,Pakokku-Mandalay Road,Yesagyo,Pakokku-Mandalay Highway,MM
+Filling Station,Unknown,20.7,95.7,"Pakokku-Mandalay Road, north of Myingyan",Myingyan,Pakokku-Mandalay Highway,MM
+MPE Filling Station,MPE,20.5,95.9,"Pakokku-Mandalay Road, Myingyan",Myingyan,Pakokku-Mandalay Highway,MM
+PTT Filling Station,PTT,20.3,96,"Pakokku-Mandalay Road, near Myingyan",Myingyan,Pakokku-Mandalay Highway,MM
+Filling Station,Unknown,20,96.1,Pakokku-Mandalay Road,Natogyi,Pakokku-Mandalay Highway,MM
+MPE Filling Station,MPE,19.7,96.2,"Pakokku-Mandalay Road, near Tada-U",Tada-U,Pakokku-Mandalay Highway,MM
+Shwe Taung Filling Station,Shwe Taung,22,96,Near Mandalay,Amarapura,Pakokku-Mandalay Highway,MM
+MPE Filling Station,MPE,22.005,96.078,"Mandalay-Pyin Oo Lwin Road, near Mandalay University",Amarapura,Mandalay-Pyin-Oo-Lwin Highway,MM
+Shwe Taung Filling Station,Shwe Taung,22.032,96.065,"Mandalay-Pyin Oo Lwin Road, near Telecom University",Chanmyathazi,Mandalay-Pyin-Oo-Lwin Highway,MM
+Total Filling Station,Total,22.06,96.05,"Mandalay-Pyin Oo Lwin Road, north of Mandalay",Patheingyi,Mandalay-Pyin-Oo-Lwin Highway,MM
+PTT Filling Station,PTT,22.08,96.03,"Mandalay-Pyin Oo Lwin Road, north of Mandalay",Patheingyi,Mandalay-Pyin-Oo-Lwin Highway,MM
+Filling Station (Likely Empty),Empty,22.13,96.01,Mandalay-Pyin Oo Lwin Road,Patheingyi,Mandalay-Pyin-Oo-Lwin Highway,MM
+Filling Station,Unknown,22.18,95.98,"Mandalay-Pyin Oo Lwin Road, Naung Cho township border",Patheingyi,Mandalay-Pyin-Oo-Lwin Highway,MM
+MPE Filling Station,MPE,22.194,95.978,"Mandalay-Pyin Oo Lwin Road, near Anisakhan",Naung Cho,Mandalay-Pyin-Oo-Lwin Highway,MM
+Shwe Taung Filling Station,Shwe Taung,22.005,96.058,"Mandalay-Pyin Oo Lwin Road, near Mandalay University",Amarapura,Mandalay-Pyin-Oo-Lwin Highway,MM
+MPE Filling Station,MPE,21.88,96.07,"Mandalay-Kyaukse Road, near Mandalay city limits",Amarapura,Mandalay-Nyaung-U Highway,MM
+Shwe Taung Filling Station,Shwe Taung,21.55,95.98,"Mandalay-Kyaukse Road, near Tada-U",Tada-U,Mandalay-Nyaung-U Highway,MM
+PTT Filling Station,PTT,21.33,95.92,"Mandalay-Kyaukse Road, Kyaukse",Kyaukse,Mandalay-Nyaung-U Highway,MM
+MPE Filling Station,MPE,21.32,95.92,"Mandalay-Kyaukse Road, Kyaukse",Kyaukse,Mandalay-Nyaung-U Highway,MM
+Filling Station,Unknown,21.1,95.78,"Mandalay-Myingyan Road, near Sintgaing",Sintgaing,Mandalay-Nyaung-U Highway,MM
+Filling Station,Unknown,21.01,95.68,"Mandalay-Myingyan Road, near Myittha",Myittha,Mandalay-Nyaung-U Highway,MM
+PTT Filling Station,PTT,20.88,95.59,"Mandalay-Myingyan Road, Myingyan",Myingyan,Mandalay-Nyaung-U Highway,MM
+Shwe Taung Filling Station,Shwe Taung,20.87,95.58,"Mandalay-Myingyan Road, Myingyan",Myingyan,Mandalay-Nyaung-U Highway,MM
+MPE Filling Station,MPE,20.86,95.57,"Mandalay-Myingyan Road, Myingyan",Myingyan,Mandalay-Nyaung-U Highway,MM
+Filling Station,Unknown,20.52,95.31,"Myingyan-Nyaung-U Road, near Natogyi",Natogyi,Mandalay-Nyaung-U Highway,MM
+Filling Station,Unknown,20.33,95.15,Myingyan-Nyaung-U Road,Taungtha,Mandalay-Nyaung-U Highway,MM
+Filling Station,Unknown,20.12,94.99,Myingyan-Nyaung-U Road,Nyaung-U,Mandalay-Nyaung-U Highway,MM
+Filling Station,Unknown,21.74,95.91,Kyaukse-Mandalay Road,Kyaukse,Mandalay-Nyaung-U Highway,MM
+Filling Station,Unknown,21.6,95.94,Kyaukse-Mandalay Road,Kyaukse,Mandalay-Nyaung-U Highway,MM
+MPE Filling Station,MPE,20.87,95.87,"Meiktila-Mandalay Road, near mile marker",Meiktila,Meiktila-Mandalay Highway,MM
+Shwe Taung Filling Station,Shwe Taung,21.05,96.02,On the main road to Thazi,Thazi,Meiktila-Mandalay Highway,MM
+PTT Filling Station,PTT,21.2,96.08,Near Thazi town center,Thazi,Meiktila-Mandalay Highway,MM
+Total Filling Station,Total,21.45,96.15,"Along Meiktila-Mandalay Road, between Thazi and Yamethin",Yamethin,Meiktila-Mandalay Highway,MM
+MPE Filling Station,MPE,21.6,96.22,Yamethin main road,Yamethin,Meiktila-Mandalay Highway,MM
+Unknown Filling Station,Unknown,21.85,96.3,Near mile marker along Meiktila-Mandalay Road,Pyawbwe,Meiktila-Mandalay Highway,MM
+Shwe Byain Phyu Filling Station,Shwe Byain Phyu,22,96.05,Between Pyawbwe and Mandalay,Pyawbwe,Meiktila-Mandalay Highway,MM
+MPT Filling Station,MPT,21.96,96.34,"Along Meiktila-Mandalay Road, near highway exit",Pyawbwe,Meiktila-Mandalay Highway,MM
+Filling Station,Unknown,22.35,96,Near Mandalay,Tada-U,Meiktila-Mandalay Highway,MM
+MPE Fuel Station,MPE,22,96.46,"Mandalay-Lashio Road, near Pyin Oo Lwin exit",Pyin Oo Lwin,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.03,96.47,"Mandalay-Lashio Road, near Pyin Oo Lwin",Pyin Oo Lwin,Mandalay-Lashio Highway,MM
+MPT Fuel Station,MPT,22.04,96.48,"Mandalay-Lashio Road, Pyin Oo Lwin",Pyin Oo Lwin,Mandalay-Lashio Highway,MM
+Unknown Fuel Station,Unknown,22.75,97.25,"Mandalay-Lashio Road, near Gokteik Viaduct",Naung Cho,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.64,97.35,"Mandalay-Lashio Road, Hsipaw",Hsipaw,Mandalay-Lashio Highway,MM
+Shwe Byain Phyu Fuel Station,Shwe Byain Phyu,22.63,97.34,"Mandalay-Lashio Road, Hsipaw",Hsipaw,Mandalay-Lashio Highway,MM
+Unknown Fuel Station,Unknown,22.62,97.33,"Mandalay-Lashio Road, Hsipaw",Hsipaw,Mandalay-Lashio Highway,MM
+Total Fuel Station,Total,22.98,97.75,"Mandalay-Lashio Road, Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.97,97.74,"Mandalay-Lashio Road, Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.96,97.73,"Mandalay-Lashio Road, Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.95,97.72,"Mandalay-Lashio Road, Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.94,97.71,"Mandalay-Lashio Road, Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+Unknown Fuel Station,Unknown,23.05,97.79,"Mandalay-Lashio Road, Northern Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.04,97.78,"Mandalay-Lashio Road, Northern Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.03,97.77,"Mandalay-Lashio Road, Northern Kyaukme",Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.93,97.88,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.93,97.89,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.9,97.92,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPT Fuel Station,MPT,22.89,97.93,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.88,97.94,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.91,97.91,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.92,97.9,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.94,97.88,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.95,97.87,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.96,97.86,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.97,97.85,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.98,97.84,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.99,97.83,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23,97.82,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.01,97.81,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.02,97.8,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.03,97.79,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.05,97.77,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.06,97.76,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.07,97.75,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.08,97.74,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.09,97.73,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.1,97.72,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.11,97.71,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.12,97.7,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.13,97.69,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.14,97.68,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.15,97.67,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.16,97.66,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.17,97.65,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.18,97.64,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.19,97.63,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.2,97.62,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.21,97.61,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.22,97.6,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.23,97.59,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.24,97.58,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.08,97.51,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.09,97.52,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.1,97.53,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.11,97.54,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.12,97.55,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.13,97.56,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.14,97.57,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.15,97.58,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.16,97.59,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.17,97.6,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.18,97.61,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.19,97.62,Mandalay-Lashio Road,Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.94,97.92,"Mandalay-Lashio Road, Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.95,97.93,"Mandalay-Lashio Road, Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.96,97.94,"Mandalay-Lashio Road, Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPT Fuel Station,MPT,22.97,97.95,"Mandalay-Lashio Road, Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.98,97.96,"Mandalay-Lashio Road, Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.03,97.7,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.04,97.71,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.05,97.72,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.06,97.73,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.07,97.74,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.08,97.75,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.09,97.76,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.1,97.77,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.11,97.78,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.12,97.79,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.13,97.8,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,23.14,97.81,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,23.15,97.82,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23.16,97.83,Mandalay-Lashio Road,Kyaukme,Mandalay-Lashio Highway,MM
+MPT Fuel Station,MPT,22.85,97.58,Lashio- Mandalay Rd,Lashio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.86,97.59,Lashio- Mandalay Rd,Lashio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.87,97.6,Lashio- Mandalay Rd,Lashio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.92,97.56,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.93,97.57,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.94,97.58,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.95,97.59,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.96,97.6,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.97,97.61,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+PTT Fuel Station,PTT,22.98,97.62,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.99,97.63,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,23,97.64,Mandalay-Lashio Road,Lashio,Mandalay-Lashio Highway,MM
+MPT Fuel Station,MPT,22.89,97.8,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+MPE Fuel Station,MPE,22.9,97.81,"Mandalay-Lashio Road, near Nawnghkio",Nawnghkio,Mandalay-Lashio Highway,MM
+Shwe Taung Petrol Station,Shwe Taung,23.01,97.75,"Lashio-Muse Road, near Kutkai",Kutkai,Lashio-Muse Highway,MM
+MPE Filling Station,MPE,23.02,97.74,"Lashio-Muse Road, Kutkai",Kutkai,Lashio-Muse Highway,MM
+PTT Station,PTT,23.96,97.9,"Lashio-Muse Road, near Muse",Muse,Lashio-Muse Highway,MM
+Shwe Byain Phyu Filling Station,Unknown,22.94,97.77,"Lashio-Muse Road, near Hsenwi",Hsenwi,Lashio-Muse Highway,MM
+No Brand Fuel Stop,Empty,23.94,97.89,"Lashio-Muse Road, Muse Area",Muse,Lashio-Muse Highway,MM
+MPE Fuel Station (Likely),MPE,20.78,97.3,"Along Taunggyi-Loilen Road, near the entrance to Loilen",Loilen,Taunggyi-Kengtung Highway,MM
+Shwe Taung Fuel Station (Likely),Shwe Taung,20.79,97.31,"Along Taunggyi-Loilen Road, just outside Loilen town",Loilen,Taunggyi-Kengtung Highway,MM
+Unnamed Fuel Station (Likely),Unknown,20.75,97.25,"Along Taunggyi-Loilen Road, a few km outside of Loilen town",Loilen,Taunggyi-Kengtung Highway,MM
+Unnamed Fuel Station (Likely),Unknown,20.9,97.4,"Along Loilen-Panglong Road, near Heho junction",Loilen,Taunggyi-Kengtung Highway,MM
+PTT Fuel Station (Likely),PTT,20.5,97.8,Along the main road between Loilen and Mongkai,Mongkai,Taunggyi-Kengtung Highway,MM
+Unnamed Fuel Station (Likely),Unknown,20.6,98.1,Along the main road between Mongkai and Mong Hsat,Mongkai,Taunggyi-Kengtung Highway,MM
+MPE Fuel Station (Likely),MPE,20.4,98.5,Along the main road in Mong Hsat town,Mong Hsat,Taunggyi-Kengtung Highway,MM
+Shwe Taung Fuel Station (Likely),Shwe Taung,21.28,99.6,Along the main road into Kengtung,Kengtung,Taunggyi-Kengtung Highway,MM
+Unknown Fuel Station (Likely),Unknown,21.29,99.61,Along the main road into Kengtung,Kengtung,Taunggyi-Kengtung Highway,MM
+MPE Fuel Station,MPE,21.1,97,"Taunggyi-Lashio Road, near Hopong",Hopong,Taunggyi-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,21.9,97.4,"Taunggyi-Lashio Road, near Pindaya",Pindaya,Taunggyi-Lashio Highway,MM
+MPT Fuel Station,MPT,22.6,97.7,"Taunggyi-Lashio Road, near Aungban",Aungban,Taunggyi-Lashio Highway,MM
+PTT Fuel Station,PTT,22.9,97.9,"Taunggyi-Lashio Road, near Kalaw",Kalaw,Taunggyi-Lashio Highway,MM
+MPE Fuel Station,MPE,22.98,97.72,"Kalaw, Taunggyi-Lashio Road",Kalaw,Taunggyi-Lashio Highway,MM
+Shwe Byain Phyu Fuel Station,Shwe Byain Phyu,22.69,97.63,"Between Aungban and Heho, Taunggyi-Lashio Road",Heho,Taunggyi-Lashio Highway,MM
+Empty Fuel Station,Empty,23.1,97.6,"Taunggyi-Lashio Road, near Heho",Heho,Taunggyi-Lashio Highway,MM
+Total Fuel Station,Total,23.5,97.4,"Taunggyi-Lashio Road, near Ywangan",Ywangan,Taunggyi-Lashio Highway,MM
+MPE Fuel Station,MPE,22.8,97.3,"Between Ywangan and Pindaya, Taunggyi-Lashio Road",Ywangan,Taunggyi-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.98,97.1,"Pindaya, Taunggyi-Lashio Road",Pindaya,Taunggyi-Lashio Highway,MM
+MPT Fuel Station,MPT,23.5,97,Near Pindaya,Pindaya,Taunggyi-Lashio Highway,MM
+MPE Fuel Station,MPE,23.54,97.43,"Near Pindaya, Taunggyi-Lashio Road",Pindaya,Taunggyi-Lashio Highway,MM
+Unknown Fuel Station,Unknown,23,96.9,Near Hsihseng,Hsihseng,Taunggyi-Lashio Highway,MM
+PTT Fuel Station,PTT,23.08,97.42,Near Ywangan,Ywangan,Taunggyi-Lashio Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.5,97.8,"Near Aungban, Taunggyi-Lashio Road",Aungban,Taunggyi-Lashio Highway,MM
+MPT Fuel Station,MPT,22,97.7,"Near Pindaya, Taunggyi-Lashio Road",Pindaya,Taunggyi-Lashio Highway,MM
+MPE Fuel Station,MPE,22,97.3,"Near Pindaya, Taunggyi-Lashio Road",Pindaya,Taunggyi-Lashio Highway,MM
+MPT Fuel Station,MPT,22,97.9,"Near Aungban, Taunggyi-Lashio Road",Aungban,Taunggyi-Lashio Highway,MM
+MPE Filling Station (Amarapura),MPE,21.854,96.065,"Mandalay-Sagaing Road, near Amarapura bridge",Amarapura,Mandalay-Sagaing Highway,MM
+Shwe Taung Filling Station (Amarapura),Shwe Taung,21.859,96.058,"Mandalay-Sagaing Road, Amarapura",Amarapura,Mandalay-Sagaing Highway,MM
+PTT Filling Station (Amarapura),PTT,21.865,96.045,"Mandalay-Sagaing Road, north of Amarapura",Amarapura,Mandalay-Sagaing Highway,MM
+Total Filling Station (Sagaing),Total,21.905,95.975,"Mandalay-Sagaing Road, near Sagaing University",Sagaing,Mandalay-Sagaing Highway,MM
+Shwe Byain Phyu Filling Station,Unknown,21.93,95.99,"Mandalay-Sagaing Road, North of Sagaing",Sagaing,Mandalay-Sagaing Highway,MM
+MPE Filling Station (Sagaing),MPE,21.9,95.98,"Sagaing-Monywa Road, near Sagaing University",Sagaing,Sagaing-Monywa Highway,MM
+Shwe Taung Filling Station (Myinmu),Shwe Taung,22.05,95.85,"Sagaing-Monywa Road, near Myinmu junction",Myinmu,Sagaing-Monywa Highway,MM
+PTT Filling Station (Yinmabin),PTT,22.25,95.5,"Sagaing-Monywa Road, Yinmabin",Yinmabin,Sagaing-Monywa Highway,MM
+Local Filling Station (Yinmabin),Empty,22.26,95.49,"Sagaing-Monywa Road, southern Yinmabin",Yinmabin,Sagaing-Monywa Highway,MM
+MPE Filling Station (Kani),MPE,22.28,95.2,"Sagaing-Monywa Road, Kani",Kani,Sagaing-Monywa Highway,MM
+Shwe Byain Byu Filling Station (Kani),Shwe Byain Byu,22.3,95.18,"Sagaing-Monywa Road, Northern Kani",Kani,Sagaing-Monywa Highway,MM
+Total Filling Station (Monywa),Total,22.12,95.13,"Sagaing-Monywa Road, near Monywa University",Monywa,Sagaing-Monywa Highway,MM
+Shwe Taung Filling Station (Monywa),Shwe Taung,22.1,95.15,"Sagaing-Monywa Road, Monywa entrance",Monywa,Sagaing-Monywa Highway,MM
+MPT Filling Station (Monywa),MPT,22.13,95.14,"Corner of Bogyoke Road and Sagaing-Monywa Road, Monywa",Monywa,Sagaing-Monywa Highway,MM
+MPE Filling Station (approximate),MPE,22.2,94.85,"On Monywa-Kalay Road, near milestone 35/4",Monywa,Monywa-Kalay Highway,MM
+Shwe Taung Filling Station (approximate),Shwe Taung,22.45,94.95,"On Monywa-Kalay Road, near milestone 50/5",Ayadaw,Monywa-Kalay Highway,MM
+"Filling Station (unbranded, approximate)",Empty,22.8,95.1,"On Monywa-Kalay Road, near milestone 75/2",Kani,Monywa-Kalay Highway,MM
+PTT Filling Station (approximate),PTT,23.05,95.25,"On Monywa-Kalay Road, outskirts of town",Pale,Monywa-Kalay Highway,MM
+"Filling Station (unbranded, approximate)",Empty,23.3,95.4,"On Monywa-Kalay Road, before entering Kawlin",Kawlin,Monywa-Kalay Highway,MM
+MPE Filling Station (approximate),MPE,23.5,95.5,On Monywa-Kalay Road,Kawlin,Monywa-Kalay Highway,MM
+Shwe Taung Filling Station (approximate),Shwe Taung,23.75,95.65,"On Monywa-Kalay Road, after Kawlin",Wuntho,Monywa-Kalay Highway,MM
+"Filling Station (unbranded, approximate)",Empty,24,95.8,On Monywa-Kalay Road,Pinlebu,Monywa-Kalay Highway,MM
+"Filling Station (unbranded, approximate)",Empty,24.3,96,On Monywa-Kalay Road,Tamu,Monywa-Kalay Highway,MM
+MPE Filling Station,MPE,22.22,95.7,"Sagaing-Shwebo Road, near Ohndaw",Sagaing,Sagaing-Shwebo Highway,MM
+Shwe Taung Filling Station,Shwe Taung,22.35,95.65,"Sagaing-Shwebo Road, near Ayadaw",Ayadaw,Sagaing-Shwebo Highway,MM
+PTT Filling Station,PTT,22.5,95.6,"Sagaing-Shwebo Road, near Wetlet",Wetlet,Sagaing-Shwebo Highway,MM
+Unbranded Filling Station,Empty,22.65,95.55,"Sagaing-Shwebo Road, near Kyi Village",Wetlet,Sagaing-Shwebo Highway,MM
+MPE Filling Station,MPE,22.75,95.5,Sagaing-Shwebo Road,Shwebo,Sagaing-Shwebo Highway,MM
+Shwebo Highway Fuel Station,Unknown,22.57,95.7,"Shwebo-Khin U Road, Near Shwebo",Shwebo,Shwebo-Katha Highway,MM
+Khin-U Fuel Station,Unknown,22.86,95.64,"Khin-U Main Road, Khin-U",Khin-U,Shwebo-Katha Highway,MM
+Tigyaing Fuel Station,Unknown,23.67,96,"Tigyaing Main Road, Tigyaing",Tigyaing,Shwebo-Katha Highway,MM
+Katha Fuel Station (North),Unknown,24.17,96.33,"Katha Myoma Market Road, Katha",Katha,Shwebo-Katha Highway,MM
+Katha Fuel Station (South),Unknown,24.15,96.33,"Katha-Indaw Road, Near Katha",Katha,Shwebo-Katha Highway,MM
+Shwe Byain Phyu Fuel Station,Unknown,23.304,94.333,Along Kalay-Tamu Road,Tamu,Kalay-Tamu Highway,MM
+PTT Fuel Station,PTT,23.278,94.344,Near Tamu,Tamu,Kalay-Tamu Highway,MM
+MPE Fuel Station,MPE,23.198,94.312,Along Kalay-Tamu Road,Tamu,Kalay-Tamu Highway,MM
+Fuel Station,Unknown,23.094,94.262,Along Kalay-Tamu Road,Tamu,Kalay-Tamu Highway,MM
+Fuel Station,Unknown,22.987,94.245,Along Kalay-Tamu Road,Kalay,Kalay-Tamu Highway,MM
+Shwe Taung Fuel Station,Shwe Taung,22.865,94.248,"Along Kalay-Tamu Road, near Kalaymyo",Kalay,Kalay-Tamu Highway,MM

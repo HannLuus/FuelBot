@@ -1,12 +1,15 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { haversineDistanceMetres } from '@/lib/fuelUtils'
+import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import type { StationWithStatus, FuelCode, StatusFilter } from '@/types'
 
 interface UseNearbyStationsArgs {
   lat: number
   lng: number
   maxDistanceKm: number
+  /** When set, B2B route view: fetch stations along this route only. */
+  selectedRouteId: string | null
   fuelTypes: FuelCode[]
   statusFilter: StatusFilter
 }
@@ -22,6 +25,7 @@ export function useNearbyStations({
   lat,
   lng,
   maxDistanceKm,
+  selectedRouteId,
   fuelTypes,
   statusFilter,
 }: UseNearbyStationsArgs): UseNearbyStationsResult {
@@ -34,21 +38,43 @@ export function useNearbyStations({
     setError(null)
 
     try {
-      // Fetch stations with current status using PostGIS distance
-      const { data, error: dbError } = await supabase.rpc('get_nearby_stations', {
-        user_lat: lat,
-        user_lng: lng,
-        radius_km: maxDistanceKm,
-      })
+      let results: StationWithStatus[]
 
-      if (dbError) throw dbError
-
-      let results: StationWithStatus[] = (data ?? []).map(
-        (row: StationWithStatus & { distance_m: number }) => ({
+      if (selectedRouteId) {
+        // B2B route view: RPC checks entitlement server-side
+        const { data, error: dbError } = await supabase.rpc('get_stations_along_route', {
+          p_route_id: selectedRouteId,
+        })
+        if (dbError) throw dbError
+        const raw = (data ?? []) as (StationWithStatus & { distance_m?: number })[]
+        results = raw.map((row) => ({
           ...row,
-          distance_m: row.distance_m,
-        }),
-      )
+          distance_m: haversineDistanceMetres(lat, lng, row.lat, row.lng),
+        }))
+      } else if (maxDistanceKm >= WHOLE_COUNTRY_KM) {
+        // B2B national view: RPC checks entitlement server-side
+        const { data, error: dbError } = await supabase.rpc('get_all_stations_national')
+        if (dbError) throw dbError
+        const raw = (data ?? []) as (StationWithStatus & { distance_m?: number })[]
+        results = raw.map((row) => ({
+          ...row,
+          distance_m: haversineDistanceMetres(lat, lng, row.lat, row.lng),
+        }))
+      } else {
+        // Radius-based: existing PostGIS RPC
+        const { data, error: dbError } = await supabase.rpc('get_nearby_stations', {
+          user_lat: lat,
+          user_lng: lng,
+          radius_km: maxDistanceKm,
+        })
+        if (dbError) throw dbError
+        results = (data ?? []).map(
+          (row: StationWithStatus & { distance_m: number }) => ({
+            ...row,
+            distance_m: row.distance_m,
+          }),
+        )
+      }
 
       // Client-side fuel type filter
       if (fuelTypes.length > 0) {
@@ -71,13 +97,14 @@ export function useNearbyStations({
         })
       }
 
+      results.sort((a, b) => (a.distance_m ?? 0) - (b.distance_m ?? 0))
       setStations(results)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
-  }, [lat, lng, maxDistanceKm, fuelTypes, statusFilter])
+  }, [lat, lng, maxDistanceKm, selectedRouteId, fuelTypes, statusFilter])
 
   useEffect(() => {
     void fetchStations()
