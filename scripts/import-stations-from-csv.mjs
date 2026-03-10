@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Import fuel stations from data/stations-myanmar.csv (or stations-yangon-mandalay.csv) into Supabase.
+ * Import fuel stations from CSV into Supabase.
+ *
+ * Rows with empty lat/lng are imported as address-only (location = null). They are
+ * not shown on the map (get_nearby_stations requires location IS NOT NULL). Only
+ * rows with real coordinates get a map pin.
  *
  * Requires in .env: VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
- * Run: npm run import-stations
- *
- * Uses service role to bypass RLS. Inserts in batches; skips rows that fail
- * (e.g. duplicate by app logic) and continues.
+ * Run: npm run import-stations  (or IMPORT_CSV=verified-stations.csv for verified list)
  */
 
 import { readFileSync, existsSync } from 'fs'
@@ -28,9 +29,10 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 }
 
 const DATA_DIR = resolve(root, 'data')
-const CSV_PATH = existsSync(resolve(DATA_DIR, 'stations-myanmar.csv'))
-  ? resolve(DATA_DIR, 'stations-myanmar.csv')
-  : resolve(DATA_DIR, 'stations-yangon-mandalay.csv')
+const CSV_NAME =
+  process.env.IMPORT_CSV ||
+  (existsSync(resolve(DATA_DIR, 'stations-myanmar.csv')) ? 'stations-myanmar.csv' : 'stations-yangon-mandalay.csv')
+const CSV_PATH = resolve(DATA_DIR, CSV_NAME)
 const BATCH_SIZE = 50
 
 /** Parse a single CSV line respecting quoted fields (handles commas inside "...") */
@@ -95,16 +97,18 @@ function parseCSV(content) {
     cityIdx === -1 ||
     countryIdx === -1
   ) {
-    throw new Error('CSV must have columns: name, brand, lat, lng, address_text, township, city, country_code')
+    throw new Error('CSV must have columns: name, brand, lat, lng, address_text, township, city, country_code (lat/lng may be empty for address-only rows)')
   }
   const rows = []
   for (let i = 1; i < lines.length; i++) {
     const cells = parseCSVLine(lines[i])
     const name = (cells[nameIdx] ?? '').trim()
     if (!name) continue
-    const lat = Number(cells[latIdx])
-    const lng = Number(cells[lngIdx])
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
+    const latRaw = (cells[latIdx] ?? '').trim()
+    const lngRaw = (cells[lngIdx] ?? '').trim()
+    const lat = latRaw === '' ? null : Number(latRaw)
+    const lng = lngRaw === '' ? null : Number(lngRaw)
+    const hasCoords = Number.isFinite(lat) && Number.isFinite(lng)
     const brand = (cells[brandIdx] ?? '').trim() || null
     const address_text = (cells[addressIdx] ?? '').trim() || null
     const township = (cells[townshipIdx] ?? '').trim() || '—'
@@ -113,8 +117,8 @@ function parseCSV(content) {
     rows.push({
       name,
       brand,
-      lat,
-      lng,
+      lat: hasCoords ? lat : null,
+      lng: hasCoords ? lng : null,
       address_text,
       township,
       city,
@@ -125,7 +129,10 @@ function parseCSV(content) {
 }
 
 function rowKey(r) {
-  return `${r.name}|${Number(r.lat).toFixed(5)}|${Number(r.lng).toFixed(5)}|${r.city}`
+  if (r.lat != null && r.lng != null && Number.isFinite(r.lat) && Number.isFinite(r.lng)) {
+    return `${r.name}|${Number(r.lat).toFixed(5)}|${Number(r.lng).toFixed(5)}|${r.city}`
+  }
+  return `${r.name}|${r.township}|${r.city}`
 }
 
 async function main() {
@@ -143,22 +150,67 @@ async function main() {
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+  const isVerifiedImport = CSV_NAME === 'verified-stations.csv'
 
-  const { data: existingRows } = await supabase.from('stations').select('name, lat, lng, city')
-  const existingKeys = new Set(
-    (existingRows || []).map((r) => `${r.name}|${Number(r.lat).toFixed(5)}|${Number(r.lng).toFixed(5)}|${r.city}`),
-  )
-  const toInsert = rows.filter((r) => !existingKeys.has(rowKey(r)))
-  const skipCount = rows.length - toInsert.length
-  if (skipCount > 0) console.log(`Already in DB: ${skipCount}. Will insert only ${toInsert.length} new.\n`)
-
-  if (toInsert.length === 0) {
-    console.log('Nothing new to insert.')
-    return
+  const { data: existingRows } = await supabase.from('stations').select('id, name, lat, lng, township, city')
+  const existingByKey = new Map()
+  const existingByMatch = new Map() // (name, township, city) -> { id, ... } for verified update path
+  for (const r of existingRows || []) {
+    const key =
+      r.lat != null && r.lng != null && Number.isFinite(r.lat) && Number.isFinite(r.lng)
+        ? `${r.name}|${Number(r.lat).toFixed(5)}|${Number(r.lng).toFixed(5)}|${r.city}`
+        : `${r.name}|${r.township || ''}|${r.city}`
+    existingByKey.set(key, r)
+    const matchKey = `${r.name}|${(r.township || '').trim()}|${(r.city || '').trim()}`
+    if (!existingByMatch.has(matchKey)) existingByMatch.set(matchKey, r)
   }
 
   let inserted = 0
+  let updated = 0
   let failed = 0
+  const toInsert = []
+
+  if (isVerifiedImport) {
+    // Update existing stations by (name, township, city) so re-import after de-dup clears duplicate pins
+    for (const row of rows) {
+      const matchKey = `${row.name}|${(row.township || '').trim()}|${(row.city || '').trim()}`
+      const existing = existingByMatch.get(matchKey)
+      if (existing) {
+        const hasLoc =
+          row.lat != null && row.lng != null && Number.isFinite(row.lat) && Number.isFinite(row.lng)
+        const location =
+          hasLoc ? { type: 'Point', coordinates: [Number(row.lng), Number(row.lat)] } : null
+        const { error } = await supabase
+          .from('stations')
+          .update({
+            lat: row.lat,
+            lng: row.lng,
+            location,
+            address_text: row.address_text,
+            brand: row.brand,
+            country_code: row.country_code,
+          })
+          .eq('id', existing.id)
+        if (error) {
+          failed++
+          if (failed <= 3) console.warn('  Update fail:', row.name, error.message)
+        } else {
+          updated++
+        }
+        continue
+      }
+      if (!existingByKey.has(rowKey(row))) toInsert.push(row)
+    }
+    if (updated) console.log(`Updated (name+township+city): ${updated}.`)
+  } else {
+    const skipCount = rows.filter((r) => existingByKey.has(rowKey(r))).length
+    for (const r of rows) {
+      if (!existingByKey.has(rowKey(r))) toInsert.push(r)
+    }
+    if (rows.length - toInsert.length > 0) {
+      console.log(`Already in DB: ${rows.length - toInsert.length}. Will insert only ${toInsert.length} new.\n`)
+    }
+  }
 
   for (let i = 0; i < toInsert.length; i += BATCH_SIZE) {
     const batch = toInsert.slice(i, i + BATCH_SIZE)
@@ -179,7 +231,7 @@ async function main() {
     process.stdout.write(`  ${Math.min(i + BATCH_SIZE, toInsert.length)} / ${toInsert.length}\r`)
   }
 
-  console.log(`\nDone. Inserted: ${inserted}, failed: ${failed}, skipped (already in DB): ${skipCount}`)
+  console.log(`\nDone. Inserted: ${inserted}, updated: ${updated || 0}, failed: ${failed}`)
 }
 
 main().catch((err) => {

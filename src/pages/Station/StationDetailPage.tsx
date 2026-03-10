@@ -41,10 +41,13 @@ export function StationDetailPage() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
-  const { user } = useAuthStore()
+  const { user, session } = useAuthStore()
   const [isFollowing, setIsFollowing] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [claimMessage, setClaimMessage] = useState<string | null>(null)
+  const [reportWrongLocationSent, setReportWrongLocationSent] = useState(false)
+  const [reportWrongLocationLoading, setReportWrongLocationLoading] = useState(false)
+  const [reportWrongLocationError, setReportWrongLocationError] = useState<string | null>(null)
   const [reliability, setReliability] = useState<ReliabilityRow | null>(null)
   const [uptime, setUptime] = useState<UptimeRow | null>(null)
 
@@ -322,6 +325,98 @@ export function StationDetailPage() {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Report wrong location — so we can fix or remove bad data */}
+        {station.id && (
+          <div className="mx-4 mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            {reportWrongLocationSent ? (
+              <p className="text-sm text-amber-900">{t('station.reportWrongLocationSent')}</p>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-amber-900">
+                  {t('station.reportWrongLocation')}
+                </p>
+                <p className="mt-1 text-xs text-amber-800">
+                  {t('station.reportWrongLocationHint')}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    loading={reportWrongLocationLoading}
+                    onClick={async () => {
+                      setReportWrongLocationError(null)
+                      setReportWrongLocationLoading(true)
+                      try {
+                        const { error } = await supabase.functions.invoke('report-wrong-location', {
+                          ...(session?.access_token && {
+                            headers: { Authorization: `Bearer ${session.access_token}` },
+                          }),
+                          body: { station_id: station.id },
+                        })
+                        if (!error) setReportWrongLocationSent(true)
+                      } finally {
+                        setReportWrongLocationLoading(false)
+                      }
+                    }}
+                  >
+                    {t('station.reportWrongLocationButton')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    loading={reportWrongLocationLoading}
+                    onClick={async () => {
+                      setReportWrongLocationError(null)
+                      setReportWrongLocationLoading(true)
+                      try {
+                        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                          if (!navigator.geolocation) {
+                            reject(new Error('UNSUPPORTED'))
+                            return
+                          }
+                          navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0,
+                          })
+                        })
+                        const { error } = await supabase.functions.invoke('report-wrong-location', {
+                          ...(session?.access_token && {
+                            headers: { Authorization: `Bearer ${session.access_token}` },
+                          }),
+                          body: {
+                            station_id: station.id,
+                            suggested_lat: position.coords.latitude,
+                            suggested_lng: position.coords.longitude,
+                          },
+                        })
+                        if (!error) setReportWrongLocationSent(true)
+                        else setReportWrongLocationError(error.message ?? t('errors.generic'))
+                      } catch (err) {
+                        const msg =
+                          err instanceof Error ? err.message : String(err)
+                        if (msg === 'UNSUPPORTED')
+                          setReportWrongLocationError(t('station.reportWrongLocationGeolocationUnsupported'))
+                        else if (msg.includes('denied') || msg.includes('PERMISSION'))
+                          setReportWrongLocationError(t('station.reportWrongLocationGeolocationDenied'))
+                        else
+                          setReportWrongLocationError(t('station.reportWrongLocationGeolocationError'))
+                      } finally {
+                        setReportWrongLocationLoading(false)
+                      }
+                    }}
+                  >
+                    {t('station.reportWrongLocationWithMyLocation')}
+                  </Button>
+                </div>
+                {reportWrongLocationError && (
+                  <p className="mt-2 text-xs text-amber-800">{reportWrongLocationError}</p>
+                )}
+              </>
+            )}
           </div>
         )}
 

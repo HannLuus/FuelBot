@@ -170,4 +170,6 @@ export interface StationFilters {
   maxDistanceKm: number
   /** When set, B2B route view is active and stations are filtered to this route. */
   selectedRouteId: string | null
+  /** When true, show only operator-verified stations (trusted locations). */
+  verifiedOnly: boolean
 }

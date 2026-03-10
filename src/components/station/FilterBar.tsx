@@ -21,7 +21,7 @@ const DISTANCE_LABEL_KEYS: Record<number, string> = {
 export function FilterBar() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
-  const { filters, setFuelTypes, setStatusFilter, setMaxDistance, setSelectedRouteId } = useFilterStore()
+  const { filters, setFuelTypes, setStatusFilter, setMaxDistance, setSelectedRouteId, setVerifiedOnly } = useFilterStore()
   const { hasNationalView, routes } = useB2BEntitlements()
 
   function toggleFuelType(code: FuelCode) {
@@ -76,6 +76,24 @@ export function FilterBar() {
             </button>
           )
         })}
+
+        {/* Divider */}
+        <div className="shrink-0 h-5 w-px bg-gray-200 mx-1" />
+
+        {/* Verified only — show only operator-verified stations (trusted locations) */}
+        <button
+          type="button"
+          title={t('home.filters.verifiedOnlyHint')}
+          onClick={() => setVerifiedOnly(!filters.verifiedOnly)}
+          className={clsx(
+            'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+            filters.verifiedOnly
+              ? 'bg-green-600 text-white active:bg-green-700'
+              : 'bg-gray-100 text-gray-700 active:bg-gray-200',
+          )}
+        >
+          {t('home.filters.verifiedOnly')}
+        </button>
 
         {/* Divider */}
         <div className="shrink-0 h-5 w-px bg-gray-200 mx-1" />

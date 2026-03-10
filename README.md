@@ -67,6 +67,20 @@ Set `SUPABASE_SERVICE_ROLE_KEY` in the Edge Function secrets via the Supabase da
 
 ---
 
+## Verified station data (distributor-led)
+
+Government figures put Myanmar at **~2,600–2,700** registered filling stations. To avoid junk/AI-hallucinated pins, we source **verified** stations from official distributor lists first. See **[docs/VERIFIED_STATIONS_SOURCING.md](docs/VERIFIED_STATIONS_SOURCING.md)** for the top 10 distributors and plan.
+
+- **All distributors (Max Energy, Shwe Taung Tan, SPC, Htoo, PTT):** One CSV and one import:
+  ```bash
+  npm run build-verified-stations    # name, address, township, city (no coordinates)
+  npm run geocode-verified-stations  # look up each address on Google Maps; fill lat/lng only when we get a result (requires GOOGLE_GEOCODING_API_KEY in .env)
+  npm run import-verified-stations   # imports into Supabase (bypasses RLS)
+  ```
+- See [docs/VERIFIED_STATIONS_SOURCING.md](docs/VERIFIED_STATIONS_SOURCING.md). Coordinates come only from geocoding the address (e.g. Google Geocoding API), not from invented or spread positions.
+
+---
+
 ## Database
 
 All migrations are applied to the remote Supabase project. Key tables:

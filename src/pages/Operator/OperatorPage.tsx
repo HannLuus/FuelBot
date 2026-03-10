@@ -78,6 +78,8 @@ export function OperatorPage() {
   const [uptime, setUptime] = useState<UptimeRow | null>(null)
   const [editableStationName, setEditableStationName] = useState('')
   const [editableStationBrand, setEditableStationBrand] = useState('')
+  const [setLocationLoading, setSetLocationLoading] = useState(false)
+  const [setLocationMessage, setSetLocationMessage] = useState<string | null>(null)
 
   const selectedTierPrice = useMemo(() => getTierPrice(tier), [tier])
   const selectedReferralAmount = useMemo(() => referralAmountForTier(tier), [tier])
@@ -815,6 +817,62 @@ export function OperatorPage() {
                 <p className="mt-2 text-xs text-gray-700">
                   {currentStatus.last_updated_at ? formatRelativeTime(currentStatus.last_updated_at) : '—'} · {QUEUE_LABEL[currentStatus.queue_bucket_computed ?? 'NONE'][lang]}
                 </p>
+              </div>
+            )}
+
+            {myStation.payment_received_at && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="font-semibold text-emerald-900">{t('operator.setCorrectLocationTitle')}</p>
+                <p className="mt-1 text-xs text-emerald-800">{t('operator.setCorrectLocationHint')}</p>
+                <div className="mt-3">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    loading={setLocationLoading}
+                    disabled={!session?.access_token}
+                    onClick={async () => {
+                      if (!myStation?.id || !session?.access_token) return
+                      setSetLocationMessage(null)
+                      setSetLocationLoading(true)
+                      try {
+                        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                          if (!navigator.geolocation) {
+                            reject(new Error('UNSUPPORTED'))
+                            return
+                          }
+                          navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0,
+                          })
+                        })
+                        const { error } = await supabase.functions.invoke('owner-update-station-location', {
+                          headers: { Authorization: `Bearer ${session.access_token}` },
+                          body: {
+                            station_id: myStation.id,
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                          },
+                        })
+                        if (!error) {
+                          setSetLocationMessage(t('operator.setCorrectLocationUpdated'))
+                          void loadMyStation()
+                        } else {
+                          setSetLocationMessage(error.message ?? t('errors.generic'))
+                        }
+                      } catch {
+                        setSetLocationMessage(t('operator.setCorrectLocationGeolocationError'))
+                      } finally {
+                        setSetLocationLoading(false)
+                      }
+                    }}
+                  >
+                    {t('operator.setCorrectLocationUseMyLocation')}
+                  </Button>
+                </div>
+                {setLocationMessage && (
+                  <p className="mt-2 text-xs text-emerald-800">{setLocationMessage}</p>
+                )}
               </div>
             )}
 

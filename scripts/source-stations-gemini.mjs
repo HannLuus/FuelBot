@@ -13,13 +13,14 @@
  *
  * Run: npm run source-stations
  * Output: data/stations-myanmar.csv
- * Cities: Yangon, Mandalay, Naypyidaw, Mawlamyine, Bago, Taunggyi, Pathein, Hinthada, Pyay;
+ * Cities: Yangon (incl. rest of Yangon Region: Thanlyin, Hlegu, Hmawbi, Taikkyi, etc.), Mandalay, Naypyidaw, Mawlamyine, Bago, Nyaunglebin, Taungoo, Tharrawaddy, Taunggyi, Pathein, Hinthada, Pyay;
  * South / Ayeyarwady: Myaungmya, Pyapon, Maubin, Labutta, Bogale, Twante, Kyonpyaw, Wakema.
  * Magway Region (full): Magway, Minbu, Thayet, Pakokku, Gangaw.
  * Mandalay Region (full): Mandalay city, Pyin Oo Lwin, Kyaukse, Myingyan, Nyaung-U (Bagan), Yamethin, Meiktila.
  * Shan State (full): Taunggyi, Lashio, Kengtung, Hsipaw, Loilen.
  * Sagaing Region (full): Sagaing, Monywa, Shwebo, Katha, Kawlin, Kalay, Mawlaik, Hkamti.
- * Also fetches stations along major highways (including Sagaing routes).
+ * Tanintharyi Region: Dawei, Myeik, Kawthaung (southern coast and Myeik archipelago).
+ * Also fetches stations along major highways (including Sagaing and Tanintharyi routes).
  */
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'fs'
@@ -54,6 +55,11 @@ const CITY_CENTERS = {
   Naypyidaw: [19.7475, 96.1153],
   Mawlamyine: [16.4919, 97.628],
   Bago: [17.3208, 96.5267],
+  Taungoo: [18.94, 96.43],
+  Tharrawaddy: [17.65, 95.78],
+  Nyaunglebin: [17.25, 96.73],
+  Thanlyin: [16.74, 96.25],
+  Hlegu: [17.10, 96.22],
   Taunggyi: [20.7892, 97.0378],
   Pathein: [16.7742, 94.7322],
   Hinthada: [17.65, 95.45],
@@ -71,6 +77,7 @@ const CITY_CENTERS = {
   Magway: [20.15, 94.95],
   Minbu: [20.18, 94.88],
   Thayet: [19.32, 95.18],
+  Minhla: [19.82, 95.08],
   Pakokku: [21.33, 95.08],
   Gangaw: [21.13, 94.13],
   // Mandalay Region (complete)
@@ -96,19 +103,31 @@ const CITY_CENTERS = {
   Mawlaik: [23.64, 94.06],
   Hkamti: [25.98, 95.73],
   Tamu: [23.98, 94.05],
+  // Tanintharyi Region (southern coast: Dawei, Myeik, Kawthaung)
+  Dawei: [14.07, 98.19],
+  Myeik: [12.44, 98.60],
+  Kawthaung: [9.98, 98.55],
 }
 
 // Major highways connecting our app cities (for fuel stations along routes)
 const HIGHWAY_ROUTES = [
   { id: 'Yangon-Mandalay', name: 'Yangon–Mandalay Expressway', from: 'Yangon', to: 'Mandalay', via: 'Bago, Naypyidaw' },
   { id: 'Yangon-Mawlamyine', name: 'Yangon–Mawlamyine road (NH1)', from: 'Yangon', to: 'Mawlamyine', via: 'Thaton' },
+  { id: 'Mawlamyine-Dawei', name: 'Mawlamyine–Dawei (Tanintharyi)', from: 'Mawlamyine', to: 'Dawei', via: 'Ye, Dawei road' },
+  { id: 'Dawei-Myeik', name: 'Dawei–Myeik (Tanintharyi coast)', from: 'Dawei', to: 'Myeik', via: 'Launglon, Palaw' },
+  { id: 'Myeik-Kawthaung', name: 'Myeik–Kawthaung (southern Tanintharyi)', from: 'Myeik', to: 'Kawthaung', via: 'Bokepyin' },
   { id: 'Yangon-Pathein', name: 'Yangon–Pathein (NH8 / Western Union Highway)', from: 'Yangon', to: 'Pathein', via: '' },
   { id: 'Yangon-Pyay', name: 'Yangon–Pyay Highway (Route 2)', from: 'Yangon', to: 'Pyay', via: 'Hlegu, Tharrawaddy, Letpadan' },
+  { id: 'Yangon-Thanlyin', name: 'Yangon–Thanlyin (Syriam) / bridge and south', from: 'Yangon', to: 'Thanlyin', via: '' },
+  { id: 'Bago-Taungoo', name: 'Bago–Taungoo road (Bago Region)', from: 'Bago', to: 'Taungoo', via: 'Nyaunglebin' },
+  { id: 'Taungoo-Tharrawaddy', name: 'Taungoo–Tharrawaddy (Bago Region)', from: 'Taungoo', to: 'Tharrawaddy', via: '' },
   { id: 'Pathein-Hinthada', name: 'Pathein–Hinthada road', from: 'Pathein', to: 'Hinthada', via: '' },
   { id: 'Yangon-Twante', name: 'Yangon–Twante (canal / road south)', from: 'Yangon', to: 'Twante', via: '' },
   { id: 'Pathein-Myaungmya', name: 'Pathein–Myaungmya (Ayeyarwady delta)', from: 'Pathein', to: 'Myaungmya', via: '' },
   { id: 'Myaungmya-Pyapon', name: 'Myaungmya–Pyapon (delta)', from: 'Myaungmya', to: 'Pyapon', via: '' },
   { id: 'Pyay-Magway', name: 'Pyay–Magway (Magway Region access)', from: 'Pyay', to: 'Magway', via: 'Thayet' },
+  { id: 'Pyay-Thayet-Minhla', name: 'Pyay–Thayet–Minhla (Irrawaddy river road)', from: 'Pyay', to: 'Minhla', via: 'Thayet, river villages' },
+  { id: 'Thayet-Magway', name: 'Thayet–Magway (Irrawaddy west bank)', from: 'Thayet', to: 'Magway', via: 'Minhla' },
   { id: 'Magway-Pakokku', name: 'Magway–Pakokku (Magway Region)', from: 'Magway', to: 'Pakokku', via: 'Yenangyaung, Chauk' },
   { id: 'Pakokku-Mandalay', name: 'Pakokku–Mandalay', from: 'Pakokku', to: 'Mandalay', via: 'Myingyan' },
   { id: 'Mandalay-Pyin-Oo-Lwin', name: 'Mandalay–Pyin Oo Lwin (Maymyo)', from: 'Mandalay', to: 'Pyin Oo Lwin', via: 'Mandalay Hill' },
@@ -133,10 +152,13 @@ const CITIES = [
     townships: [
       'Ahlon', 'Bahan', 'Botahtaung', 'Dagon', 'Dagon Seikkan', 'Dala', 'Dawbon', 'Hlaing', 'Hlaingthaya',
       'Insein', 'Kamayut', 'Kyauktada', 'Kyeemyindaing', 'Lanmadaw', 'Latha', 'Mayangon', 'Mingaladon',
-      'Mingala Taungnyunt', 'North Dagon', 'North Okkalapa', 'Pabedan', 'Pazundaung', 'Seikkyi Kanaungto',
-      'Shwepyitha', 'South Dagon', 'South Okkalapa', 'Tamwe', 'Thaketa', 'Thingangyun', 'Yankin',
+      'Mingala Taungnyunt', 'North Dagon', 'North Okkalapa', 'Pabedan', 'Pazundaung', 'Sanchaung',
+      'Seikkyi Kanaungto', 'Shwepyitha', 'South Dagon', 'South Okkalapa', 'Tamwe', 'Thaketa', 'Thingangyun',
+      'Yankin',
+      // Rest of Yangon Region (outlying townships)
+      'Thanlyin', 'Kyauktan', 'Thongwa', 'Kayan', 'Kawhmu', 'Hlegu', 'Hmawbi', 'Taikkyi',
     ],
-    target: 100,
+    target: 120,
   },
   {
     city: 'Mandalay',
@@ -157,10 +179,41 @@ const CITIES = [
     townships: ['Mawlamyine', 'Mudon', 'Thanbyuzayat', 'Chaungzon', 'Kyaikmaraw'],
     target: 35,
   },
+  // ——— Tanintharyi Region (Dawei, Myeik, Kawthaung) ———
+  {
+    city: 'Dawei',
+    townships: ['Dawei', 'Launglon', 'Thayetchaung', 'Yebyu'],
+    target: 25,
+  },
+  {
+    city: 'Myeik',
+    townships: ['Myeik', 'Kyunsu', 'Palaw', 'Tanintharyi'],
+    target: 25,
+  },
+  {
+    city: 'Kawthaung',
+    townships: ['Kawthaung', 'Bokepyin'],
+    target: 18,
+  },
   {
     city: 'Bago',
-    townships: ['Bago', 'Kawa', 'Thanatpin', 'Waw'],
-    target: 40,
+    townships: ['Bago', 'Kawa', 'Thanatpin', 'Waw', 'Kyauktaga', 'Daik-U'],
+    target: 50,
+  },
+  {
+    city: 'Nyaunglebin',
+    townships: ['Nyaunglebin', 'Shwegyin', 'Kyaukkyi'],
+    target: 25,
+  },
+  {
+    city: 'Taungoo',
+    townships: ['Taungoo', 'Oktwin', 'Pyu', 'Tantabin', 'Yedashe'],
+    target: 35,
+  },
+  {
+    city: 'Tharrawaddy',
+    townships: ['Tharrawaddy', 'Gyobingauk', 'Letpadan', 'Minhla', 'Monyo', 'Okpho', 'Nattalin', 'Zigon', 'Thegon'],
+    target: 35,
   },
   {
     city: 'Taunggyi',
@@ -236,8 +289,13 @@ const CITIES = [
   },
   {
     city: 'Thayet',
-    townships: ['Thayet', 'Mindon', 'Kamma', 'Sinbaungwe'],
-    target: 20,
+    townships: ['Thayet', 'Mindon', 'Kamma', 'Sinbaungwe', 'Minhla'],
+    target: 28,
+  },
+  {
+    city: 'Minhla',
+    townships: ['Minhla'],
+    target: 15,
   },
   {
     city: 'Pakokku',

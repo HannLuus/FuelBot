@@ -1,0 +1,23 @@
+[
+  {"name":"PT Power Bego Station","township":"Bago","region":"Bago"},
+  {"name":"PT Power Kyaik Hote Station","township":"Kyaikto","region":"Mon"},
+  {"name":"PT Power Myawaddy Station","township":"Myawaddy","region":"Kayin"},
+  {"name":"PT Power Mhaw Bi Station","township":"Hmawbi","region":"Yangon"},
+  {"name":"PT Power Oat Ta Ra Ti Ri Station","township":"Ottayathiri","region":"Naypyitaw"},
+  {"name":"PT Power Pearl Station","township":"Yangon","region":"Yangon"},
+  {"name":"PT Power Tar Wut Ti Station","township":"Tatkon","region":"Naypyitaw"},
+  {"name":"PT Power Tharkayta Station","township":"Thaketa","region":"Yangon"},
+  {"name":"PT Power Ya Mae Tin Station","township":"Yamethin","region":"Mandalay"},
+  {"name":"PT Power South Dagon (Ayarwun) Station","township":"South Dagon","region":"Yangon"},
+  {"name":"PT Power South Dagon (Industrial Zone) Station","township":"South Dagon","region":"Yangon"},
+  {"name":"PT Power Pyay Station","township":"Pyay","region":"Bago"},
+  {"name":"PT Power Taung Lay Lone Station","township":"Taunggyi","region":"Shan"},
+  {"name":"PT Power Pa Thein Station","township":"Pathein","region":"Ayeyarwady"},
+  {"name":"PT Power Ka Lag Wel Station","township":"Kalay","region":"Sagaing"},
+  {"name":"PT Power NayPyiDaw Station 2","township":"Naypyitaw","region":"Naypyitaw"},
+  {"name":"PT Power MawLaMyaing MuPon Station","township":"Mawlamyine","region":"Mon"},
+  {"name":"PT Power Mottama Station","township":"Paung","region":"Mon"},
+  {"name":"PT Power No. 2 Main Road Station","township":"Yangon","region":"Yangon"},
+  {"name":"PT Power Yangon Expressway Station","township":"Yangon","region":"Yangon"},
+  {"name":"PT Power Thanlyin Kyauk Tan Station","township":"Thanlyin","region":"Yangon"}
+]

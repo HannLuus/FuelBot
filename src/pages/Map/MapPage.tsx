@@ -40,7 +40,19 @@ const STATUS_HEX: Record<string, string> = {
 
 const MARKER_SIZE = 22
 
-function makeMarkerIcon(color: string): L.DivIcon {
+function makeMarkerIcon(color: string, unverified = false): L.DivIcon {
+  if (unverified) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:${MARKER_SIZE}px; height:${MARKER_SIZE}px; border-radius:50%;
+        background:${color}; border:2px dashed rgba(255,255,255,0.9);
+        opacity:0.75; box-shadow:0 1px 4px rgba(0,0,0,0.3);
+      "></div>`,
+      iconSize: [MARKER_SIZE, MARKER_SIZE],
+      iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
+    })
+  }
   return L.divIcon({
     className: '',
     html: `<div style="
@@ -59,7 +71,7 @@ function escapeHtml(s: string): string {
   return div.innerHTML
 }
 
-function buildStationTooltip(station: StationWithStatus): string {
+function buildStationTooltip(station: StationWithStatus, locationNotVerifiedLabel?: string): string {
   const name = escapeHtml(station.name)
   const brand = station.brand?.trim()
   const logoUrl = brand ? getBrandLogoUrl(brand) : null
@@ -71,9 +83,14 @@ function buildStationTooltip(station: StationWithStatus): string {
       : brandLabel
         ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e5e7eb;color:#374151;font-size:12px;font-weight:600;">${escapeHtml(initial)}</span> <span style="margin-left:4px;">${brandLabel}</span>`
         : ''
+  const unverifiedLine =
+    !station.is_verified && locationNotVerifiedLabel
+      ? `<div style="margin-top:4px;font-size:11px;color:#b45309;">${escapeHtml(locationNotVerifiedLabel)}</div>`
+      : ''
   return `<div style="padding:2px 0;min-width:80px;text-align:left;">
     <div style="font-weight:600;font-size:13px;">${name}</div>
     ${brandBlock ? `<div style="display:flex;align-items:center;margin-top:4px;font-size:12px;color:#6b7280;">${brandBlock}</div>` : ''}
+    ${unverifiedLine}
   </div>`
 }
 
@@ -100,6 +117,8 @@ export function MapPage() {
     fuelTypes: filters.fuelTypes,
     statusFilter: filters.statusFilter,
   })
+
+  const filteredStations = filters.verifiedOnly ? stations.filter((s) => s.is_verified) : stations
 
   // Initialise Leaflet map once
   useEffect(() => {
@@ -178,16 +197,17 @@ export function MapPage() {
     markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
 
-    stations.forEach((station: StationWithStatus) => {
+    const locationNotVerifiedLabel = t('station.locationNotVerified')
+    filteredStations.forEach((station: StationWithStatus) => {
       const fs = station.current_status?.fuel_statuses_computed ?? {}
       const worst = worstStatusForFuels(fs, filters.fuelTypes)
       const color = STATUS_HEX[worst] ?? STATUS_HEX.UNKNOWN
-      const icon = makeMarkerIcon(color)
+      const icon = makeMarkerIcon(color, !station.is_verified)
 
       const marker = L.marker([station.lat, station.lng], { icon })
         .addTo(mapRef.current!)
         .bindPopup(station.name)
-        .bindTooltip(buildStationTooltip(station), {
+        .bindTooltip(buildStationTooltip(station, locationNotVerifiedLabel), {
           direction: 'top',
           permanent: false,
           sticky: true,
@@ -197,19 +217,19 @@ export function MapPage() {
       marker.on('click', () => navigate(`/station/${station.id}`))
       markersRef.current.push(marker)
     })
-  }, [stations, navigate, filters.fuelTypes])
+  }, [filteredStations, navigate, filters.fuelTypes, t])
 
   // When showing whole country or a route, fit map bounds to all stations (and user location)
   const isNationalView = filters.maxDistanceKm >= WHOLE_COUNTRY_KM
   const isRouteView = !!filters.selectedRouteId
   useEffect(() => {
-    if (!mapRef.current || (!isNationalView && !isRouteView) || stations.length === 0) return
+    if (!mapRef.current || (!isNationalView && !isRouteView) || filteredStations.length === 0) return
     const bounds = L.latLngBounds(
-      stations.map((s) => [s.lat, s.lng] as L.LatLngTuple),
+      filteredStations.map((s) => [s.lat, s.lng] as L.LatLngTuple),
     )
     if (lat != null && lng != null) bounds.extend([lat, lng])
     mapRef.current.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 })
-  }, [isNationalView, isRouteView, stations, lat, lng])
+  }, [isNationalView, isRouteView, filteredStations, lat, lng])
 
   function handleMyLocation() {
     requestLocation({ highAccuracy: true })
