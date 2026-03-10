@@ -16,12 +16,30 @@ const YANGON_LNG = 96.1561
 
 export function HomePage() {
   const { t } = useTranslation()
-  const { lat, lng, loading: locLoading, error: locError, requestLocation } = useLocationStore()
+  const {
+    lat,
+    lng,
+    loading: locLoading,
+    error: locError,
+    requestLocation,
+    checkPermission,
+    permissionChecked,
+  } = useLocationStore()
   const { filters } = useFilterStore()
 
+  // Only auto-request location when permission was already granted (e.g. returning user).
+  // Chrome on Android requires the first request to be from a user gesture; auto-request on load fails.
   useEffect(() => {
-    requestLocation({ highAccuracy: true })
-  }, [requestLocation])
+    let cancelled = false
+    checkPermission({
+      onGranted: () => {
+        if (!cancelled) requestLocation({ highAccuracy: true })
+      },
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [checkPermission, requestLocation])
 
   // Use user location when available, fall back to Yangon so the list is never empty
   const effectiveLat = lat ?? YANGON_LAT
@@ -39,11 +57,29 @@ export function HomePage() {
     statusFilter: filters.statusFilter,
   })
 
+  const filteredStations = filters.verifiedOnly ? stations.filter((s) => s.is_verified) : stations
   const showLocationBanner = !!locError && !locLoading
+  const showUseMyLocationCta =
+    permissionChecked && lat === null && !locLoading && !locError
 
   return (
     <div className="flex h-full flex-col">
       <FilterBar />
+
+      {/* Use my location CTA — first-time users must tap (Chrome requires user gesture for geolocation) */}
+      {showUseMyLocationCta && (
+        <div className="shrink-0 flex items-center gap-2 bg-blue-50 px-4 py-2.5 text-xs text-blue-800 dark:bg-blue-950/80 dark:text-blue-200">
+          <MapPin className="h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1">{t('home.useMyLocationHint')}</span>
+          <button
+            type="button"
+            onClick={() => requestLocation({ highAccuracy: true })}
+            className="shrink-0 flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 font-semibold text-white active:bg-blue-700 dark:bg-blue-500 dark:active:bg-blue-600"
+          >
+            {t('home.useMyLocation')}
+          </button>
+        </div>
+      )}
 
       {/* Location denied banner — slim, non-blocking */}
       {showLocationBanner && (
@@ -51,6 +87,7 @@ export function HomePage() {
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">{t('home.locationDenied')}</span>
           <button
+            type="button"
             onClick={() => requestLocation({ highAccuracy: true })}
             className="flex items-center gap-1 font-semibold underline underline-offset-2"
           >
@@ -61,7 +98,7 @@ export function HomePage() {
 
       <div className="flex-1 overflow-y-auto scroll-touch">
         {/* Initial location loading */}
-        {locLoading && stations.length === 0 && (
+        {locLoading && filteredStations.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-700">
             <Spinner />
             <span className="text-sm">{t('home.loading')}</span>
@@ -69,7 +106,7 @@ export function HomePage() {
         )}
 
         {/* Data loading (after location resolved) */}
-        {!locLoading && loading && stations.length === 0 && (
+        {!locLoading && loading && filteredStations.length === 0 && (
           <div className="flex justify-center py-12">
             <Spinner />
           </div>
@@ -89,18 +126,20 @@ export function HomePage() {
         {/* Station list */}
         {!error && (
           <div className="space-y-3 p-4">
-            {filters.maxDistanceKm >= WHOLE_COUNTRY_KM && stations.length > 0 && (
+            {filters.maxDistanceKm >= WHOLE_COUNTRY_KM && filteredStations.length > 0 && (
               <p className="text-xs text-gray-500 pb-1">
                 {t('home.showingAllStations')}
               </p>
             )}
-            {!loading && stations.length === 0 && !locLoading && (
+            {!loading && filteredStations.length === 0 && !locLoading && (
               <div className="py-12 text-center">
                 <p className="text-gray-700">{t('home.noStations')}</p>
-                <p className="mt-1 text-xs text-gray-700">{t('home.noStationsHint')}</p>
+                <p className="mt-1 text-xs text-gray-700">
+                  {filters.verifiedOnly ? t('home.filters.verifiedOnlyHint') : t('home.noStationsHint')}
+                </p>
               </div>
             )}
-            {stations.map((station) => (
+            {filteredStations.map((station) => (
               <StationCard key={station.id} station={station} />
             ))}
           </div>
