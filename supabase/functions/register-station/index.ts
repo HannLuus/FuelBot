@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'npm:resend@2.0.0'
+import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { resolveReferral } from '../_shared/referralResolver.ts'
 
 const YANGON_LAT = 16.8661
@@ -117,11 +118,12 @@ Deno.serve(async (req) => {
   if (resendApi && adminEmail) {
     try {
       const resend = new Resend(resendApi)
+      const appUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
       await resend.emails.send({
         from: 'FuelBot <onboarding@resend.dev>',
         to: [adminEmail],
         subject: 'FuelBot: station registration needs approval',
-        html: `
+        html: emailLogoHtml(appUrl) + `
           <h3>New station registration pending review</h3>
           <p>Station: ${name}</p>
           <p>Township: ${township}</p>

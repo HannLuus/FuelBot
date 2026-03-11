@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Zap, ArrowRight, Globe, Users, Store, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Globe, Users, Store, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { SUBSCRIPTION_TIERS, formatMmk } from '@/lib/subscriptionTiers'
 import { supabase } from '@/lib/supabase'
@@ -50,9 +50,7 @@ export function LandingPage() {
             onClick={() => navigate('/landing')}
             className="flex items-center gap-2"
           >
-            <span className="rounded-lg bg-blue-600 p-2">
-              <Zap className="h-4 w-4 text-white" />
-            </span>
+            <img src="/FuelbotLogo.png" alt="" className="h-8 w-auto" />
             <span className="text-base font-bold text-gray-900">{t('app.name')}</span>
           </button>
           <div className="flex items-center gap-2">

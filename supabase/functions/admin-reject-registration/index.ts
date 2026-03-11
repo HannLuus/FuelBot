@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
+import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 interface Payload {
@@ -70,7 +71,7 @@ Deno.serve(async (req) => {
           from: 'FuelBot <onboarding@resend.dev>',
           to: [ownerEmail],
           subject: 'FuelBot: station registration rejected',
-          html: `
+          html: emailLogoHtml(appUrl) + `
             <h3>Registration rejected</h3>
             <p>Station: <strong>${station.name} (${station.township}, ${station.city})</strong></p>
             <p>Reason: ${reason}</p>

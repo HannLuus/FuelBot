@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
-import { Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
@@ -113,8 +112,8 @@ export function AuthPage() {
       <div className="flex min-h-full flex-col items-center justify-center bg-white px-6 py-12">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600">
-              <Zap className="h-8 w-8 text-white" />
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center">
+              <img src="/FuelbotLogo.png" alt="" className="h-16 w-auto" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">{t('app.name')}</h1>
             <p className="mt-1 text-sm text-gray-700">{t('auth.signedInAs')}</p>
@@ -145,8 +144,8 @@ export function AuthPage() {
     return (
       <div className="flex min-h-full flex-col items-center justify-center bg-white px-6 py-12">
         <div className="w-full max-w-sm text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600">
-            <Zap className="h-8 w-8 text-white" />
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center">
+            <img src="/FuelbotLogo.png" alt="" className="h-16 w-auto" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">{t('app.name')}</h1>
           <p role="status" aria-live="polite" className="mt-4 text-sm text-gray-700">
@@ -177,8 +176,8 @@ export function AuthPage() {
     return (
       <div className="flex min-h-full flex-col items-center justify-center bg-white px-6 py-12">
         <div className="w-full max-w-sm text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600">
-            <Zap className="h-8 w-8 text-white" />
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center">
+            <img src="/FuelbotLogo.png" alt="" className="h-16 w-auto" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">{t('app.name')}</h1>
           <p className="mt-4 text-sm text-gray-700">{t('auth.resetLinkExpired')}</p>
@@ -198,8 +197,8 @@ export function AuthPage() {
     <div className="flex min-h-full flex-col items-center justify-center bg-white px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600">
-            <Zap className="h-8 w-8 text-white" />
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center">
+            <img src="/FuelbotLogo.png" alt="" className="h-16 w-auto" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">
             {mode === 'reset' ? t('auth.setNewPasswordHeading') : t('app.name')}

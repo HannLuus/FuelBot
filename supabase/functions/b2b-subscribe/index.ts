@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAuthedUser } from '../_shared/adminAuth.ts'
+import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 const EXPECTED_AMOUNT_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK') ?? '120000')
@@ -79,11 +80,12 @@ Deno.serve(async (req) => {
   if (resendKey && adminEmail) {
     try {
       const resend = new Resend(resendKey)
+      const appBaseUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
       await resend.emails.send({
         from: 'FuelBot <onboarding@resend.dev>',
         to: [adminEmail],
         subject: 'FuelBot: B2B route access payment reported',
-        html: `
+        html: emailLogoHtml(appBaseUrl) + `
           <h2>B2B Route Access Payment Reported</h2>
           <p>A user has signed up for B2B route access (all routes).</p>
           <p><strong>User ID:</strong> ${authed.user.id}</p>

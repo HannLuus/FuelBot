@@ -1,5 +1,6 @@
 import { Resend } from 'npm:resend@2.0.0'
 import { corsHeaders, json } from '../_shared/adminAuth.ts'
+import { emailLogoHtml } from '../_shared/emailHeader.ts'
 
 interface Payload {
   kind: 'PENDING_REGISTRATION' | 'PENDING_CLAIM'
@@ -44,7 +45,8 @@ Deno.serve(async (req) => {
       ? `Claim ID: ${payload.claim_id ?? '-'}`
       : `Station: ${payload.station_name ?? '-'} (${payload.station_id ?? '-'})`
 
-  const html = `
+  const appBaseUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
+  const html = emailLogoHtml(appBaseUrl) + `
     <h2>FuelBot admin action required</h2>
     <p>${details}</p>
     <p>Please review in admin panel: <a href="${appUrl}">${appUrl}</a></p>

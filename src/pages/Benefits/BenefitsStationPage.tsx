@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Zap, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 export function BenefitsStationPage() {
   const { t } = useTranslation()
@@ -13,7 +13,7 @@ export function BenefitsStationPage() {
             to="/"
             className="flex items-center gap-2 text-gray-800 active:opacity-80"
           >
-            <Zap className="h-5 w-5 text-blue-600" />
+            <img src="/FuelbotLogo.png" alt="" className="h-8 w-auto" />
             <span className="font-bold">{t('app.name')}</span>
           </Link>
           <Link

@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAuthedUser } from '../_shared/adminAuth.ts'
+import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 const EXPECTED_AMOUNT_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK') ?? '120000')
@@ -69,6 +70,7 @@ Deno.serve(async (req) => {
   const adminEmail = Deno.env.get('ADMIN_NOTIFICATION_EMAIL') ?? Deno.env.get('ADMIN_EMAIL')
   const resendKey = Deno.env.get('RESEND_API_KEY')
   const appUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app/admin'
+  const appBaseUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
 
   if (resendKey && adminEmail) {
     try {
@@ -78,7 +80,7 @@ Deno.serve(async (req) => {
         from: 'FuelBot <onboarding@resend.dev>',
         to: [adminEmail],
         subject: 'FuelBot: payment reported – please verify',
-        html: `
+        html: emailLogoHtml(appBaseUrl) + `
           <h2>Payment reported – please verify</h2>
           <p>A station owner has reported that they have paid.</p>
           <p><strong>Station:</strong> ${stationLabel}</p>

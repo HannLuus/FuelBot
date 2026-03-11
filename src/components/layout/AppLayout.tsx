@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Store, ShieldCheck, Zap, Globe, User, X, LogIn, LogOut, Truck } from 'lucide-react'
+import { List, Map, PlusCircle, Store, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useState, useEffect } from 'react'
@@ -43,9 +43,7 @@ export function AppLayout() {
           onClick={() => navigate('/home')}
           className="flex items-center gap-2 min-h-[44px]"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-            <Zap className="h-4 w-4 text-white" />
-          </div>
+          <img src="/FuelbotLogo.png" alt="" className="h-8 w-auto" />
           <span className="text-base font-bold text-gray-900">{t('app.name')}</span>
         </button>
 
@@ -183,7 +181,7 @@ export function AppLayout() {
                 onClick={() => setSheetOpen(false)}
                 className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
               >
-                <Zap className="h-5 w-5 text-gray-700 shrink-0" />
+                <img src="/FuelbotLogo.png" alt="" className="h-5 w-5 shrink-0 object-contain" />
                 <span>{t('common.homePage')}</span>
               </Link>
 

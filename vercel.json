@@ -9,7 +9,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets/|icons/|favicon|sw\\.js|workbox|manifest).*)",
+      "source": "/((?!assets/|icons/|favicon|FuelbotLogo|sw\\.js|workbox|manifest).*)",
       "destination": "/index.html"
     }
   ]

@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
+import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 const STATION_ANNUAL_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK') ?? Deno.env.get('TIER_PRICE_SMALL_MMK') ?? '120000')
@@ -107,7 +108,7 @@ Deno.serve(async (req) => {
             from: 'FuelBot <onboarding@resend.dev>',
             to: [ownerEmail],
             subject: 'FuelBot: payment received and station verified',
-            html: `
+            html: emailLogoHtml(appUrl) + `
               <h3>Payment received and station verified</h3>
               <p>We received your payment. Your station <strong>${stationLabel}</strong> is now verified. Thank you.</p>
               <p>Tier: ${tier || '-'}</p>
@@ -127,7 +128,7 @@ Deno.serve(async (req) => {
             from: 'FuelBot <onboarding@resend.dev>',
             to: [refEmail],
             subject: 'FuelBot: referral reward pending collection',
-            html: `
+            html: emailLogoHtml(appUrl) + `
               <h3>You earned a referral reward</h3>
               <p>Station: <strong>${stationLabel}</strong></p>
               <p>Amount: <strong>${amountMmk.toLocaleString('en-US')} MMK</strong> (15%)</p>
