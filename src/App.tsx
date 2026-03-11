@@ -9,6 +9,8 @@ import { OperatorPage } from '@/pages/Operator/OperatorPage'
 import { AuthPage } from '@/pages/Auth/AuthPage'
 import { TermsPage } from '@/pages/Legal/TermsPage'
 import { PrivacyPage } from '@/pages/Legal/PrivacyPage'
+import { BenefitsStationPage } from '@/pages/Benefits/BenefitsStationPage'
+import { BenefitsFleetPage } from '@/pages/Benefits/BenefitsFleetPage'
 import { B2BPage } from '@/pages/B2B/B2BPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
@@ -34,6 +36,8 @@ export default function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/benefits/station-owners" element={<BenefitsStationPage />} />
+        <Route path="/benefits/fleet-owners" element={<BenefitsFleetPage />} />
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/station/:id" element={<StationDetailPage />} />

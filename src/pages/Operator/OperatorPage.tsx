@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
 import { Store, CheckCircle, Send, Users, MapPin, Upload, Crosshair, X } from 'lucide-react'
@@ -668,6 +668,11 @@ export function OperatorPage() {
             <li>{t('operator.whatYouGetUptime')}</li>
             <li>{t('operator.whatYouGetCompare')}</li>
           </ul>
+          <p className="mt-2">
+            <Link to="/benefits/station-owners" className="text-xs font-medium text-blue-600 underline active:text-blue-800">
+              {t('operator.seeFullBenefits')}
+            </Link>
+          </p>
         </section>
 
         {/* No station yet: Register (owner-first) or Claim existing */}

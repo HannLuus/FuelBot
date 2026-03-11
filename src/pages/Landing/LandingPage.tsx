@@ -142,6 +142,11 @@ export function LandingPage() {
             <li>{t('landing.whatStationGetsUptime')}</li>
             <li>{t('landing.whatStationGetsCompare')}</li>
           </ul>
+          <p className="mt-3">
+            <Link to="/benefits/station-owners" className="text-sm font-medium text-blue-600 underline active:text-blue-800">
+              {t('landing.benefitsStationCta')}
+            </Link>
+          </p>
         </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm">
@@ -159,6 +164,12 @@ export function LandingPage() {
               className="inline-flex min-h-[44px] items-center rounded-xl border border-gray-300 bg-white px-4 text-sm font-semibold text-blue-600 active:bg-gray-50"
             >
               {t('landing.fleetContactCta')}
+            </Link>
+            <Link
+              to="/benefits/fleet-owners"
+              className="inline-flex min-h-[44px] items-center rounded-xl px-4 text-sm font-medium text-gray-700 underline active:bg-gray-100"
+            >
+              {t('landing.benefitsFleetCta')}
             </Link>
           </div>
         </section>
@@ -202,6 +213,12 @@ export function LandingPage() {
             </Link>
             <Link to="/privacy" className="font-medium text-blue-600 underline">
               {t('legal.privacyPolicy')}
+            </Link>
+            <Link to="/benefits/station-owners" className="font-medium text-blue-600 underline">
+              {t('landing.benefitsStationCta')}
+            </Link>
+            <Link to="/benefits/fleet-owners" className="font-medium text-blue-600 underline">
+              {t('landing.benefitsFleetCta')}
             </Link>
           </div>
           <p className="mt-2 text-center text-sm text-gray-700">

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Truck, CheckCircle2, Upload, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -152,6 +152,11 @@ export function B2BPage() {
               <li>{t('b2b.oneAccountPerSub')}</li>
             </ul>
           </div>
+          <p className="mt-3">
+            <Link to="/benefits/fleet-owners" className="text-sm font-medium text-blue-600 underline active:text-blue-800">
+              {t('b2b.seeFullBenefits')}
+            </Link>
+          </p>
         </section>
 
         {/* Pay via — QR + phone prominent like Operator */}
