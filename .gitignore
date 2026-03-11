@@ -28,6 +28,7 @@ Untitled
 *.njsproj
 *.sln
 *.sw?
+*.kate-swp
 .vercel
 
 # Supabase CLI local state (auto-generated)

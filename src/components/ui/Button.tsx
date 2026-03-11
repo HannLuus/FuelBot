@@ -1,4 +1,4 @@
-import { cloneElement, Children, isValidElement, type ReactElement } from 'react'
+import { forwardRef, cloneElement, Children, isValidElement, type ReactElement } from 'react'
 import { clsx } from 'clsx'
 import type { ButtonHTMLAttributes } from 'react'
 
@@ -32,16 +32,19 @@ const buttonClass = (
     className,
   )
 
-export function Button({
-  children,
-  variant = 'primary',
-  size = 'md',
-  loading = false,
-  disabled,
-  className,
-  asChild = false,
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    children,
+    variant = 'primary',
+    size = 'md',
+    loading = false,
+    disabled,
+    className,
+    asChild = false,
+    ...props
+  },
+  ref,
+) {
   const computedClassName = buttonClass(variant, size, className)
 
   if (asChild && isValidElement(children)) {
@@ -53,6 +56,7 @@ export function Button({
 
   return (
     <button
+      ref={ref}
       {...props}
       disabled={disabled || loading}
       className={computedClassName}
@@ -82,4 +86,4 @@ export function Button({
       {children}
     </button>
   )
-}
+})

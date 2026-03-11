@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+/* Registration map picker: custom marker (no default Leaflet icon) */
+.leaflet-marker-icon.location-picker-marker {
+  background: none !important;
+  border: none !important;
+}
+
 /* Station hover tooltip – name + brand/logo */
 .leaflet-tooltip.station-tooltip {
   padding: 6px 10px;

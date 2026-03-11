@@ -1,16 +1,24 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { List, Map, PlusCircle, Store, ShieldCheck, Zap, Globe, User, X, LogIn, LogOut } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
-import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function AppLayout() {
   const { t, i18n } = useTranslation()
   const { user, isAdmin, signOut } = useAuthStore()
   const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
+
+  useEffect(() => {
+    if (!sheetOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSheetOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [sheetOpen])
 
   function toggleLang() {
     const next = i18n.language === 'en' ? 'my' : 'en'
@@ -30,6 +38,7 @@ export function AppLayout() {
       {/* Top bar */}
       <header className="shrink-0 flex items-center justify-between border-b border-gray-100 bg-white px-4 shadow-sm" style={{ minHeight: '52px' }}>
         <button
+          type="button"
           onClick={() => navigate('/home')}
           className="flex items-center gap-2 min-h-[44px]"
         >
@@ -42,18 +51,20 @@ export function AppLayout() {
         <div className="flex items-center gap-0.5">
           {/* Language toggle — 44×44 hit area */}
           <button
+            type="button"
             onClick={toggleLang}
             className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-sm font-semibold text-gray-700 active:bg-gray-100"
-            aria-label="Toggle language"
+            aria-label={t('common.toggleLanguage')}
           >
             {i18n.language === 'en' ? 'မြ' : 'EN'}
           </button>
 
           {/* User menu trigger — 44×44 hit area */}
           <button
+            type="button"
             onClick={() => setSheetOpen(true)}
             className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl active:bg-gray-100"
-            aria-label="User menu"
+            aria-label={t('common.userMenu')}
           >
             <User className="h-5 w-5 text-gray-700" />
           </button>
@@ -111,11 +122,25 @@ export function AppLayout() {
         <>
           {/* Backdrop */}
           <div
+            role="button"
+            tabIndex={0}
+            aria-label={t('common.close')}
             className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
             onClick={() => setSheetOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setSheetOpen(false)
+              }
+            }}
           />
           {/* Sheet */}
-          <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-white pb-safe shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('common.userMenu')}
+            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-white pb-safe shadow-2xl"
+          >
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="h-1 w-10 rounded-full bg-gray-300" />
@@ -124,23 +149,33 @@ export function AppLayout() {
             {/* User info */}
             {user && (
               <div className="border-b border-gray-100 px-6 py-3">
-                <p className="text-xs text-gray-700">Signed in as</p>
-                <p className="truncate text-sm font-medium text-gray-800">{user.email}</p>
+                <p className="text-xs text-gray-700">{t('auth.signedInAs')}</p>
+                <p className="truncate text-sm font-medium text-gray-800">{user.email ?? ''}</p>
               </div>
             )}
 
             {/* Sheet actions — all 56px tall for easy thumb tap */}
             <div className="px-4 py-2">
               <button
+                type="button"
                 onClick={() => { toggleLang(); setSheetOpen(false) }}
                 className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
               >
                 <Globe className="h-5 w-5 text-gray-700 shrink-0" />
-                <span>{i18n.language === 'en' ? 'Switch to မြန်မာ' : 'Switch to English'}</span>
+                <span>{i18n.language === 'en' ? t('common.switchToMyanmar') : t('common.switchToEnglish')}</span>
               </button>
+
+              <Link
+                to="/terms"
+                onClick={() => setSheetOpen(false)}
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+              >
+                <span>{t('legal.termsAndPrivacy')}</span>
+              </Link>
 
               {user ? (
                 <button
+                  type="button"
                   onClick={() => { void signOut(); setSheetOpen(false) }}
                   className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-red-600 active:bg-red-50"
                 >
@@ -149,6 +184,7 @@ export function AppLayout() {
                 </button>
               ) : (
                 <button
+                  type="button"
                   onClick={() => { navigate('/auth'); setSheetOpen(false) }}
                   className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-blue-600 active:bg-blue-50"
                 >
@@ -161,11 +197,12 @@ export function AppLayout() {
             {/* Close button */}
             <div className="px-4 pb-4">
               <button
+                type="button"
                 onClick={() => setSheetOpen(false)}
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gray-100 py-4 text-sm font-semibold text-gray-700 active:bg-gray-200"
               >
                 <X className="h-4 w-4" />
-                Close
+                {t('common.close')}
               </button>
             </div>
           </div>

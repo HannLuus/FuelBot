@@ -7,6 +7,8 @@ import { ReportPage } from '@/pages/Report/ReportPage'
 import { AdminPage } from '@/pages/Admin/AdminPage'
 import { OperatorPage } from '@/pages/Operator/OperatorPage'
 import { AuthPage } from '@/pages/Auth/AuthPage'
+import { TermsPage } from '@/pages/Legal/TermsPage'
+import { PrivacyPage } from '@/pages/Legal/PrivacyPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
@@ -29,6 +31,8 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/station/:id" element={<StationDetailPage />} />

@@ -164,8 +164,18 @@ export function LandingPage() {
         </section>
       </main>
       <footer className="border-t border-gray-200 bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-4 text-center text-sm text-gray-700">
-          {t('landing.footerContact')}
+        <div className="mx-auto max-w-5xl px-4 py-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-gray-700">
+            <Link to="/terms" className="font-medium text-blue-600 underline">
+              {t('legal.termsOfService')}
+            </Link>
+            <Link to="/privacy" className="font-medium text-blue-600 underline">
+              {t('legal.privacyPolicy')}
+            </Link>
+          </div>
+          <p className="mt-2 text-center text-sm text-gray-700">
+            {t('landing.footerContact')}
+          </p>
         </div>
       </footer>
     </div>

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Store, CheckCircle, Send, Users, MapPin, Upload, Copy } from 'lucide-react'
+import L from 'leaflet'
+import { Store, CheckCircle, Send, Users, MapPin, Upload, Copy, Crosshair, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
@@ -40,6 +41,29 @@ interface ReferralRewardRow {
   stations: { name: string } | null
 }
 
+const YANGON_LAT = 16.8661
+const YANGON_LNG = 96.1561
+const CARTO_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+
+function makePickerTileLayer(): L.TileLayer {
+  return L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+    subdomains: 'abcd',
+    maxZoom: 20,
+    attribution: CARTO_ATTRIBUTION,
+  })
+}
+
+/** Draggable marker icon for the registration map picker (avoids relying on Leaflet default icon assets which can break in Vite). */
+function makePickerMarkerIcon(): L.DivIcon {
+  return L.divIcon({
+    className: 'location-picker-marker',
+    html: '<div style="width:32px;height:32px;margin-left:-16px;margin-top:-32px;background:#2563eb;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  })
+}
+
 export function OperatorPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
@@ -53,7 +77,24 @@ export function OperatorPage() {
   const [postResult, setPostResult] = useState<'success' | 'error' | null>(null)
   const [registering, setRegistering] = useState(false)
   const [registerResult, setRegisterResult] = useState<'success' | 'error' | null>(null)
-  const [registerForm, setRegisterForm] = useState({ name: '', brand: '', address: '', township: '', city: 'Yangon' })
+  const [registerErrorMessage, setRegisterErrorMessage] = useState<string | null>(null)
+  const [registerForm, setRegisterForm] = useState({
+    name: '',
+    brand: '',
+    address: '',
+    township: '',
+    city: 'Yangon',
+    lat: null as number | null,
+    lng: null as number | null,
+  })
+  const [showMapPicker, setShowMapPicker] = useState(false)
+  const [registerLocationLoading, setRegisterLocationLoading] = useState(false)
+  const [registerLocationError, setRegisterLocationError] = useState<string | null>(null)
+  const mapPickerContainerRef = useRef<HTMLDivElement>(null)
+  const mapPickerMapRef = useRef<L.Map | null>(null)
+  const mapPickerMarkerRef = useRef<L.Marker | null>(null)
+  const mapPickerCloseButtonRef = useRef<HTMLButtonElement>(null)
+  const pickOnMapButtonRef = useRef<HTMLButtonElement>(null)
   const [fuelStatuses, setFuelStatuses] = useState<Record<FuelCode, FuelStatusOrSkip>>({
     RON92: 'SKIP',
     RON95: 'SKIP',
@@ -111,6 +152,71 @@ export function OperatorPage() {
     if (!user) return
     void loadMyReferralRewards()
   }, [user?.id])
+
+  // Lock body scroll when map picker overlay is open (prevents background scroll on mobile)
+  useEffect(() => {
+    if (!showMapPicker) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [showMapPicker])
+
+  // Focus close button when map picker opens; Escape key closes picker
+  useEffect(() => {
+    if (!showMapPicker) return
+    mapPickerCloseButtonRef.current?.focus()
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        setShowMapPicker(false)
+        setRegisterLocationError(null)
+        setTimeout(() => pickOnMapButtonRef.current?.focus(), 0)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [showMapPicker])
+
+  // Map picker overlay: init Leaflet when open, cleanup when closed. Intentionally depend only on showMapPicker; initial center uses registerForm at open time.
+  useEffect(() => {
+    if (!showMapPicker) return
+    const container = mapPickerContainerRef.current
+    if (!container || mapPickerMapRef.current) return
+
+    const initLat = registerForm.lat ?? YANGON_LAT
+    const initLng = registerForm.lng ?? YANGON_LNG
+
+    const map = L.map(container, {
+      center: [initLat, initLng],
+      zoom: 15,
+      zoomControl: true,
+    })
+    makePickerTileLayer().addTo(map)
+
+    const marker = L.marker([initLat, initLng], {
+      draggable: true,
+      icon: makePickerMarkerIcon(),
+    }).addTo(map)
+    mapPickerMapRef.current = map
+    mapPickerMarkerRef.current = marker
+    map.invalidateSize()
+    // Re-run after layout so Leaflet gets correct container size (flex layout may not be computed yet)
+    const raf = requestAnimationFrame(() => {
+      if (mapPickerMapRef.current === map) map.invalidateSize()
+    })
+
+    return () => {
+      cancelAnimationFrame(raf)
+      marker.remove()
+      map.remove()
+      mapPickerMapRef.current = null
+      mapPickerMarkerRef.current = null
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- init once when picker opens; initial center uses registerForm at open time only
+  }, [showMapPicker])
 
   async function loadReliability() {
     if (!myStation?.id) return
@@ -238,29 +344,98 @@ export function OperatorPage() {
   async function submitRegistration(e: React.FormEvent) {
     e.preventDefault()
     if (!user || registering) return
+    if (!session?.access_token) {
+      setRegisterResult('error')
+      setRegisterErrorMessage(t('operator.registerSessionRequired'))
+      return
+    }
     setRegistering(true)
     setRegisterResult(null)
+    setRegisterErrorMessage(null)
     try {
-      const { error } = await supabase.functions.invoke('register-station', {
-        body: {
-          name: registerForm.name.trim(),
-          brand: registerForm.brand.trim() || null,
-          address: registerForm.address.trim() || null,
-          township: registerForm.township.trim() || undefined,
-          city: registerForm.city.trim() || 'Yangon',
-          subscription_tier_requested: tier,
-          referral_code: referralCodeInput.trim() || null,
-        },
+      const body: Record<string, unknown> = {
+        name: registerForm.name.trim(),
+        brand: registerForm.brand.trim() || null,
+        address: registerForm.address.trim() || null,
+        township: registerForm.township.trim() || undefined,
+        city: registerForm.city.trim() || 'Yangon',
+        subscription_tier_requested: tier,
+        referral_code: referralCodeInput.trim() || null,
+      }
+      const lat = registerForm.lat
+      const lng = registerForm.lng
+      if (
+        lat != null &&
+        lng != null &&
+        Number.isFinite(lat) &&
+        Number.isFinite(lng)
+      ) {
+        body.lat = lat
+        body.lng = lng
+      }
+      const { data, error } = await supabase.functions.invoke('register-station', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body,
       })
       if (error) throw error
+      if (data?.error && typeof data.error === 'string') throw new Error(data.error)
       setRegisterResult('success')
-      setRegisterForm({ name: '', brand: '', address: '', township: '', city: 'Yangon' })
+      setRegisterForm({
+        name: '',
+        brand: '',
+        address: '',
+        township: '',
+        city: 'Yangon',
+        lat: null,
+        lng: null,
+      })
       void loadMyStation()
-    } catch {
+    } catch (err) {
       setRegisterResult('error')
+      const msg =
+        err != null && typeof (err as { message?: unknown }).message === 'string'
+          ? (err as { message: string }).message
+          : err instanceof Error
+            ? err.message
+            : null
+      setRegisterErrorMessage(msg)
     } finally {
       setRegistering(false)
     }
+  }
+
+  function handleUseMyLocationForRegistration() {
+    if (!navigator.geolocation) {
+      setRegisterLocationError(t('operator.registerLocationError'))
+      return
+    }
+    setRegisterLocationLoading(true)
+    setRegisterLocationError(null)
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setRegisterForm((prev) => ({
+          ...prev,
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        }))
+        setRegisterLocationLoading(false)
+      },
+      () => {
+        setRegisterLocationError(t('operator.registerLocationError'))
+        setRegisterLocationLoading(false)
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    )
+  }
+
+  function handleConfirmMapPickerLocation() {
+    const marker = mapPickerMarkerRef.current
+    if (!marker) return
+    const latLng = marker.getLatLng()
+    setRegisterForm((prev) => ({ ...prev, lat: latLng.lat, lng: latLng.lng }))
+    setRegisterLocationError(null)
+    setShowMapPicker(false)
+    setTimeout(() => pickOnMapButtonRef.current?.focus(), 0)
   }
 
   async function uploadVerificationPhoto(file: File, kind: 'station' | 'location') {
@@ -451,6 +626,31 @@ export function OperatorPage() {
 
   return (
     <div className="flex h-full flex-col">
+      {showMapPicker && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-white">
+          <div className="flex shrink-0 items-center justify-between gap-2 border-b border-gray-200 bg-gray-50 px-4 py-3">
+            <button
+              ref={mapPickerCloseButtonRef}
+              type="button"
+              onClick={() => {
+                setShowMapPicker(false)
+                setRegisterLocationError(null)
+                setTimeout(() => pickOnMapButtonRef.current?.focus(), 0)
+              }}
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label={t('common.close')}
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <span className="text-sm font-medium text-gray-900">{t('operator.registerLocationLabel')}</span>
+            <Button size="sm" variant="primary" onClick={handleConfirmMapPickerLocation}>
+              {t('operator.registerUseThisLocation')}
+            </Button>
+          </div>
+          <div ref={mapPickerContainerRef} className="min-h-[50vh] flex-1" />
+        </div>
+      )}
+
       <div className="border-b border-gray-100 bg-white px-4 py-3">
         <h1 className="text-lg font-bold text-gray-900">{t('operator.title')}</h1>
       </div>
@@ -627,13 +827,96 @@ export function OperatorPage() {
                     />
                   </div>
                 </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    {t('operator.registerLocationLabel')}
+                  </label>
+                  {registerForm.lat != null &&
+                  registerForm.lng != null &&
+                  Number.isFinite(registerForm.lat) &&
+                  Number.isFinite(registerForm.lng) ? (
+                    <p className="mb-2 text-xs text-gray-700">
+                      {t('operator.registerLocationSet', {
+                        lat: Number(registerForm.lat).toFixed(5),
+                        lng: Number(registerForm.lng).toFixed(5),
+                      })}
+                    </p>
+                  ) : (
+                    <p className="mb-2 text-xs text-gray-700">
+                      {t('operator.registerLocationNotSet')}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      disabled={registerLocationLoading || registering}
+                      onClick={handleUseMyLocationForRegistration}
+                      aria-busy={registerLocationLoading}
+                    >
+                      {registerLocationLoading ? (
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden />
+                      ) : (
+                        <Crosshair className="h-4 w-4" />
+                      )}
+                      {t('operator.registerUseMyLocation')}
+                    </Button>
+                    <Button
+                      ref={pickOnMapButtonRef}
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      disabled={registering}
+                      onClick={() => {
+                        setRegisterLocationError(null)
+                        setRegisterResult(null)
+                        setRegisterErrorMessage(null)
+                        setShowMapPicker(true)
+                      }}
+                    >
+                      <MapPin className="h-4 w-4" />
+                      {t('operator.registerPickOnMap')}
+                    </Button>
+                    {registerForm.lat != null &&
+                      registerForm.lng != null &&
+                      Number.isFinite(registerForm.lat) &&
+                      Number.isFinite(registerForm.lng) && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        disabled={registering}
+                        onClick={() => {
+                          setRegisterForm((f) => ({ ...f, lat: null, lng: null }))
+                          setRegisterLocationError(null)
+                        }}
+                      >
+                        {t('operator.registerLocationClear')}
+                      </Button>
+                    )}
+                  </div>
+                  {registerLocationError && (
+                    <p className="mt-2 text-xs text-red-600">{registerLocationError}</p>
+                  )}
+                </div>
+
                 {registerResult === 'success' && (
                   <p className="text-sm text-green-600">{t('operator.registerSuccess')}</p>
                 )}
                 {registerResult === 'error' && (
-                  <p className="text-sm text-red-600">{t('operator.registerError')}</p>
+                  <p className="text-sm text-red-600">
+                    {registerErrorMessage ?? t('operator.registerError')}
+                  </p>
                 )}
-                <Button type="submit" size="lg" className="w-full" loading={registering}>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  loading={registering}
+                  disabled={!session?.access_token}
+                >
                   {t('operator.registerSubmit')}
                 </Button>
               </form>
@@ -711,7 +994,7 @@ export function OperatorPage() {
                     placeholder={t('operator.referralCodePlaceholder')}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
-                  <p className="mt-1 text-[11px] text-gray-600">{t('operator.referralCodeOptionalNote')}</p>
+                  <p className="mt-1 text-[11px] text-gray-700">{t('operator.referralCodeOptionalNote')}</p>
                 </div>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
