@@ -9,6 +9,7 @@ import { OperatorPage } from '@/pages/Operator/OperatorPage'
 import { AuthPage } from '@/pages/Auth/AuthPage'
 import { TermsPage } from '@/pages/Legal/TermsPage'
 import { PrivacyPage } from '@/pages/Legal/PrivacyPage'
+import { B2BPage } from '@/pages/B2B/B2BPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
@@ -53,6 +54,7 @@ export default function App() {
           />
           <Route path="/operator" element={<OperatorPage />} />
           <Route path="/operator/claim/:stationId" element={<OperatorPage />} />
+          <Route path="/b2b" element={<B2BPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

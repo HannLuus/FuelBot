@@ -63,6 +63,18 @@ export function LandingPage() {
             >
               <Globe className="h-4 w-4" />
             </button>
+            <Link
+              to="/auth"
+              className="flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold text-gray-700 active:bg-gray-100"
+            >
+              {t('auth.signIn')}
+            </Link>
+            <Link
+              to="/auth?mode=signup"
+              className="flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold text-blue-600 active:bg-blue-50"
+            >
+              {t('auth.signUp')}
+            </Link>
             <Button size="sm" onClick={() => navigate('/home')}>
               {t('landing.enterApp')}
               <ArrowRight className="h-4 w-4" />
@@ -130,6 +142,25 @@ export function LandingPage() {
             <li>{t('landing.whatStationGetsUptime')}</li>
             <li>{t('landing.whatStationGetsCompare')}</li>
           </ul>
+        </section>
+
+        <section className="rounded-2xl bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900">{t('landing.fleetTitle')}</h2>
+          <p className="mt-2 text-gray-700">{t('landing.fleetBody')}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              to="/auth"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-gray-100 px-4 text-sm font-semibold text-gray-800 active:bg-gray-200"
+            >
+              {t('landing.fleetSignIn')}
+            </Link>
+            <Link
+              to="/b2b"
+              className="inline-flex min-h-[44px] items-center rounded-xl border border-gray-300 bg-white px-4 text-sm font-semibold text-blue-600 active:bg-gray-50"
+            >
+              {t('landing.fleetContactCta')}
+            </Link>
+          </div>
         </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm">

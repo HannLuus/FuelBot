@@ -11,20 +11,22 @@ export interface B2BEntitlements {
   hasNationalView: boolean
   routeIds: string[]
   routes: B2BRoute[]
+  routeAccessValidUntil: Date | null
 }
 
-export function useB2BEntitlements(): B2BEntitlements & { loading: boolean } {
+export function useB2BEntitlements(): B2BEntitlements & { loading: boolean, refresh: () => Promise<void> } {
   const user = useAuthStore((s) => s.user)
   const [entitlements, setEntitlements] = useState<B2BEntitlements>({
     hasNationalView: false,
     routeIds: [],
     routes: [],
+    routeAccessValidUntil: null,
   })
   const [loading, setLoading] = useState(true)
 
   const fetchEntitlements = useCallback(async () => {
     if (!user?.id) {
-      setEntitlements({ hasNationalView: false, routeIds: [], routes: [] })
+      setEntitlements({ hasNationalView: false, routeIds: [], routes: [], routeAccessValidUntil: null })
       setLoading(false)
       return
     }
@@ -32,22 +34,28 @@ export function useB2BEntitlements(): B2BEntitlements & { loading: boolean } {
     try {
       const { data, error } = await supabase.rpc('get_my_b2b_entitlements')
       if (error) {
-        setEntitlements({ hasNationalView: false, routeIds: [], routes: [] })
+        setEntitlements({ hasNationalView: false, routeIds: [], routes: [], routeAccessValidUntil: null })
         return
       }
       const rows = (data ?? []) as {
         plan_type: string
         route_id: string | null
         route_name: string | null
+        valid_until: string
       }[]
       const hasNationalView = rows.some((r) => r.plan_type === 'national_view')
-      const routes: B2BRoute[] = rows
-        .filter((r) => r.plan_type === 'route_view' && r.route_id && r.route_name)
+      const routeRows = rows.filter((r) => r.plan_type === 'route_view')
+      const routes: B2BRoute[] = routeRows
+        .filter((r) => r.route_id && r.route_name)
         .map((r) => ({ id: r.route_id!, name: r.route_name! }))
       const routeIds = routes.map((r) => r.id)
-      setEntitlements({ hasNationalView, routeIds, routes })
+      
+      const validUntilStr = routeRows.length > 0 ? routeRows[0].valid_until : null
+      const routeAccessValidUntil = validUntilStr ? new Date(validUntilStr) : null
+
+      setEntitlements({ hasNationalView, routeIds, routes, routeAccessValidUntil })
     } catch {
-      setEntitlements({ hasNationalView: false, routeIds: [], routes: [] })
+      setEntitlements({ hasNationalView: false, routeIds: [], routes: [], routeAccessValidUntil: null })
     } finally {
       setLoading(false)
     }
@@ -57,5 +65,5 @@ export function useB2BEntitlements(): B2BEntitlements & { loading: boolean } {
     void fetchEntitlements()
   }, [fetchEntitlements])
 
-  return { ...entitlements, loading }
+  return { ...entitlements, loading, refresh: fetchEntitlements }
 }

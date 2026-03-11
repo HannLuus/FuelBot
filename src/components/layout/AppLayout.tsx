@@ -182,6 +182,14 @@ export function AppLayout() {
                 <span>{t('legal.termsAndPrivacy')}</span>
               </Link>
 
+              <Link
+                to="/b2b"
+                onClick={() => setSheetOpen(false)}
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+              >
+                <span>{t('b2b.title')}</span>
+              </Link>
+
               {user ? (
                 <button
                   type="button"

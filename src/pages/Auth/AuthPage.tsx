@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import { Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -16,12 +16,20 @@ function getHashParams(): Record<string, string> {
   return Object.fromEntries(new URLSearchParams(hash))
 }
 
+function getInitialMode(searchMode: string | null, hashParams: Record<string, string>): AuthMode {
+  if (hashParams.type === 'recovery') return 'reset'
+  if (searchMode === 'signup') return 'signup'
+  return 'signin'
+}
+
 export function AuthPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectPath = searchParams.get('redirect') || '/home'
   const { user, signOut } = useAuthStore()
   const [mode, setMode] = useState<AuthMode>(() =>
-    getHashParams().type === 'recovery' ? 'reset' : 'signin',
+    getInitialMode(searchParams.get('mode'), getHashParams()),
   )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -57,7 +65,7 @@ export function AuthPage() {
       if (mode === 'signin') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) { setError(error.message); return }
-        navigate('/home')
+        navigate(redirectPath)
       } else if (mode === 'signup') {
         if (!acceptedTerms) {
           setError(t('auth.mustAcceptTerms'))
@@ -120,7 +128,7 @@ export function AuthPage() {
           </Button>
           <button
             type="button"
-            onClick={() => navigate('/home')}
+            onClick={() => navigate(redirectPath)}
             className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-2xl text-sm text-gray-700 active:bg-gray-50"
           >
             {t('auth.backToApp')}
@@ -197,6 +205,30 @@ export function AuthPage() {
             {mode === 'reset' ? t('auth.setNewPasswordInstruction') : t('app.tagline')}
           </p>
         </div>
+
+        {/* Sign in / Sign up tabs — visible so both options are clear */}
+        {(mode === 'signin' || mode === 'signup') && (
+          <div className="mb-6 flex rounded-2xl bg-gray-100 p-1" role="tablist" aria-label={t('auth.signInOrSignUp')}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'signin'}
+              onClick={() => { setMode('signin'); setError(null); setSuccess(null) }}
+              className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-colors ${mode === 'signin' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`}
+            >
+              {t('auth.signIn')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'signup'}
+              onClick={() => { setMode('signup'); setError(null); setSuccess(null); setAcceptedTerms(false) }}
+              className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-colors ${mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`}
+            >
+              {t('auth.signUp')}
+            </button>
+          </div>
+        )}
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
           {(mode === 'signin' || mode === 'signup' || mode === 'forgot') && (
@@ -362,7 +394,7 @@ export function AuthPage() {
         {(mode === 'signin' || mode === 'signup' || mode === 'forgot') && (
           <button
             type="button"
-            onClick={() => navigate('/home')}
+            onClick={() => navigate(redirectPath)}
             className="mt-1 flex min-h-[48px] w-full items-center justify-center rounded-2xl text-sm text-gray-700 active:bg-gray-50"
           >
             {t('auth.continueAnonymous')}

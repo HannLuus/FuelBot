@@ -39,6 +39,10 @@ export default {
     photoPending: 'Photo pending',
     heroCardCaption: 'This station joined to improve fuel transparency.',
     footerContact: 'Contact: support@fuelbot.app',
+    fleetTitle: 'Fleet owners & route view',
+    fleetBody: 'Transportation companies and fleet owners can get route-based or nationwide fuel visibility. Sign in with the same account as everyone else; we enable route/national access for paid B2B plans.',
+    fleetSignIn: 'Sign in',
+    fleetContactCta: 'Get route access',
   },
   map: {
     youAreHere: 'You are here',
@@ -167,6 +171,7 @@ export default {
     alreadyVoted: 'You have already voted on this report.',
   },
   auth: {
+    signInOrSignUp: 'Sign in or sign up',
     signIn: 'Sign In',
     signOut: 'Sign Out',
     signedInAs: 'Signed in as',
@@ -345,5 +350,18 @@ export default {
     generic: 'Something went wrong. Please try again.',
     network: 'Network error. Check your connection.',
     notFound: 'Not found.',
+  },
+  b2b: {
+    title: 'Fleet & Route Access',
+    signInRequired: 'Sign in to purchase or view your route access.',
+    description: 'Get real-time fuel visibility for all routes. Best for transportation companies and fleet owners.',
+    allRoutesAccess: 'Access to all active routes',
+    oneAccountPerSub: 'One subscription per account',
+    activeStatus: 'Active Subscription',
+    validUntil: 'Valid until: {{date}}',
+    goToMap: 'Go to Map',
+    submitPayment: 'Submit Payment Reference',
+    successTitle: 'Payment reported successfully',
+    successBody: 'Your route access is now active. You can select routes from the filter bar on the home screen.',
   },
 }
