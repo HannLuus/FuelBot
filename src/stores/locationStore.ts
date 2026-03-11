@@ -13,6 +13,7 @@ interface LocationState {
   requestLocation: (options?: { highAccuracy?: boolean }) => void
   /** Check permission without requesting. Resolves to null if Permissions API not available. */
   checkPermission: (options?: { onGranted?: () => void }) => Promise<GeolocationPermissionState>
+  clearError: () => void
 }
 
 export const useLocationStore = create<LocationState>((set) => ({
@@ -21,6 +22,8 @@ export const useLocationStore = create<LocationState>((set) => ({
   error: null,
   loading: false,
   permissionChecked: false,
+
+  clearError: () => set({ error: null }),
 
   checkPermission: (options?: { onGranted?: () => void }): Promise<GeolocationPermissionState> => {
     if (typeof navigator === 'undefined' || !navigator.permissions?.query) {
@@ -50,19 +53,52 @@ export const useLocationStore = create<LocationState>((set) => ({
     const fetchIpLocationFallback = async (originalErrorMsg: string) => {
       try {
         console.warn(`HTML5 Geolocation failed (${originalErrorMsg}). Using IP-based fallback...`)
-        const response = await fetch('https://get.geojs.io/v1/ip/geo.json')
-        if (!response.ok) throw new Error('IP Geolocation failed')
-        const data = await response.json()
+        
+        const fetchers = [
+          async () => {
+            const res = await fetch('https://ipapi.co/json/')
+            const data = await res.json()
+            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
+          },
+          async () => {
+            const res = await fetch('https://ipinfo.io/json')
+            const data = await res.json()
+            const [lat, lng] = data.loc.split(',')
+            return { lat: parseFloat(lat), lng: parseFloat(lng) }
+          },
+          async () => {
+            const res = await fetch('https://ipwho.is/')
+            const data = await res.json()
+            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
+          },
+          async () => {
+            const res = await fetch('https://freeipapi.com/api/json')
+            const data = await res.json()
+            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
+          },
+          async () => {
+            const res = await fetch('https://get.geojs.io/v1/ip/geo.json')
+            const data = await res.json()
+            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
+          }
+        ]
 
-        if (data.latitude && data.longitude) {
-          set({
-            lat: parseFloat(data.latitude),
-            lng: parseFloat(data.longitude),
-            loading: false,
-            error: null,
-          })
-        } else {
-          throw new Error('Invalid IP location data')
+        let success = false
+        for (const fetcher of fetchers) {
+          try {
+            const { lat, lng } = await fetcher()
+            if (!isNaN(lat) && !isNaN(lng)) {
+              set({ lat, lng, loading: false, error: null })
+              success = true
+              break
+            }
+          } catch (e) {
+            console.warn('IP fallback provider failed, trying next...')
+          }
+        }
+
+        if (!success) {
+          throw new Error('All IP location providers failed')
         }
       } catch (err) {
         // If IP fallback also fails, return the original HTML5 error as it is more relevant

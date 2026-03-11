@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MapPin, RefreshCw } from 'lucide-react'
+import { MapPin, RefreshCw, X } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
@@ -25,6 +25,7 @@ export function HomePage() {
     requestLocation,
     checkPermission,
     permissionChecked,
+    clearError,
   } = useLocationStore()
   const { filters } = useFilterStore()
 
@@ -90,9 +91,17 @@ export function HomePage() {
           <button
             type="button"
             onClick={() => requestLocation({ highAccuracy: true })}
-            className="flex items-center gap-1 font-semibold underline underline-offset-2"
+            className="flex shrink-0 items-center gap-1 font-semibold underline underline-offset-2"
           >
             {t('home.tryAgain')}
+          </button>
+          <button
+            type="button"
+            onClick={clearError}
+            className="ml-1 flex shrink-0 items-center justify-center rounded-full p-1 hover:bg-orange-100 active:bg-orange-200"
+            aria-label={t('common.close')}
+          >
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
