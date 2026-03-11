@@ -60,6 +60,7 @@ export interface Station {
   payment_reported_at?: string | null
   payment_method?: string | null
   payment_reference?: string | null
+  payment_screenshot_path?: string | null
   payment_confirmed_by?: string | null
   referrer_user_id?: string | null
   station_photo_urls?: string[]

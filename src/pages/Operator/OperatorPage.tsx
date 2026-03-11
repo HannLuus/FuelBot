@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
-import { Store, CheckCircle, Send, Users, MapPin, Upload, Copy, Crosshair, X } from 'lucide-react'
+import { Store, CheckCircle, Send, Users, MapPin, Upload, Crosshair, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
@@ -10,7 +10,9 @@ import { Spinner } from '@/components/ui/Spinner'
 import { FUEL_CODES, FUEL_DISPLAY, STATUS_LABEL, QUEUE_LABEL, formatRelativeTime } from '@/lib/fuelUtils'
 import type { Station, FuelCode, FuelStatus, QueueBucket, FuelStatuses, StationCurrentStatus, SubscriptionTierRequested } from '@/types'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
-import { referralAmountForTier } from '@/lib/referrals'
+import { usePaymentConfig } from '@/hooks/usePaymentConfig'
+
+const PAYMENT_SCREENSHOT_BUCKET = 'b2b-payment-screenshots'
 
 type FuelStatusOrSkip = FuelStatus | 'SKIP'
 type SaveState = 'idle' | 'saving' | 'success' | 'error'
@@ -31,16 +33,6 @@ interface UptimeRow {
   expected_samples: number
   uptime_pct: number | null
 }
-interface ReferralRewardRow {
-  id: string
-  station_id: string
-  amount_mmk: number
-  status: string
-  paid_at: string | null
-  created_at: string
-  stations: { name: string } | null
-}
-
 const YANGON_LAT = 16.8661
 const YANGON_LNG = 96.1561
 const CARTO_ATTRIBUTION =
@@ -67,7 +59,7 @@ function makePickerMarkerIcon(): L.DivIcon {
 export function OperatorPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
-  const { user, session, loading: authLoading } = useAuthStore()
+  const { user, session } = useAuthStore()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [myStation, setMyStation] = useState<Station | null>(null)
@@ -104,7 +96,6 @@ export function OperatorPage() {
   const [queue] = useState<QueueBucket>('NONE')
   const [tier, setTier] = useState<SubscriptionTierRequested>('small')
   const [referralCodeInput, setReferralCodeInput] = useState('')
-  const [myReferralCode, setMyReferralCode] = useState('')
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [stationPhotos, setStationPhotos] = useState<string[]>([])
@@ -113,44 +104,28 @@ export function OperatorPage() {
   const [submittingPaid, setSubmittingPaid] = useState(false)
   const [recognitionPhotoUrl, setRecognitionPhotoUrl] = useState<string | null>(null)
   const [recognitionConfirming, setRecognitionConfirming] = useState(false)
-  const referralCodeFetchedRef = useRef(false)
-  const [myReferralRewards, setMyReferralRewards] = useState<ReferralRewardRow[]>([])
   const [reliability, setReliability] = useState<ReliabilityRow | null>(null)
   const [uptime, setUptime] = useState<UptimeRow | null>(null)
   const [editableStationName, setEditableStationName] = useState('')
   const [editableStationBrand, setEditableStationBrand] = useState('')
   const [setLocationLoading, setSetLocationLoading] = useState(false)
   const [setLocationMessage, setSetLocationMessage] = useState<string | null>(null)
+  const [operatorPaymentMethod, setOperatorPaymentMethod] = useState('KBZ_PAY')
+  const [operatorPaymentReference, setOperatorPaymentReference] = useState('')
+  const [operatorScreenshotPath, setOperatorScreenshotPath] = useState<string | null>(null)
+  const [uploadingPaymentScreenshot, setUploadingPaymentScreenshot] = useState(false)
+  const paymentScreenshotInputRef = useRef<HTMLInputElement>(null)
 
   const selectedTierPrice = useMemo(() => getTierPrice(tier), [tier])
-  const selectedReferralAmount = useMemo(() => referralAmountForTier(tier), [tier])
-  const paymentInstructions = import.meta.env.VITE_PAYMENT_INSTRUCTIONS
-  const paymentQrUrl = import.meta.env.VITE_PAYMENT_QR_URL
-  const paymentPhoneWavePay = import.meta.env.VITE_PAYMENT_PHONE_WAVEPAY?.trim() || ''
-  const paymentPhoneKpay = import.meta.env.VITE_PAYMENT_PHONE_KPAY?.trim() || ''
-  const shareLink =
-    myReferralCode && typeof window !== 'undefined'
-      ? `${window.location.origin}/operator?ref=${encodeURIComponent(myReferralCode)}`
-      : ''
+  const paymentConfig = usePaymentConfig()
+  const paymentInstructions = paymentConfig.payment_instructions
+  const paymentQrUrl = paymentConfig.payment_qr_url
+  const paymentPhoneWavePay = paymentConfig.payment_phone_wavepay || ''
+  const paymentPhoneKpay = paymentConfig.payment_phone_kpay || ''
 
   useEffect(() => {
     if (!user) return
     void loadMyStation()
-  }, [user?.id])
-
-  async function loadMyReferralRewards() {
-    if (!user) return
-    const { data } = await supabase
-      .from('referral_rewards')
-      .select('id, station_id, amount_mmk, status, paid_at, created_at, stations(name)')
-      .eq('referrer_user_id', user.id)
-      .order('created_at', { ascending: false })
-    setMyReferralRewards((data ?? []) as unknown as ReferralRewardRow[])
-  }
-
-  useEffect(() => {
-    if (!user) return
-    void loadMyReferralRewards()
   }, [user?.id])
 
   // Lock body scroll when map picker overlay is open (prevents background scroll on mobile)
@@ -260,17 +235,6 @@ export function OperatorPage() {
   }, [myStation?.id])
 
   useEffect(() => {
-    if (!user) referralCodeFetchedRef.current = false
-  }, [user])
-
-  // Fetch referral code only once per session when we have a valid token. Do not retry on failure (keeps page working for users who are not referred / no referral code needed).
-  useEffect(() => {
-    if (!user?.id || !session?.access_token || authLoading || referralCodeFetchedRef.current) return
-    referralCodeFetchedRef.current = true
-    void loadMyReferralCode()
-  }, [user?.id, session?.access_token, authLoading])
-
-  useEffect(() => {
     const refFromUrl = searchParams.get('ref')?.trim() ?? ''
     if (refFromUrl) {
       setReferralCodeInput(refFromUrl.toUpperCase())
@@ -325,19 +289,6 @@ export function OperatorPage() {
         next[code] = v && v !== 'UNKNOWN' ? v : 'SKIP'
       }
       setFuelStatuses(next)
-    }
-  }
-
-  async function loadMyReferralCode() {
-    if (!user || !session?.access_token) return
-    try {
-      const { data, error } = await supabase.functions.invoke('get-referral-code', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (!error && data?.code) setMyReferralCode(data.code)
-      // On error (e.g. 401): do not retry. User can still use the page; referral is optional.
-    } catch {
-      // Leave referralCodeFetchedRef true so we don't retry and spam console. Page works without a code.
     }
   }
 
@@ -510,7 +461,7 @@ export function OperatorPage() {
   }
 
   async function markIHavePaid() {
-    if (!myStation || submittingPaid) return
+    if (!myStation || submittingPaid || !operatorPaymentReference.trim()) return
     setSubmittingPaid(true)
     setSaveMessage(null)
     try {
@@ -520,7 +471,12 @@ export function OperatorPage() {
         return
       }
       const { data, error } = await supabase.functions.invoke('operator-report-payment', {
-        body: { station_id: myStation.id },
+        body: {
+          station_id: myStation.id,
+          payment_method: operatorPaymentMethod,
+          payment_reference: operatorPaymentReference.trim(),
+          screenshot_path: operatorScreenshotPath || undefined,
+        },
       })
       if (error) throw error
       if (data?.error) throw new Error(data.error)
@@ -530,6 +486,32 @@ export function OperatorPage() {
       setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
     } finally {
       setSubmittingPaid(false)
+    }
+  }
+
+  async function handleOperatorPaymentScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !user || !myStation) return
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    if (!['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+      setSaveMessage(t('b2b.invalidImageType'))
+      return
+    }
+    setUploadingPaymentScreenshot(true)
+    setSaveMessage(null)
+    try {
+      const path = `${user.id}/operator-${myStation.id}-${crypto.randomUUID()}.${ext}`
+      const { error: uploadErr } = await supabase.storage.from(PAYMENT_SCREENSHOT_BUCKET).upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      })
+      if (uploadErr) throw uploadErr
+      setOperatorScreenshotPath(path)
+    } catch {
+      setSaveMessage(t('errors.generic'))
+    } finally {
+      setUploadingPaymentScreenshot(false)
+      e.target.value = ''
     }
   }
 
@@ -656,75 +638,6 @@ export function OperatorPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Referrer earnings – optional; no referral required to register */}
-        <section className="rounded-2xl border border-green-200 bg-green-50 p-4">
-          <h2 className="text-sm font-bold text-green-900 mb-2">{t('landing.whatYouEarnTitle')}</h2>
-          <p className="text-xs text-green-800 mb-3">{t('landing.whatYouEarnBody')}</p>
-          {myReferralCode ? (
-            <div className="rounded-xl border border-green-200 bg-white p-3">
-              <p className="text-xs text-gray-700 mb-1">{t('landing.getReferralCodeCta')}</p>
-              <div className="flex items-center justify-between gap-2">
-                <code className="rounded bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-900">{myReferralCode}</code>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(myReferralCode)
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                  Copy
-                </Button>
-              </div>
-              {shareLink ? (
-                <div className="mt-2 rounded bg-gray-50 p-2">
-                  <p className="text-[11px] text-gray-700 break-all">{shareLink}</p>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="mt-2"
-                    onClick={async () => {
-                      await navigator.clipboard.writeText(shareLink)
-                    }}
-                  >
-                    <Copy className="h-4 w-4" />
-                    Copy share link
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          ) : user ? (
-            <p className="text-xs text-gray-700">{t('operator.referralCodeOptionalHint')}</p>
-          ) : (
-            <p className="text-xs text-gray-700">{t('operator.referralCodeSignInHint')}</p>
-          )}
-        </section>
-
-        {/* My referral rewards */}
-        {user && (
-          <section className="rounded-2xl border border-gray-200 bg-white p-4">
-            <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.myReferralRewards')}</h2>
-            {myReferralRewards.length === 0 ? (
-              <p className="text-sm text-gray-700">{t('operator.noReferralRewardsYet')}</p>
-            ) : (
-              <ul className="space-y-2">
-                {myReferralRewards.map((reward) => (
-                  <li key={reward.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
-                    <p className="font-medium text-gray-900">{reward.stations?.name ?? reward.station_id.slice(0, 8)}</p>
-                    <p className="text-gray-700">{formatMmk(reward.amount_mmk)}</p>
-                    <p className="mt-1 text-xs text-gray-700">
-                      {reward.status === 'PENDING' && t('operator.rewardCollectAt', { station: reward.stations?.name ?? reward.station_id.slice(0, 8) })}
-                      {reward.status === 'PAID' && t('operator.rewardStatusPaid')}
-                      {reward.status === 'COLLECTED' && t('operator.rewardStatusCollected')}
-                      {(reward.status === 'PAID' || reward.status === 'COLLECTED') && reward.paid_at && ` · ${new Date(reward.paid_at).toLocaleDateString()}`}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
-
         {/* Tiers */}
         <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.tiersTitle')}</h2>
@@ -746,7 +659,7 @@ export function OperatorPage() {
           </div>
           {selectedTierPrice ? (
             <p className="mt-3 text-xs text-gray-700">
-              {t('operator.selectTier')} · {formatMmk(selectedTierPrice)} / {t('landing.perYear')} · 15% referral: {formatMmk(selectedReferralAmount)}
+              {t('operator.selectTier')} · {formatMmk(selectedTierPrice)} / {t('landing.perYear')}
             </p>
           ) : null}
           <p className="mt-4 text-sm font-medium text-gray-800">{t('operator.whatYouGetTitle')}</p>
@@ -1024,38 +937,6 @@ export function OperatorPage() {
                   </label>
                 </div>
 
-                {paymentInstructions ? (
-                  <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 text-xs text-gray-700">
-                    {paymentInstructions}
-                  </div>
-                ) : (
-                  <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 text-xs text-gray-700">
-                    Contact us for payment details.
-                  </div>
-                )}
-
-                {paymentQrUrl ? (
-                  <img src={paymentQrUrl} alt="Payment QR" className="mt-3 h-40 w-40 rounded border border-gray-200 object-cover" />
-                ) : null}
-
-                {(paymentPhoneWavePay || paymentPhoneKpay) ? (
-                  <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-700">
-                    <p className="font-medium text-gray-900">{t('operator.payVia')}</p>
-                    {paymentPhoneWavePay ? (
-                      <p className="mt-1">WavePay: <a href={`tel:${paymentPhoneWavePay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneWavePay}</a></p>
-                    ) : null}
-                    {paymentPhoneKpay ? (
-                      <p className="mt-1">KPay / KBZ Pay: <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneKpay}</a></p>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {myStation.payment_reported_at ? (
-                  <p className="mt-3 text-xs text-gray-700">
-                    {t('operator.paymentReportedAt')}: {new Date(myStation.payment_reported_at).toLocaleString()}
-                  </p>
-                ) : null}
-
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button
                     size="sm"
@@ -1067,19 +948,128 @@ export function OperatorPage() {
                     <Upload className="h-4 w-4" />
                     {t('operator.completeVerification')}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    loading={submittingPaid}
-                    onClick={() => void markIHavePaid()}
-                    disabled={stationPhotos.length === 0 || !locationPhoto || !!myStation.payment_reported_at}
-                  >
-                    {t('operator.iHavePaid')}
-                  </Button>
                 </div>
 
                 {saveMessage ? <p className="mt-3 text-sm text-gray-700">{saveMessage}</p> : null}
               </div>
+            )}
+
+            {/* Pay via — same section as B2B: instructions, QR, phone */}
+            {!myStation.is_verified && !myStation.payment_reported_at && (
+              <section className="rounded-2xl border border-gray-200 bg-white p-4">
+                <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.payVia')}</h2>
+                {paymentInstructions ? (
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
+                    {paymentInstructions}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-700">{t('b2b.contactForPayment')}</p>
+                )}
+                {paymentQrUrl ? (
+                  <div className="mt-3">
+                    <p className="text-xs font-medium text-gray-700 mb-1">QR code</p>
+                    <img src={paymentQrUrl} alt="Payment QR" className="h-40 w-40 rounded border border-gray-200 object-cover" />
+                  </div>
+                ) : null}
+                {(paymentPhoneWavePay || paymentPhoneKpay) ? (
+                  <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+                    {paymentPhoneWavePay ? (
+                      <p>WavePay: <a href={`tel:${paymentPhoneWavePay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneWavePay}</a></p>
+                    ) : null}
+                    {paymentPhoneKpay ? (
+                      <p className="mt-1">KPay / KBZ Pay: <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneKpay}</a></p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </section>
+            )}
+
+            {/* Payment details — same section as B2B: method, reference, screenshot, submit */}
+            {!myStation.is_verified && !myStation.payment_reported_at && (
+              <section className="rounded-2xl border border-gray-200 bg-white p-4">
+                <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.paymentDetails')}</h2>
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="operator-payment-method" className="mb-1.5 block text-xs font-medium text-gray-700">
+                      {t('admin.paymentMethod')}
+                    </label>
+                    <select
+                      id="operator-payment-method"
+                      value={operatorPaymentMethod}
+                      onChange={(e) => setOperatorPaymentMethod(e.target.value)}
+                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="KBZ_PAY">KBZ Pay</option>
+                      <option value="WAVEPAY">WavePay</option>
+                      <option value="BANK_TRANSFER">Bank Transfer</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="operator-payment-ref" className="mb-1.5 block text-xs font-medium text-gray-700">
+                      {t('admin.paymentReference')} *
+                    </label>
+                    <input
+                      id="operator-payment-ref"
+                      type="text"
+                      value={operatorPaymentReference}
+                      onChange={(e) => setOperatorPaymentReference(e.target.value)}
+                      placeholder="e.g. Transaction ID or last 4 digits"
+                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <p className="mb-1.5 text-xs font-medium text-gray-700">{t('b2b.uploadScreenshot')}</p>
+                    <p className="mb-2 text-[11px] text-gray-700">{t('b2b.uploadScreenshotHint')}</p>
+                    <input
+                      ref={paymentScreenshotInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={handleOperatorPaymentScreenshot}
+                      aria-label={t('b2b.uploadScreenshot')}
+                    />
+                    {operatorScreenshotPath ? (
+                      <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
+                        <span className="text-sm text-gray-700 truncate flex-1">{t('b2b.screenshotUploaded')}</span>
+                        <button
+                          type="button"
+                          onClick={() => setOperatorScreenshotPath(null)}
+                          className="shrink-0 rounded p-1 text-gray-700 hover:bg-gray-200"
+                          aria-label={t('b2b.removeScreenshot')}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        disabled={uploadingPaymentScreenshot}
+                        onClick={() => paymentScreenshotInputRef.current?.click()}
+                      >
+                        {uploadingPaymentScreenshot ? <Spinner className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+                        {uploadingPaymentScreenshot ? t('b2b.uploadingScreenshot') : t('b2b.uploadScreenshot')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  variant="primary"
+                  className="w-full mt-4"
+                  loading={submittingPaid}
+                  onClick={() => void markIHavePaid()}
+                  disabled={stationPhotos.length === 0 || !locationPhoto || !operatorPaymentReference.trim()}
+                >
+                  {t('operator.iHavePaid')}
+                </Button>
+              </section>
+            )}
+
+            {!myStation.is_verified && myStation.payment_reported_at && (
+              <p className="text-sm text-gray-700">
+                {t('operator.paymentReportedAt')}: {new Date(myStation.payment_reported_at).toLocaleString()}
+              </p>
             )}
 
             {currentStatus && (

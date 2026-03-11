@@ -213,17 +213,24 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Resend SMTP — production email delivery
+# Resend SMTP — used for local Supabase auth emails only.
+# For hosted Supabase, configure SMTP in Dashboard: Authentication → SMTP Settings.
+# Sender must be a verified domain in Resend (e.g. noreply@yourdomain.com).
 [auth.email.smtp]
 enabled = true
 host = "smtp.resend.com"
 port = 465
 user = "resend"
 pass = "env(RESEND_API_KEY)"
-admin_email = "noreply@job-matchmm.com"
+admin_email = "noreply@fuelbot.app"
 sender_name = "FuelBot"
 
-# Uncomment to customize email template
+# Custom confirmation (signup) email — warm welcome instead of default
+[auth.email.template.confirmation]
+subject = "Welcome to FuelBot — confirm your email"
+content_path = "./templates/confirmation.html"
+
+# Uncomment to customize invite email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Flag, Store, ShieldAlert, CreditCard, Camera } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment'
 type PaymentMethod = 'KBZ_PAY' | 'WAVEPAY' | 'BANK_TRANSFER'
 
 interface PendingReferralRewardRow {
@@ -36,10 +36,69 @@ export function AdminPage() {
   const [referralPaymentRef, setReferralPaymentRef] = useState('')
   const [referralPayStationId, setReferralPayStationId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [paymentConfig, setPaymentConfig] = useState<{
+    payment_instructions: string
+    payment_qr_url: string
+    payment_phone_wavepay: string
+    payment_phone_kpay: string
+  }>({
+    payment_instructions: '',
+    payment_qr_url: '',
+    payment_phone_wavepay: '',
+    payment_phone_kpay: '',
+  })
+  const [paymentConfigLoading, setPaymentConfigLoading] = useState(false)
+  const [paymentConfigSaving, setPaymentConfigSaving] = useState(false)
+  const [paymentConfigSaved, setPaymentConfigSaved] = useState(false)
 
   useEffect(() => {
     void loadAll()
   }, [])
+
+  useEffect(() => {
+    if (tab !== 'payment') return
+    setPaymentConfigLoading(true)
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from('payment_config')
+          .select('payment_instructions, payment_qr_url, payment_phone_wavepay, payment_phone_kpay')
+          .eq('id', 'default')
+          .maybeSingle()
+        const row = data as { payment_instructions?: string | null; payment_qr_url?: string | null; payment_phone_wavepay?: string | null; payment_phone_kpay?: string | null } | null
+        setPaymentConfig({
+          payment_instructions: row?.payment_instructions?.trim() ?? '',
+          payment_qr_url: row?.payment_qr_url?.trim() ?? '',
+          payment_phone_wavepay: row?.payment_phone_wavepay?.trim() ?? '',
+          payment_phone_kpay: row?.payment_phone_kpay?.trim() ?? '',
+        })
+      } finally {
+        setPaymentConfigLoading(false)
+      }
+    })()
+  }, [tab])
+
+  async function savePaymentConfig() {
+    setPaymentConfigSaving(true)
+    setPaymentConfigSaved(false)
+    const { error: updateErr } = await supabase
+      .from('payment_config')
+      .update({
+        payment_instructions: paymentConfig.payment_instructions.trim() || null,
+        payment_qr_url: paymentConfig.payment_qr_url.trim() || null,
+        payment_phone_wavepay: paymentConfig.payment_phone_wavepay.trim() || null,
+        payment_phone_kpay: paymentConfig.payment_phone_kpay.trim() || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', 'default')
+    setPaymentConfigSaving(false)
+    if (updateErr) {
+      setError(updateErr.message)
+      return
+    }
+    setPaymentConfigSaved(true)
+    setError(null)
+  }
 
   async function loadAll() {
     setLoading(true)
@@ -287,6 +346,13 @@ export function AdminPage() {
             </span>
           )}
         </button>
+        <button
+          onClick={() => setTab('payment')}
+          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'payment' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
+        >
+          <Settings className="h-4 w-4" />
+          {t('admin.paymentSettings')}
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -397,6 +463,61 @@ export function AdminPage() {
                   </div>
                 )
               })}
+            </div>
+          )
+        ) : tab === 'payment' ? (
+          paymentConfigLoading ? (
+            <div className="flex justify-center py-12">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="mx-auto max-w-lg space-y-4">
+              <p className="text-sm text-gray-700">{t('admin.paymentSettingsIntro')}</p>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-700">{t('admin.paymentInstructionsLabel')}</label>
+                <textarea
+                  value={paymentConfig.payment_instructions}
+                  onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_instructions: e.target.value }))}
+                  placeholder={t('admin.paymentInstructionsPlaceholder')}
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-700">{t('admin.paymentQrUrlLabel')}</label>
+                <input
+                  type="url"
+                  value={paymentConfig.payment_qr_url}
+                  onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_qr_url: e.target.value }))}
+                  placeholder={t('admin.paymentQrUrlPlaceholder')}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-700">{t('admin.paymentPhoneWavePayLabel')}</label>
+                <input
+                  type="text"
+                  value={paymentConfig.payment_phone_wavepay}
+                  onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_phone_wavepay: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-700">{t('admin.paymentPhoneKpayLabel')}</label>
+                <input
+                  type="text"
+                  value={paymentConfig.payment_phone_kpay}
+                  onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_phone_kpay: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                />
+              </div>
+              <Button
+                variant="primary"
+                loading={paymentConfigSaving}
+                onClick={() => void savePaymentConfig()}
+              >
+                {paymentConfigSaved ? t('admin.paymentSettingsSaved') : t('admin.savePaymentSettings')}
+              </Button>
             </div>
           )
         ) : tab === 'referrals' ? (

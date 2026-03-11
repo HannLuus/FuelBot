@@ -7,6 +7,7 @@ const EXPECTED_AMOUNT_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK
 interface Payload {
   payment_method: string
   payment_reference: string
+  screenshot_path?: string | null
 }
 
 Deno.serve(async (req) => {
@@ -63,6 +64,7 @@ Deno.serve(async (req) => {
       valid_until: validUntil.toISOString(),
       payment_method: payload.payment_method,
       payment_reference: payload.payment_reference,
+      screenshot_path: payload.screenshot_path?.trim() || null,
     })
 
   if (insertErr) {
@@ -89,6 +91,7 @@ Deno.serve(async (req) => {
           <p><strong>Expected amount:</strong> ${EXPECTED_AMOUNT_MMK.toLocaleString('en-US')} MMK</p>
           <p><strong>Payment Method:</strong> ${payload.payment_method}</p>
           <p><strong>Payment Reference:</strong> ${payload.payment_reference}</p>
+          ${payload.screenshot_path ? `<p><strong>Payment screenshot:</strong> ${payload.screenshot_path} (check Storage bucket b2b-payment-screenshots for review / future bot).</p>` : ''}
           <p>Please verify the payment in your wallet/bank. If this is a fake payment, delete the row in the b2b_subscriptions table.</p>
         `,
       })

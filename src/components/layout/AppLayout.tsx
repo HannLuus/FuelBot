@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Store, ShieldCheck, Zap, Globe, User, X, LogIn, LogOut } from 'lucide-react'
+import { List, Map, PlusCircle, Store, ShieldCheck, Zap, Globe, User, X, LogIn, LogOut, Truck } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useState, useEffect } from 'react'
@@ -29,6 +29,7 @@ export function AppLayout() {
   const navItems = [
     { to: '/home', label: t('nav.nearby'), icon: List, end: true },
     { to: '/map', label: t('nav.map'), icon: Map },
+    { to: '/b2b', label: t('nav.routeAccess'), icon: Truck },
     { to: '/operator', label: t('nav.operator'), icon: Store },
     ...(isAdmin ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
   ]
@@ -116,6 +117,27 @@ export function AppLayout() {
           </NavLink>
         </div>
       </nav>
+
+      {/* Footer — link back to landing so users can sign up and see promotions */}
+      <footer className="shrink-0 border-t border-gray-100 bg-white px-4 py-2">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-700">
+          <Link to="/" className="font-medium text-blue-600 underline active:text-blue-700">
+            {t('common.landingPage')}
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/b2b" className="font-medium text-blue-600 underline active:text-blue-700">
+            {t('nav.routeAccess')}
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/terms" className="hover:underline active:text-gray-900">
+            {t('legal.termsOfService')}
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/privacy" className="hover:underline active:text-gray-900">
+            {t('legal.privacyPolicy')}
+          </Link>
+        </div>
+      </footer>
 
       {/* Bottom sheet — replaces small dropdown for menu */}
       {sheetOpen && (

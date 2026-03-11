@@ -46,13 +46,19 @@ Deno.serve(async (req) => {
     return json({ error: 'Payment must be marked received before approval' }, 400)
   }
 
+  // Commission only for non–station-owners (e.g. driver who referred the station). Fuel station owners get no commission.
+  const referrerIsStationOwner = station.referrer_user_id
+    ? (await service.from('stations').select('id').eq('verified_owner_id', station.referrer_user_id).limit(1).maybeSingle()).data != null
+    : false
+  const grantReferralReward = !!station.referrer_user_id && !referrerIsStationOwner
+
   const { error: updateErr } = await service
     .from('stations')
     .update({
       is_verified: true,
       verification_source: 'owner',
       updated_at: new Date().toISOString(),
-      referral_reward_status: station.referrer_user_id ? 'PENDING' : null,
+      referral_reward_status: grantReferralReward ? 'PENDING' : null,
       registration_reject_reason: null,
       registration_rejected_at: null,
     })
@@ -67,20 +73,18 @@ Deno.serve(async (req) => {
   const tierPrice = TIER_PRICE[tier] ?? 0
   const amountMmk = Math.round(tierPrice * 0.15)
 
-  if (station.referrer_user_id) {
-    if (amountMmk > 0) {
-      const { error: rewardErr } = await service
-        .from('referral_rewards')
-        .upsert({
-          referrer_user_id: station.referrer_user_id,
-          station_id: station.id,
-          amount_mmk: amountMmk,
-          status: 'PENDING',
-        }, { onConflict: 'station_id' })
+  if (grantReferralReward && amountMmk > 0) {
+    const { error: rewardErr } = await service
+      .from('referral_rewards')
+      .upsert({
+        referrer_user_id: station.referrer_user_id,
+        station_id: station.id,
+        amount_mmk: amountMmk,
+        status: 'PENDING',
+      }, { onConflict: 'station_id' })
 
-      if (rewardErr) {
-        console.error('admin-approve-registration reward upsert error:', rewardErr)
-      }
+    if (rewardErr) {
+      console.error('admin-approve-registration reward upsert error:', rewardErr)
     }
   }
 
@@ -96,7 +100,7 @@ Deno.serve(async (req) => {
         const ownerUser = await service.auth.admin.getUserById(station.verified_owner_id)
         const ownerEmail = ownerUser.data.user?.email
         if (ownerEmail) {
-          const payoutText = station.referrer_user_id && amountMmk > 0
+          const payoutText = grantReferralReward && amountMmk > 0
             ? `\nReferral payout (Option B): Please pay ${amountMmk.toLocaleString('en-US')} MMK to the referrer linked to this station.`
             : ''
           await resend.emails.send({
@@ -114,8 +118,8 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Notify referrer with amount and station details.
-      if (station.referrer_user_id && amountMmk > 0) {
+      // Notify referrer (only non–station-owners get commission).
+      if (grantReferralReward && amountMmk > 0) {
         const refUser = await service.auth.admin.getUserById(station.referrer_user_id)
         const refEmail = refUser.data.user?.email
         if (refEmail) {

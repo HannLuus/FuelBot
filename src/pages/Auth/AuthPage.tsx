@@ -39,6 +39,8 @@ export function AuthPage() {
   const [success, setSuccess] = useState<string | null>(null)
   const [resetLinkExpired, setResetLinkExpired] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendMessage, setResendMessage] = useState<string | null>(null)
 
   useEffect(() => {
     const params = getHashParams()
@@ -81,6 +83,7 @@ export function AuthPage() {
           })
         }
         setSuccess(t('auth.checkEmailConfirm'))
+        setResendMessage(null)
       } else if (mode === 'forgot') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth`,
@@ -351,6 +354,29 @@ export function AuthPage() {
               {success}
             </div>
           )}
+          {resendMessage && (
+            <div role="status" className={`rounded-2xl p-4 text-sm font-medium ${resendMessage === t('auth.resendConfirmationSent') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+              {resendMessage}
+            </div>
+          )}
+          {mode === 'signup' && success && (
+            <button
+              type="button"
+              onClick={async () => {
+                setResendLoading(true)
+                setResendMessage(null)
+                const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim() })
+                setResendLoading(false)
+                if (error) setResendMessage(t('auth.resendConfirmationError'))
+                else setResendMessage(t('auth.resendConfirmationSent'))
+              }}
+              disabled={resendLoading}
+              className="mt-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold text-blue-600 active:bg-blue-50 disabled:opacity-70"
+            >
+              {resendLoading && <Spinner />}
+              {t('auth.resendConfirmation')}
+            </button>
+          )}
 
           <Button
             type="submit"
@@ -384,6 +410,7 @@ export function AuthPage() {
               setMode(mode === 'signin' ? 'signup' : 'signin')
               setError(null)
               setSuccess(null)
+              setResendMessage(null)
               setAcceptedTerms(false)
             }}
             className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-2xl text-sm font-semibold text-blue-600 active:bg-blue-50"

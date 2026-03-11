@@ -6,6 +6,9 @@ const EXPECTED_AMOUNT_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK
 
 interface Payload {
   station_id: string
+  payment_method?: string | null
+  payment_reference?: string | null
+  screenshot_path?: string | null
 }
 
 Deno.serve(async (req) => {
@@ -43,9 +46,19 @@ Deno.serve(async (req) => {
     return json({ success: true, already_reported: true })
   }
 
+  const paymentMethod = payload.payment_method?.trim() || null
+  const paymentReference = payload.payment_reference?.trim() || null
+  const screenshotPath = payload.screenshot_path?.trim() || null
+  if (!paymentReference) return json({ error: 'payment_reference is required' }, 400)
+
   const { error: updateErr } = await service
     .from('stations')
-    .update({ payment_reported_at: new Date().toISOString() })
+    .update({
+      payment_reported_at: new Date().toISOString(),
+      payment_method: paymentMethod,
+      payment_reference: paymentReference,
+      payment_screenshot_path: screenshotPath,
+    })
     .eq('id', payload.station_id)
 
   if (updateErr) {
@@ -71,6 +84,9 @@ Deno.serve(async (req) => {
           <p><strong>Station:</strong> ${stationLabel}</p>
           <p><strong>Station ID:</strong> ${station.id}</p>
           <p><strong>Expected amount:</strong> ${EXPECTED_AMOUNT_MMK.toLocaleString('en-US')} MMK</p>
+          <p><strong>Payment method:</strong> ${paymentMethod || '—'}</p>
+          <p><strong>Payment reference:</strong> ${paymentReference || '—'}</p>
+          ${screenshotPath ? `<p><strong>Payment screenshot:</strong> ${screenshotPath} (check Storage bucket b2b-payment-screenshots)</p>` : ''}
           <p>Please verify the payment in your wallet/bank and mark payment received in the admin panel.</p>
           <p><a href="${appUrl}">Open admin panel</a></p>
         `,
