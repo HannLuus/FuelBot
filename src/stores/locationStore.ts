@@ -146,7 +146,7 @@ export const useLocationStore = create<LocationState>((set) => ({
             },
             {
               enableHighAccuracy: false,
-              timeout: 10000, // Reduced timeout so IP fallback triggers faster
+              timeout: 15000, // Give low accuracy a fair chance
               maximumAge: 60000,
             },
           )
@@ -156,7 +156,7 @@ export const useLocationStore = create<LocationState>((set) => ({
       },
       {
         enableHighAccuracy: highAccuracy,
-        timeout: 10000, // Shorter timeout for the first attempt to fail fast and fallback
+        timeout: 20000, // Give native GPS plenty of time to lock on before giving up
         maximumAge: highAccuracy ? 0 : 60000,
       },
     )
