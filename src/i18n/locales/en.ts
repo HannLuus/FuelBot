@@ -9,6 +9,7 @@ export default {
     userMenu: 'User menu',
     switchToEnglish: 'Switch to English',
     switchToMyanmar: 'Switch to မြန်မာ',
+    homePage: 'Home',
   },
   landing: {
     toggleLanguage: 'Toggle language',

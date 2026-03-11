@@ -9,6 +9,7 @@ export default {
     userMenu: 'အသုံးပြုသူ မီနူး',
     switchToEnglish: 'အင်္ဂလိပ်သို့ ပြောင်းမည်',
     switchToMyanmar: 'မြန်မာသို့ ပြောင်းမည်',
+    homePage: 'ပင်မစာမျက်နှာ',
   },
   landing: {
     toggleLanguage: 'ဘာသာပြောင်းရန်',

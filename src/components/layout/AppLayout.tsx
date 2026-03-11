@@ -156,6 +156,15 @@ export function AppLayout() {
 
             {/* Sheet actions — all 56px tall for easy thumb tap */}
             <div className="px-4 py-2">
+              <Link
+                to="/"
+                onClick={() => setSheetOpen(false)}
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+              >
+                <Zap className="h-5 w-5 text-gray-700 shrink-0" />
+                <span>{t('common.homePage')}</span>
+              </Link>
+
               <button
                 type="button"
                 onClick={() => { toggleLang(); setSheetOpen(false) }}
