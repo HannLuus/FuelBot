@@ -14,6 +14,10 @@ export default {
   },
   landing: {
     toggleLanguage: 'ဘာသာပြောင်းရန်',
+    installApp: 'အက်ပ်ထည့်ရန်',
+    installAppAria: 'FuelBot အက်ပ်ထည့်ရန်',
+    installIOSTitle: 'FuelBot ကို ပင်မစာမျက်နှာသို့ ထည့်ရန်',
+    installIOSSteps: 'Safari အောက်ခြေရှိ Share ခလုတ် (မြှားပါသော စတုရန်း) ကို နှိပ်ပြီး "Add to Home Screen" ကို နှိပ်ပါ။',
     enterApp: 'အက်ပ်သို့ဝင်ရန်',
     title: 'လူတိုင်းအတွက် ဆီအချက်အလက်ပွင့်လင်းမြင်သာမှု',
     subtitle: 'FuelBot သည် ဘယ်ဆိုင်မှာ ဘယ်ဆီရှိသလဲကို အချိန်နှင့်တပြေးညီပြသပြီး ဆိုင်များကို onboard လုပ်ပေးသူများကို ဆုချီးမြှင့်သည်။',

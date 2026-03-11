@@ -14,6 +14,10 @@ export default {
   },
   landing: {
     toggleLanguage: 'Toggle language',
+    installApp: 'Install app',
+    installAppAria: 'Install FuelBot app',
+    installIOSTitle: 'Add FuelBot to Home Screen',
+    installIOSSteps: 'Tap the Share button (square with arrow) at the bottom of Safari, then tap "Add to Home Screen".',
     enterApp: 'Enter app',
     title: 'Fuel transparency for everyone',
     subtitle: 'FuelBot helps people see where fuel is available in real time, and rewards people who bring stations onboard.',

@@ -21,3 +21,9 @@ declare module '*.css' {
   const content: string
   export default content
 }
+
+/** PWA install prompt (Chrome/Edge/Android); not fired on iOS Safari */
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}

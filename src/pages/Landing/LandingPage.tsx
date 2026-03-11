@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Globe, Users, Store, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { usePWAInstall } from '@/hooks/usePWAInstall'
 import { SUBSCRIPTION_TIERS, formatMmk } from '@/lib/subscriptionTiers'
 import { supabase } from '@/lib/supabase'
 
@@ -19,10 +20,21 @@ export function LandingPage() {
   const navigate = useNavigate()
   const lang = i18n.language === 'my' ? 'my' : 'en'
   const [recognitions, setRecognitions] = useState<RecognitionStation[]>([])
+  const [showIOSInstallModal, setShowIOSInstallModal] = useState(false)
+  const { showInstallUI, canInstall, isIOS, isPrompting, prompt } = usePWAInstall()
 
   useEffect(() => {
     void loadRecognitions()
   }, [])
+
+  useEffect(() => {
+    if (!showIOSInstallModal) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setShowIOSInstallModal(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [showIOSInstallModal])
 
   async function loadRecognitions() {
     const { data } = await supabase
@@ -42,6 +54,14 @@ export function LandingPage() {
     localStorage.setItem('fuelbot_lang', next)
   }
 
+  async function handleInstallClick() {
+    if (canInstall) {
+      await prompt()
+    } else if (isIOS) {
+      setShowIOSInstallModal(true)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur">
@@ -54,6 +74,18 @@ export function LandingPage() {
             <span className="text-base font-bold text-gray-900">{t('app.name')}</span>
           </button>
           <div className="flex items-center gap-2">
+            {showInstallUI && (
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                disabled={isPrompting}
+                className="flex min-h-[44px] min-w-[44px] flex-shrink-0 items-center justify-center rounded-xl active:bg-gray-100 disabled:opacity-60 disabled:pointer-events-none"
+                aria-label={t('landing.installAppAria')}
+                title={t('landing.installApp')}
+              >
+                <img src="/FuelbotLogo.png" alt="" className="h-7 w-7" />
+              </button>
+            )}
             <button
               onClick={toggleLang}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-sm font-semibold text-gray-700 active:bg-gray-100"
@@ -203,6 +235,30 @@ export function LandingPage() {
           )}
         </section>
       </main>
+
+      {showIOSInstallModal && (
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ios-install-title"
+          onClick={() => setShowIOSInstallModal(false)}
+        >
+          <div
+            className="max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="ios-install-title" className="text-lg font-semibold text-gray-900">
+              {t('landing.installIOSTitle')}
+            </h2>
+            <p className="mt-2 text-sm text-gray-700">{t('landing.installIOSSteps')}</p>
+            <Button className="mt-4 w-full" onClick={() => setShowIOSInstallModal(false)}>
+              {t('common.close')}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <footer className="border-t border-gray-200 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-4">
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-gray-700">

@@ -44,35 +44,83 @@ export const useLocationStore = create<LocationState>((set) => ({
   },
 
   requestLocation: (options?: { highAccuracy?: boolean }) => {
-    if (!navigator.geolocation) {
-      set({ error: 'Geolocation not supported', loading: false, permissionChecked: true })
-      return
-    }
     set({ loading: true, error: null })
     const highAccuracy = options?.highAccuracy ?? false
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
+
+    const fetchIpLocationFallback = async (originalErrorMsg: string) => {
+      try {
+        console.warn(`HTML5 Geolocation failed (${originalErrorMsg}). Using IP-based fallback...`)
+        const response = await fetch('https://get.geojs.io/v1/ip/geo.json')
+        if (!response.ok) throw new Error('IP Geolocation failed')
+        const data = await response.json()
+
+        if (data.latitude && data.longitude) {
+          set({
+            lat: parseFloat(data.latitude),
+            lng: parseFloat(data.longitude),
+            loading: false,
+            error: null,
+          })
+        } else {
+          throw new Error('Invalid IP location data')
+        }
+      } catch (err) {
+        // If IP fallback also fails, return the original HTML5 error as it is more relevant
         set({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
+          error: originalErrorMsg,
           loading: false,
-          error: null,
         })
-      },
+      }
+    }
+
+    if (!navigator.geolocation) {
+      set({ permissionChecked: true })
+      void fetchIpLocationFallback('Geolocation not supported')
+      return
+    }
+
+    const handleSuccess = (pos: GeolocationPosition) => {
+      set({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        loading: false,
+        error: null,
+      })
+    }
+
+    const getErrorMessage = (err: GeolocationPositionError) => {
+      return err.code === 1
+        ? 'PERMISSION_DENIED'
+        : err.code === 2
+          ? 'POSITION_UNAVAILABLE'
+          : err.code === 3
+            ? 'TIMEOUT'
+            : err.message
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      handleSuccess,
       (err) => {
-        const message =
-          err.code === 1
-            ? 'PERMISSION_DENIED'
-            : err.code === 2
-              ? 'POSITION_UNAVAILABLE'
-              : err.code === 3
-                ? 'TIMEOUT'
-                : err.message
-        set({ error: message, loading: false })
+        if (highAccuracy && (err.code === 2 || err.code === 3)) {
+          console.warn('High accuracy geolocation failed, falling back to low accuracy...')
+          navigator.geolocation.getCurrentPosition(
+            handleSuccess,
+            (fallbackErr) => {
+              void fetchIpLocationFallback(getErrorMessage(fallbackErr))
+            },
+            {
+              enableHighAccuracy: false,
+              timeout: 10000, // Reduced timeout so IP fallback triggers faster
+              maximumAge: 60000,
+            },
+          )
+        } else {
+          void fetchIpLocationFallback(getErrorMessage(err))
+        }
       },
       {
         enableHighAccuracy: highAccuracy,
-        timeout: 20000,
+        timeout: 10000, // Shorter timeout for the first attempt to fail fast and fallback
         maximumAge: highAccuracy ? 0 : 60000,
       },
     )
