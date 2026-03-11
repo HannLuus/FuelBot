@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { haversineDistanceMetres, isStationVisible } from '@/lib/fuelUtils'
@@ -111,7 +111,11 @@ export function useNearbyStations({
     void fetchStations()
   }, [fetchStations])
 
-  // Realtime subscription only when logged in (avoids WebSocket connection for anon users and reduces console errors when Realtime is blocked)
+  // Keep latest fetchStations in a ref so Realtime callback always refreshes with current params without recreating the channel
+  const fetchStationsRef = useRef(fetchStations)
+  fetchStationsRef.current = fetchStations
+
+  // Realtime subscription only when logged in. Single channel per user session to avoid multiple WebSocket connections and console errors.
   const user = useAuthStore((s) => s.user)
   useEffect(() => {
     if (!user) return
@@ -120,9 +124,9 @@ export function useNearbyStations({
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'station_current_status' },
-        () => void fetchStations(),
+        () => void fetchStationsRef.current(),
       )
-      .subscribe((status, _err) => {
+      .subscribe((status) => {
         if (status === 'CHANNEL_ERROR' && channel) {
           void supabase.removeChannel(channel)
         }
@@ -131,7 +135,7 @@ export function useNearbyStations({
     return () => {
       void supabase.removeChannel(channel)
     }
-  }, [user, fetchStations])
+  }, [user])
 
   return { stations, loading, error, refresh: fetchStations }
 }
