@@ -7,7 +7,7 @@ import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useMapStyleStore, type MapStyle } from '@/stores/mapStyleStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
-import { STATUS_DOT_COLORS, worstStatusForFuels } from '@/lib/fuelUtils'
+import { STATUS_DOT_COLORS, worstStatusForFuels, isStationVerified } from '@/lib/fuelUtils'
 import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { getBrandInitial, getBrandLogoUrl } from '@/lib/brandLogos'
 import type { StationWithStatus } from '@/types'
@@ -46,9 +46,9 @@ function makeMarkerIcon(color: string, unverified = false): L.DivIcon {
       className: '',
       html: `<div style="
         width:${MARKER_SIZE}px; height:${MARKER_SIZE}px; border-radius:50%;
-        background:${color}; border:2px dashed rgba(255,255,255,0.9);
-        opacity:0.75; box-shadow:0 1px 4px rgba(0,0,0,0.3);
-      "></div>`,
+        background:${color}; border:3px dashed rgba(100,100,100,0.9);
+        opacity:0.7; box-shadow:0 1px 4px rgba(0,0,0,0.3);
+      " title="Unverified"></div>`,
       iconSize: [MARKER_SIZE, MARKER_SIZE],
       iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
     })
@@ -57,9 +57,9 @@ function makeMarkerIcon(color: string, unverified = false): L.DivIcon {
     className: '',
     html: `<div style="
       width:${MARKER_SIZE}px; height:${MARKER_SIZE}px; border-radius:50%;
-      background:${color}; border:2.5px solid white;
+      background:${color}; border:3px solid white;
       box-shadow:0 2px 6px rgba(0,0,0,0.4);
-    "></div>`,
+    " title="Verified"></div>`,
     iconSize: [MARKER_SIZE, MARKER_SIZE],
     iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
   })
@@ -71,7 +71,19 @@ function escapeHtml(s: string): string {
   return div.innerHTML
 }
 
-function buildStationTooltip(station: StationWithStatus, locationNotVerifiedLabel?: string): string {
+function getVerificationSourceKey(
+  source: string | null | undefined,
+): 'verifiedDistributor' | 'verifiedCrowd' | 'verifiedOwner' | 'verified' {
+  if (source === 'distributor') return 'verifiedDistributor'
+  if (source === 'crowd') return 'verifiedCrowd'
+  if (source === 'owner') return 'verifiedOwner'
+  return 'verified'
+}
+
+function buildStationTooltip(
+  station: StationWithStatus,
+  t: (key: string) => string,
+): string {
   const name = escapeHtml(station.name)
   const brand = station.brand?.trim()
   const logoUrl = brand ? getBrandLogoUrl(brand) : null
@@ -83,14 +95,15 @@ function buildStationTooltip(station: StationWithStatus, locationNotVerifiedLabe
       : brandLabel
         ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e5e7eb;color:#374151;font-size:12px;font-weight:600;">${escapeHtml(initial)}</span> <span style="margin-left:4px;">${brandLabel}</span>`
         : ''
-  const unverifiedLine =
-    !station.is_verified && locationNotVerifiedLabel
-      ? `<div style="margin-top:4px;font-size:11px;color:#b45309;">${escapeHtml(locationNotVerifiedLabel)}</div>`
-      : ''
+  const src = station.verification_source ?? station.verificationSource ?? ''
+  const verified = isStationVerified(station)
+  const statusLine = verified
+    ? `<div style="margin-top:4px;font-size:11px;color:#15803d;font-weight:600;">${escapeHtml(t(`station.${getVerificationSourceKey(typeof src === 'string' ? src : '')}`))}</div>`
+    : `<div style="margin-top:4px;font-size:11px;color:#b45309;">${escapeHtml(t('station.stationNotVerified'))}</div>`
   return `<div style="padding:2px 0;min-width:80px;text-align:left;">
     <div style="font-weight:600;font-size:13px;">${name}</div>
     ${brandBlock ? `<div style="display:flex;align-items:center;margin-top:4px;font-size:12px;color:#6b7280;">${brandBlock}</div>` : ''}
-    ${unverifiedLine}
+    ${statusLine}
   </div>`
 }
 
@@ -118,7 +131,7 @@ export function MapPage() {
     statusFilter: filters.statusFilter,
   })
 
-  const filteredStations = filters.verifiedOnly ? stations.filter((s) => s.is_verified) : stations
+  const filteredStations = filters.verifiedOnly ? stations.filter(isStationVerified) : stations
 
   // Initialise Leaflet map once
   useEffect(() => {
@@ -197,17 +210,17 @@ export function MapPage() {
     markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
 
-    const locationNotVerifiedLabel = t('station.locationNotVerified')
     filteredStations.forEach((station: StationWithStatus) => {
       const fs = station.current_status?.fuel_statuses_computed ?? {}
       const worst = worstStatusForFuels(fs, filters.fuelTypes)
       const color = STATUS_HEX[worst] ?? STATUS_HEX.UNKNOWN
-      const icon = makeMarkerIcon(color, !station.is_verified)
+      const unverified = !isStationVerified(station)
+      const icon = makeMarkerIcon(color, unverified)
 
       const marker = L.marker([station.lat, station.lng], { icon })
         .addTo(mapRef.current!)
         .bindPopup(station.name)
-        .bindTooltip(buildStationTooltip(station, locationNotVerifiedLabel), {
+        .bindTooltip(buildStationTooltip(station, t), {
           direction: 'top',
           permanent: false,
           sticky: true,

@@ -66,7 +66,28 @@ npm run import-verified-stations  # imports into Supabase
 | **Nilar** | 1 | [myanmaryp.com](https://www.myanmaryp.com) — Mandalay (89th St, Thiri Mingalar). |
 | **Myawaddy Trading** | 1 | [myawaddytrade.com](https://www.myawaddytrade.com) — Strand Rd, Seikkan Township, Yangon. |
 
-**Map rule:** We only show a station on the map when we have **physical coordinates**. We do not invent or approximate. We use **Google Maps only** for geocoding: that is where fuel stations (Denko, BOC, Max, etc.) are already on the map; other maps have fewer stations. Take each address → look it up on Google Maps → if the station/address is there, use those coordinates. If it is not on Google Maps, leave lat/lng empty (address-only, not on map). "Verified" means: from an official list **and** coordinates from a real Google lookup, not "we know the town so we spread a pin."
+**What “verified” means in the app**
+
+A station is **verified** only when it has a concrete verification source (stored in `stations.verification_source`):
+
+| Value | Meaning |
+|-------|--------|
+| **distributor** | From an official list (Max, Denko, BOC, etc.) — website or FB — imported via `verified-stations.csv`. |
+| **crowd** | Location was corrected by the crowd: ≥10 “wrong location” reports with suggested coordinates were applied (median). |
+| **owner** | Claimed by the station owner and payment approved by admin (`is_verified` true). |
+
+Stations with **no** `verification_source` (and not owner-approved) are **unverified**. In the app they are shown with a **grey/dashed** pin and the tooltip “Station not verified”. They are not hidden: users can still see and report them, but the “Verified only” filter shows only stations that have one of the three sources above. We do **not** treat a station as verified just because it exists in the DB. Unverified stations older than **3 months** are hidden from the map and list until they get a verification source.
+
+**Map rule:** We only show a station on the map when we have **physical coordinates**. We do not invent or approximate. We use **Google Maps only** for geocoding: that is where fuel stations (Denko, BOC, Max, etc.) are already on the map; other maps have fewer stations. Take each address → look it up on Google Maps → if the station/address is there, use those coordinates. If it is not on Google Maps, leave lat/lng empty (address-only, not on map). For **distributor** verification we require: from an official list **and** coordinates from a real Google lookup, not "we know the town so we spread a pin."
+
+**If the live map shows every station as “not verified” (including Max, Denko):**  
+The app reads `verification_source` from the **same Supabase project** the frontend uses (e.g. `VITE_SUPABASE_URL` on Vercel). You must:
+
+1. **Run migrations** on that project: `supabase link` (if needed) then `supabase db push`, so the `stations.verification_source` column and the updated `get_nearby_stations` RPC exist.
+2. **Set verification on distributor stations**: run `IMPORT_CSV=verified-stations.csv npm run import-stations` against that project (same `VITE_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` in `.env`).
+3. **Redeploy** the app (e.g. Vercel) so the latest map and tooltip code is live.
+
+Until the **live** Supabase has the column, RPC, and data, the API returns no `verification_source` and the map correctly shows “Station not verified” for all.
 
 **Pipeline:**
 1. `npm run build-verified-stations` — builds CSV with name, address, township, city (no coordinates).
@@ -81,11 +102,11 @@ npm run import-verified-stations  # imports into Supabase
 2. **SPC / Shwe Taung Energy:** Add more SPC-branded stations as locations are published (Sagaing, Mandalay, Naypyidaw were planned).
 3. **PTT:** Add remaining PTT Myanmar stations when a store locator or list is available.
 4. **KZH / Nilar Yoma / Myawaddy Trading:** Add more branches as directories or official lists are found.
-5. **Geocoding:** Run geocoding on `address_text` for all rows and re-import so pins are accurate; consider a `data_source` or `is_verified_location` column in the DB.
-3. **DB hygiene:**  
+5. **Geocoding:** Run geocoding on `address_text` for all rows and re-import so pins are accurate.
+6. **DB hygiene:**  
    - Do not re-activate stations in impossible locations (e.g. inside Mandalay Palace).  
-   - Optionally add a `data_source` or `is_verified_location` column so we can filter or badge “verified by distributor”.
-4. **App:** Keep “Verified only” filter and “Report wrong location”; consider a “Verified by [brand]” or “From distributor list” badge for these stations.
+   - **Duplicate names and inconsistent brand:** If the same station name appears multiple times with different `brand` (e.g. NULL, "Unknown", "MPE", "Local"), that often indicates duplicates or low-quality data. Prefer deduplication by (name, township, city) or merging rows and setting `brand` from the distributor list where possible; consider hiding or greying stations that have no verification source and conflicting brand info.
+7. **App:** “Verified only” filter and “Report wrong location” are implemented; unverified stations are shown grey (dashed pin + “Station not verified” tooltip).
 
 ---
 

@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
 
       const { error: updateStationErr } = await service
         .from('stations')
-        .update({ lat: medianLat, lng: medianLng })
+        .update({ lat: medianLat, lng: medianLng, verification_source: 'crowd' })
         .eq('id', station_id)
 
       if (!updateStationErr) {

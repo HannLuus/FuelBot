@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
-import { haversineDistanceMetres } from '@/lib/fuelUtils'
+import { haversineDistanceMetres, isStationVisible } from '@/lib/fuelUtils'
 import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import type { StationWithStatus, FuelCode, StatusFilter } from '@/types'
 
@@ -192,6 +192,7 @@ export async function fetchStationsFallback(
   if (error) throw error
 
   return ((data ?? []) as StationWithStatus[])
+    .filter(isStationVisible)
     .map((s) => ({
       ...s,
       distance_m: haversineDistanceMetres(lat, lng, s.lat, s.lng),

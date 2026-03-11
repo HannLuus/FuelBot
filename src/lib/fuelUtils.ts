@@ -130,3 +130,26 @@ export function haversineDistanceMetres(
       Math.sin(dLng / 2) ** 2
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
+
+/** True if station is verified by distributor list, crowd (10 reports), or owner (claim+pay). Unverified stations are shown grey. */
+export function isStationVerified(s: {
+  is_verified?: boolean
+  verification_source?: string | null
+  verificationSource?: string | null
+}): boolean {
+  const src = s.verification_source ?? s.verificationSource ?? ''
+  return Boolean(s.is_verified || (typeof src === 'string' && src !== ''))
+}
+
+const THREE_MONTHS_MS = 3 * 30 * 24 * 60 * 60 * 1000
+
+/** True if station should be shown on map/list: verified OR created within last 3 months. */
+export function isStationVisible(s: {
+  is_verified?: boolean
+  verification_source?: string | null
+  created_at?: string | null
+}): boolean {
+  if (isStationVerified(s)) return true
+  const created = s.created_at ? new Date(s.created_at).getTime() : 0
+  return created > Date.now() - THREE_MONTHS_MS
+}

@@ -51,6 +51,10 @@ export interface Station {
   country_code: string
   is_verified: boolean
   verified_owner_id: string | null
+  /** distributor = official list; crowd = 10 location reports; owner = claim+pay. Null = unverified (show grey). */
+  verification_source?: 'distributor' | 'crowd' | 'owner' | null
+  /** CamelCase alias from some API responses; use verification_source ?? verificationSource. */
+  verificationSource?: 'distributor' | 'crowd' | 'owner' | null
   subscription_tier_requested?: SubscriptionTierRequested | null
   payment_received_at?: string | null
   payment_reported_at?: string | null

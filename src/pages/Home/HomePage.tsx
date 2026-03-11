@@ -5,6 +5,7 @@ import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
 import { WHOLE_COUNTRY_KM } from '@/lib/constants'
+import { isStationVerified } from '@/lib/fuelUtils'
 import { StationCard } from '@/components/station/StationCard'
 import { FilterBar } from '@/components/station/FilterBar'
 import { Spinner } from '@/components/ui/Spinner'
@@ -57,7 +58,7 @@ export function HomePage() {
     statusFilter: filters.statusFilter,
   })
 
-  const filteredStations = filters.verifiedOnly ? stations.filter((s) => s.is_verified) : stations
+  const filteredStations = filters.verifiedOnly ? stations.filter(isStationVerified) : stations
   const showLocationBanner = !!locError && !locLoading
   const showUseMyLocationCta =
     permissionChecked && lat === null && !locLoading && !locError

@@ -176,19 +176,16 @@ async function main() {
       const matchKey = `${row.name}|${(row.township || '').trim()}|${(row.city || '').trim()}`
       const existing = existingByMatch.get(matchKey)
       if (existing) {
-        const hasLoc =
-          row.lat != null && row.lng != null && Number.isFinite(row.lat) && Number.isFinite(row.lng)
-        const location =
-          hasLoc ? { type: 'Point', coordinates: [Number(row.lng), Number(row.lat)] } : null
+        // Do not set location: DB only allows DEFAULT; trigger updates it from lat/lng.
         const { error } = await supabase
           .from('stations')
           .update({
             lat: row.lat,
             lng: row.lng,
-            location,
             address_text: row.address_text,
             brand: row.brand,
             country_code: row.country_code,
+            verification_source: 'distributor',
           })
           .eq('id', existing.id)
         if (error) {
@@ -199,7 +196,7 @@ async function main() {
         }
         continue
       }
-      if (!existingByKey.has(rowKey(row))) toInsert.push(row)
+      if (!existingByKey.has(rowKey(row))) toInsert.push({ ...row, verification_source: 'distributor' })
     }
     if (updated) console.log(`Updated (name+township+city): ${updated}.`)
   } else {
