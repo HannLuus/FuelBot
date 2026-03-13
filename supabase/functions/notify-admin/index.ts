@@ -26,15 +26,17 @@ Deno.serve(async (req) => {
     return json({ error: 'Invalid JSON' }, 400)
   }
 
-  const adminEmail =
-    Deno.env.get('ADMIN_NOTIFICATION_EMAIL') ??
-    Deno.env.get('ADMIN_EMAIL') ??
-    'best.iptvmm@gmail.com'
+  const adminEmail = Deno.env.get('ADMIN_NOTIFICATION_EMAIL') ?? Deno.env.get('ADMIN_EMAIL')
   const resendKey = Deno.env.get('RESEND_API_KEY')
   const appUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app/admin'
 
   if (!resendKey) {
     console.warn('notify-admin skipped: RESEND_API_KEY missing')
+    return json({ success: true, skipped: true })
+  }
+
+  if (!adminEmail) {
+    console.error('notify-admin skipped: ADMIN_NOTIFICATION_EMAIL is not configured')
     return json({ success: true, skipped: true })
   }
 

@@ -87,6 +87,20 @@ Deno.serve(async (req) => {
     referrerUserId = resolved.user_id
   }
 
+  // Guard against spam registrations: cap pending (unpaid) stations per user at 3
+  const { count: pendingCount } = await supabase
+    .from('stations')
+    .select('id', { count: 'exact', head: true })
+    .eq('verified_owner_id', user.id)
+    .is('payment_received_at', null)
+
+  if ((pendingCount ?? 0) >= 3) {
+    return json(
+      { error: 'You already have 3 pending registrations. Please wait for approval before submitting another.' },
+      429,
+    )
+  }
+
   const { data: station, error: insertErr } = await supabase
     .from('stations')
     .insert({

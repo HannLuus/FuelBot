@@ -110,15 +110,27 @@ Deno.serve(async (req) => {
   if (!hasPayingOwner && hasLat && hasLng) {
     const { data: unapplied } = await service
       .from('station_location_reports')
-      .select('id, suggested_lat, suggested_lng')
+      .select('id, suggested_lat, suggested_lng, reported_by_user_id')
       .eq('station_id', station_id)
       .not('suggested_lat', 'is', null)
       .not('suggested_lng', 'is', null)
       .is('applied_at', null)
 
-    if (unapplied && unapplied.length >= CROWD_THRESHOLD) {
-      const lats = unapplied.map((r) => r.suggested_lat as number)
-      const lngs = unapplied.map((r) => r.suggested_lng as number)
+    // Deduplicate by authenticated reporter — one vote per real user.
+    // Anonymous reports (null user id) are intentionally excluded from the auto-update
+    // threshold: they cannot be verified and a single actor could trivially create many
+    // anonymous sessions to push a station to a false location.
+    const seenUsers = new Set<string>()
+    const deduped = (unapplied ?? []).filter((r) => {
+      if (!r.reported_by_user_id) return false
+      if (seenUsers.has(r.reported_by_user_id)) return false
+      seenUsers.add(r.reported_by_user_id)
+      return true
+    })
+
+    if (deduped.length >= CROWD_THRESHOLD) {
+      const lats = deduped.map((r) => r.suggested_lat as number)
+      const lngs = deduped.map((r) => r.suggested_lng as number)
       const medianLat = median(lats)
       const medianLng = median(lngs)
 
@@ -128,7 +140,7 @@ Deno.serve(async (req) => {
         .eq('id', station_id)
 
       if (!updateStationErr) {
-        const ids = unapplied.map((r) => r.id)
+        const ids = deduped.map((r) => r.id)
         await service
           .from('station_location_reports')
           .update({ applied_at: new Date().toISOString() })

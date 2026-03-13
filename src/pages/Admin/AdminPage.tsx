@@ -8,6 +8,60 @@ import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
 
+/** Returns true only for HTTPS URLs hosted on our Supabase project's storage domain.
+ *  Prevents user-supplied arbitrary URLs (javascript:, data:, phishing links) from
+ *  being rendered as clickable links in the admin panel. */
+function isTrustedStorageUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return (
+      parsed.protocol === 'https:' &&
+      parsed.hostname.endsWith('.supabase.co') &&
+      parsed.pathname.startsWith('/storage/')
+    )
+  } catch {
+    return false
+  }
+}
+
+/** Renders a button that generates a short-lived signed URL before opening a storage file.
+ *  Validates the path prefix to prevent user-supplied arbitrary URLs being opened as links. */
+function StorageFileButton({ bucket, path, label }: { bucket: string; path: string; label: string }) {
+  const [loading, setLoading] = useState(false)
+
+  const validPrefix = `${bucket}/`
+  const storagePath = path.startsWith(validPrefix) ? path.slice(validPrefix.length) : path
+
+  // Reject paths that don't look like storage object paths (no protocol, no special chars)
+  const isSafeStoragePath = /^[a-zA-Z0-9_\-/.]+$/.test(storagePath) && !path.includes(':')
+
+  if (!isSafeStoragePath) return null
+
+  const handleClick = async () => {
+    setLoading(true)
+    try {
+      const { data } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(storagePath, 300)
+      if (data?.signedUrl) window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={loading}
+      onClick={() => void handleClick()}
+      className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600 underline disabled:opacity-50"
+    >
+      <Camera className="h-3.5 w-3.5" />
+      {loading ? 'Opening…' : label}
+    </button>
+  )
+}
+
 type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards' | 'suggestions' | 'b2b'
 
 interface StationSuggestion {
@@ -600,8 +654,8 @@ export function AdminPage() {
                     <div className="mt-3">
                       <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.stationPhotos')}</p>
                       <div className="flex flex-wrap gap-2">
-                        {(station.station_photo_urls ?? []).map((url) => (
-                          <a key={url} href={url} target="_blank" rel="noreferrer">
+                        {(station.station_photo_urls ?? []).filter(isTrustedStorageUrl).map((url) => (
+                          <a key={url} href={url} target="_blank" rel="noreferrer noopener">
                             <img src={url} alt="Station" className="h-16 w-16 rounded border border-gray-200 object-cover" />
                           </a>
                         ))}
@@ -612,11 +666,13 @@ export function AdminPage() {
                     </div>
                     <div className="mt-2">
                       <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.locationPhoto')}</p>
-                      {station.location_photo_url ? (
-                        <a href={station.location_photo_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 underline">
+                      {station.location_photo_url && isTrustedStorageUrl(station.location_photo_url) ? (
+                        <a href={station.location_photo_url} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-xs text-blue-600 underline">
                           <Camera className="h-3.5 w-3.5" />
                           View location photo
                         </a>
+                      ) : station.location_photo_url ? (
+                        <p className="text-xs text-red-700">Invalid photo URL.</p>
                       ) : (
                         <p className="text-xs text-amber-700">No location photo uploaded.</p>
                       )}
@@ -1068,15 +1124,11 @@ export function AdminPage() {
                     <p className="text-xs text-gray-700">Reference: {sub.payment_reference}</p>
                   )}
                   {sub.screenshot_path && (
-                    <a
-                      href={sub.screenshot_path}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600 underline"
-                    >
-                      <Camera className="h-3.5 w-3.5" />
-                      View payment screenshot
-                    </a>
+                    <StorageFileButton
+                      bucket="b2b-payment-screenshots"
+                      path={sub.screenshot_path}
+                      label="View payment screenshot"
+                    />
                   )}
                   <p className="mt-1 text-xs text-gray-700">
                     Submitted: {new Date(sub.created_at).toLocaleDateString()}
