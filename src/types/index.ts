@@ -42,6 +42,16 @@ export interface FuelType {
 export interface Station {
   id: string
   name: string
+  /** ASCII-friendly name for emails and exports (from scraper). */
+  name_for_emails?: string | null
+  /** Contact phone (from trusted source). */
+  phone?: string | null
+  /** Station or brand website. */
+  website?: string | null
+  /** Opening hours JSON e.g. {"Monday": ["4AM-9PM"], ...}. */
+  working_hours?: Record<string, string[]> | null
+  /** Business/chain name from source (e.g. DENKO, Max Energy). */
+  owner_title?: string | null
   brand: string | null
   lat: number
   lng: number
