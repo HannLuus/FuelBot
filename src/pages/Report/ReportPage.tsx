@@ -8,7 +8,6 @@ import { FUEL_CODES, FUEL_DISPLAY, QUEUE_LABEL } from '@/lib/fuelUtils'
 import { getDeviceHash } from '@/lib/deviceHash'
 import { supabase } from '@/lib/supabase'
 import { useLocationStore } from '@/stores/locationStore'
-import { useAuthStore } from '@/stores/authStore'
 import type { FuelCode, FuelStatus, QueueBucket, FuelStatuses } from '@/types'
 
 type FuelStatusChoice = FuelStatus | 'SKIP'
@@ -28,7 +27,6 @@ export function ReportPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
   const { lat, lng, requestLocation } = useLocationStore()
-  const { user } = useAuthStore()
 
   const locationReady = lat != null && lng != null
 
