@@ -195,7 +195,6 @@ async function main() {
     const city = emptyToNull(col(row, 'city')) || ''
     const street = emptyToNull(col(row, 'street'))
     const township = street || ''
-    const verified = parseBool(col(row, 'verified'))
     const workingHours = parseWorkingHoursJson(col(row, 'working_hours'))
     inserts.push({
       id: randomUUID(),
@@ -212,7 +211,7 @@ async function main() {
       township,
       city,
       country_code: 'MM',
-      is_verified: verified,
+      is_verified: false,
       verification_source: 'distributor',
       is_active: true,
       created_at: now,

@@ -153,7 +153,7 @@ export default {
   },
   station: {
     verified: 'အတည်ပြုသည်',
-    verifiedDistributor: 'အတည်ပြုသည် (ဖြန့်ဖြူးသူစာရင်းမှ)',
+    verifiedDistributor: 'Google မှ အတည်ပြုသည်',
     verifiedCrowd: 'အတည်ပြုသည် (လူထုအတည်ပြု)',
     verifiedOwner: 'အတည်ပြုသည် (ပိုင်ရှင်ယူထား)',
     verifiedOwnerClaimed: 'အတည်ပြုထားပြီး — ဆိုင်ပိုင်ရှင်က ယူထားသည်',

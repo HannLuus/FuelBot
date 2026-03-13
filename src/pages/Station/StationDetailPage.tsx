@@ -174,12 +174,22 @@ export function StationDetailPage() {
         <div className="min-w-0 flex-1 py-2">
           <div className="flex flex-wrap items-center gap-1.5">
             <h1 className="truncate text-base font-bold text-gray-900">{station.name}</h1>
-            {station.is_verified && (
+            {station.is_verified ? (
               <Badge variant="verified">
                 <CheckCircle className="mr-0.5 h-3 w-3" />
                 {t('station.verifiedOwnerClaimed')}
               </Badge>
-            )}
+            ) : station.verification_source === 'distributor' ? (
+              <Badge variant="verified">
+                <CheckCircle className="mr-0.5 h-3 w-3" />
+                {t('station.verifiedDistributor')}
+              </Badge>
+            ) : station.verification_source === 'crowd' ? (
+              <Badge variant="verified">
+                <CheckCircle className="mr-0.5 h-3 w-3" />
+                {t('station.verifiedCrowd')}
+              </Badge>
+            ) : null}
             {reliability && (reliability.reports_last_7d >= 3 || reliability.reports_last_30d >= 7) && (
               <Badge variant="default" className="gap-0.5">
                 <TrendingUp className="h-3 w-3" />

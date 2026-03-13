@@ -41,12 +41,22 @@ export function StationCard({ station }: StationCardProps) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-base font-bold text-gray-900 leading-tight">{station.name}</span>
-            {station.is_verified && (
+            {station.is_verified ? (
               <Badge variant="verified">
                 <CheckCircle className="mr-0.5 h-3 w-3" />
                 {t('station.verifiedOwnerClaimed')}
               </Badge>
-            )}
+            ) : station.verification_source === 'distributor' ? (
+              <Badge variant="verified">
+                <CheckCircle className="mr-0.5 h-3 w-3" />
+                {t('station.verifiedDistributor')}
+              </Badge>
+            ) : station.verification_source === 'crowd' ? (
+              <Badge variant="verified">
+                <CheckCircle className="mr-0.5 h-3 w-3" />
+                {t('station.verifiedCrowd')}
+              </Badge>
+            ) : null}
             {isStale && !hasNoData && (
               <Badge variant="stale">{t('station.stale')}</Badge>
             )}

@@ -153,7 +153,7 @@ export default {
   },
   station: {
     verified: 'Verified',
-    verifiedDistributor: 'Verified (from distributor list)',
+    verifiedDistributor: 'Verified on Google',
     verifiedCrowd: 'Verified (location confirmed by crowd)',
     verifiedOwner: 'Verified (claimed by owner)',
     locationNotVerified: 'Location not verified',
