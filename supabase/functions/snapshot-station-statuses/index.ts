@@ -10,15 +10,12 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders() })
   }
 
-  // Require a pre-shared CRON_SECRET header to prevent unauthenticated snapshot spam.
-  // Set CRON_SECRET as a Supabase Edge Function secret and include it in your scheduler's
-  // x-cron-secret header. If the env var is unset the check is skipped (local dev only).
+  // Fail-closed: reject the request if CRON_SECRET is missing OR the header doesn't match.
+  // This prevents unauthenticated callers from flooding station_status_snapshots.
   const cronSecret = Deno.env.get('CRON_SECRET')
-  if (cronSecret) {
-    const provided = req.headers.get('x-cron-secret')
-    if (provided !== cronSecret) {
-      return json({ error: 'Forbidden' }, 403)
-    }
+  const provided = req.headers.get('x-cron-secret')
+  if (!cronSecret || provided !== cronSecret) {
+    return json({ error: 'Forbidden' }, 403)
   }
 
   const service = createClient(

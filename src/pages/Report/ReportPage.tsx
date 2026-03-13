@@ -76,7 +76,7 @@ export function ReportPage() {
           note: note.trim() || null,
           user_lat: lat,
           user_lng: lng,
-          user_id: user?.id ?? undefined,
+          // user_id intentionally omitted — server extracts identity from JWT only
         },
       })
 

@@ -87,6 +87,22 @@ Deno.serve(async (req) => {
     if (user) reported_by_user_id = user.id
   }
 
+  // Rate limit: one location report per authenticated user per station per 24 hours.
+  // Anonymous reporters are not rate-limited here (they cannot be deduplicated and their
+  // reports are already excluded from the crowd auto-update threshold).
+  if (reported_by_user_id) {
+    const oneDayAgo = new Date(Date.now() - 86400000).toISOString()
+    const { count: recentCount } = await service
+      .from('station_location_reports')
+      .select('id', { count: 'exact', head: true })
+      .eq('station_id', station_id)
+      .eq('reported_by_user_id', reported_by_user_id)
+      .gte('created_at', oneDayAgo)
+    if ((recentCount ?? 0) >= 1) {
+      return json({ error: 'RATE_LIMIT: You have already reported this station\'s location today' }, 429)
+    }
+  }
+
   const insertRow: Record<string, unknown> = {
     station_id,
     reported_by_user_id,

@@ -6,6 +6,7 @@ import { escapeHtml } from '../_shared/adminAuth.ts'
 
 const YANGON_LAT = 16.8661
 const YANGON_LNG = 96.1561
+const MYANMAR_BOUNDS = { latMin: 9.5, latMax: 28.5, lngMin: 92, lngMax: 101 }
 
 interface RegisterPayload {
   name: string
@@ -62,6 +63,14 @@ Deno.serve(async (req) => {
 
   const lat = body.lat ?? YANGON_LAT
   const lng = body.lng ?? YANGON_LNG
+
+  if (
+    lat < MYANMAR_BOUNDS.latMin || lat > MYANMAR_BOUNDS.latMax ||
+    lng < MYANMAR_BOUNDS.lngMin || lng > MYANMAR_BOUNDS.lngMax
+  ) {
+    return json({ error: 'Station coordinates must be within Myanmar' }, 400)
+  }
+
   const township = (body.township ?? '').trim() || '—'
   const city = (body.city ?? '').trim() || 'Yangon'
   const address_text = (body.address ?? '').trim() || null

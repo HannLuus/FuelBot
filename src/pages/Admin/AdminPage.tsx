@@ -341,26 +341,43 @@ export function AdminPage() {
   }
 
   async function deleteReport(id: string) {
-    await supabase.from('station_status_reports').delete().eq('id', id)
+    if (!window.confirm('Permanently delete this report? This cannot be undone.')) return
+    const { error: deleteErr } = await supabase.from('station_status_reports').delete().eq('id', id)
+    if (deleteErr) {
+      setError(`Failed to delete report: ${deleteErr.message}`)
+      return
+    }
     setFlagged((prev) => prev.filter((r) => r.id !== id))
   }
 
   async function approveClaim(id: string) {
     setWorkingId(id)
+    setError(null)
     const claim = claims.find((c) => c.id === id)
     if (!claim) {
       setWorkingId(null)
       return
     }
-    // Assign ownership only; station must complete tier/photos/payment and admin approves via Pending registrations
-    await supabase
+    // Assign ownership only; station must complete tier/photos/payment and admin approves via Pending registrations.
+    // The stations table now has an admin write RLS policy so this direct-client update works.
+    const { error: stationErr } = await supabase
       .from('stations')
       .update({ verified_owner_id: claim.user_id })
       .eq('id', claim.station_id)
-    await supabase
+    if (stationErr) {
+      setError(`Failed to assign station ownership: ${stationErr.message}`)
+      setWorkingId(null)
+      return
+    }
+    const { error: claimErr } = await supabase
       .from('station_claims')
       .update({ status: 'APPROVED', reviewed_at: new Date().toISOString() })
       .eq('id', id)
+    if (claimErr) {
+      setError(`Failed to update claim status: ${claimErr.message}`)
+      setWorkingId(null)
+      return
+    }
     setClaims((prev) => prev.filter((c) => c.id !== id))
     await loadAll()
     setWorkingId(null)

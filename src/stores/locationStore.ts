@@ -54,61 +54,49 @@ export const useLocationStore = create<LocationState>((set) => ({
     const highAccuracy = options?.highAccuracy ?? false
 
     const fetchIpLocationFallback = async (originalErrorMsg: string) => {
+      console.warn(`HTML5 Geolocation failed (${originalErrorMsg}). Using IP-based fallback...`)
+
+      const fetchAndValidate = async (fetcher: () => Promise<{ lat: number; lng: number }>) => {
+        const { lat, lng } = await fetcher()
+        if (isNaN(lat) || isNaN(lng)) throw new Error('Invalid coordinates')
+        return { lat, lng }
+      }
+
+      // Race all providers simultaneously — first valid response wins.
+      // This avoids the old sequential approach where 2–3 timeouts could mean 20–60s of waiting.
       try {
-        console.warn(`HTML5 Geolocation failed (${originalErrorMsg}). Using IP-based fallback...`)
-        
-        const fetchers = [
-          async () => {
+        const { lat, lng } = await Promise.any([
+          fetchAndValidate(async () => {
             const res = await fetch('https://ipapi.co/json/')
             const data = await res.json()
             return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          },
-          async () => {
+          }),
+          fetchAndValidate(async () => {
             const res = await fetch('https://ipinfo.io/json')
             const data = await res.json()
-            const [lat, lng] = data.loc.split(',')
-            return { lat: parseFloat(lat), lng: parseFloat(lng) }
-          },
-          async () => {
+            const [la, lo] = data.loc.split(',')
+            return { lat: parseFloat(la), lng: parseFloat(lo) }
+          }),
+          fetchAndValidate(async () => {
             const res = await fetch('https://ipwho.is/')
             const data = await res.json()
             return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          },
-          async () => {
+          }),
+          fetchAndValidate(async () => {
             const res = await fetch('https://freeipapi.com/api/json')
             const data = await res.json()
             return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          },
-          async () => {
+          }),
+          fetchAndValidate(async () => {
             const res = await fetch('https://get.geojs.io/v1/ip/geo.json')
             const data = await res.json()
             return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          }
-        ]
-
-        let success = false
-        for (const fetcher of fetchers) {
-          try {
-            const { lat, lng } = await fetcher()
-            if (!isNaN(lat) && !isNaN(lng)) {
-              set({ lat, lng, loading: false, error: null, usingIpFallback: true })
-              success = true
-              break
-            }
-          } catch (e) {
-            console.warn('IP fallback provider failed, trying next...')
-          }
-        }
-
-        if (!success) {
-          throw new Error('All IP location providers failed')
-        }
-      } catch (err) {
-        // If IP fallback also fails, return the original HTML5 error as it is more relevant
-        set({
-          error: originalErrorMsg,
-          loading: false,
-        })
+          }),
+        ])
+        set({ lat, lng, loading: false, error: null, usingIpFallback: true })
+      } catch {
+        // All providers failed — surface the original HTML5 error as it is more relevant
+        set({ error: originalErrorMsg, loading: false })
       }
     }
 

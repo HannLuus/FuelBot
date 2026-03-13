@@ -8,6 +8,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3'
 
+const PUSH_BATCH_SIZE = 100
+
 interface WebhookPayload {
   type: 'INSERT' | 'UPDATE' | 'DELETE'
   table: string
@@ -31,14 +33,12 @@ Deno.serve(async (req) => {
     })
   }
 
-  // Validate webhook secret if configured. Set SEND_FUEL_ALERTS_WEBHOOK_SECRET in Supabase
-  // Edge Function secrets and as the Authorization header value in the Database Webhook config.
+  // Fail-closed: reject the request if the secret is missing OR wrong.
+  // This prevents unauthenticated callers from triggering spam push notifications.
   const webhookSecret = Deno.env.get('SEND_FUEL_ALERTS_WEBHOOK_SECRET')
-  if (webhookSecret) {
-    const incoming = req.headers.get('Authorization')?.replace('Bearer ', '')
-    if (incoming !== webhookSecret) {
-      return new Response('Unauthorized', { status: 401 })
-    }
+  const incoming = req.headers.get('Authorization')?.replace('Bearer ', '')
+  if (!webhookSecret || incoming !== webhookSecret) {
+    return new Response('Unauthorized', { status: 401 })
   }
 
   const supabase = createClient(
@@ -78,23 +78,20 @@ Deno.serve(async (req) => {
     return new Response('OK – no followers')
   }
 
-  // Record alerts in alerts_log
-  const alertRows = followers.map((f: { user_id: string }) => ({
-    user_id: f.user_id,
-    station_id: stationId,
-    trigger: 'FUEL_BACK_IN_STOCK',
-    channel: 'PUSH',
-  }))
-
-  await supabase.from('alerts_log').insert(alertRows)
-
-  // Deliver Web Push to all subscriptions belonging to these followers
   const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY')
   const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY')
   const vapidSubject = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:admin@fuelbot.app'
 
   if (!vapidPublicKey || !vapidPrivateKey) {
     console.warn('send-fuel-alerts: VAPID keys not set, skipping push delivery')
+    // Still log the alert even if push is unconfigured
+    const alertRows = followers.map((f: { user_id: string }) => ({
+      user_id: f.user_id,
+      station_id: stationId,
+      trigger: 'FUEL_BACK_IN_STOCK',
+      channel: 'PUSH',
+    }))
+    await supabase.from('alerts_log').insert(alertRows)
     return new Response(
       JSON.stringify({ logged: followers.length, pushed: 0, fuels: fuelCodesBack }),
       { headers: { 'Content-Type': 'application/json' } },
@@ -109,7 +106,6 @@ Deno.serve(async (req) => {
     .select('endpoint, p256dh, auth')
     .in('user_id', followerIds)
 
-  let pushed = 0
   const stationPageUrl = `${Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'}/station/${stationId}`
   const pushPayload = JSON.stringify({
     title: 'Fuel back in stock!',
@@ -118,25 +114,41 @@ Deno.serve(async (req) => {
     icon: '/FuelbotLogo.png',
   })
 
-  await Promise.allSettled(
-    (subscriptions ?? []).map(async (sub: { endpoint: string; p256dh: string; auth: string }) => {
-      try {
-        await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          pushPayload,
-        )
-        pushed++
-      } catch (err: unknown) {
-        const status = (err as { statusCode?: number })?.statusCode
-        if (status === 404 || status === 410) {
-          // Subscription is no longer valid — clean it up
-          await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
-        } else {
-          console.error('Push delivery error:', err)
+  let pushed = 0
+  const allSubs = subscriptions ?? []
+
+  // Deliver in batches to avoid exhausting the Deno connection pool
+  for (let i = 0; i < allSubs.length; i += PUSH_BATCH_SIZE) {
+    const batch = allSubs.slice(i, i + PUSH_BATCH_SIZE)
+    await Promise.allSettled(
+      batch.map(async (sub: { endpoint: string; p256dh: string; auth: string }) => {
+        try {
+          await webpush.sendNotification(
+            { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+            pushPayload,
+          )
+          pushed++
+        } catch (err: unknown) {
+          const status = (err as { statusCode?: number })?.statusCode
+          if (status === 404 || status === 410) {
+            // Subscription is no longer valid — clean it up
+            await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
+          } else {
+            console.error('Push delivery error:', err)
+          }
         }
-      }
-    }),
-  )
+      }),
+    )
+  }
+
+  // Log alerts after delivery so the record reflects actual delivery attempt
+  const alertRows = followers.map((f: { user_id: string }) => ({
+    user_id: f.user_id,
+    station_id: stationId,
+    trigger: 'FUEL_BACK_IN_STOCK',
+    channel: 'PUSH',
+  }))
+  await supabase.from('alerts_log').insert(alertRows)
 
   return new Response(
     JSON.stringify({ logged: followers.length, pushed, fuels: fuelCodesBack }),

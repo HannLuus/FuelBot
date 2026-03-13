@@ -34,7 +34,11 @@ export function useNearbyStations({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Stale-fetch guard: each call increments the counter; only the most recent call writes state.
+  const fetchIdRef = useRef(0)
+
   const fetchStations = useCallback(async () => {
+    const thisFetchId = ++fetchIdRef.current
     setLoading(true)
     setError(null)
 
@@ -99,11 +103,15 @@ export function useNearbyStations({
       }
 
       results.sort((a, b) => (a.distance_m ?? 0) - (b.distance_m ?? 0))
+
+      // Discard result if a newer fetch has already started
+      if (thisFetchId !== fetchIdRef.current) return
       setStations(results)
     } catch (err) {
+      if (thisFetchId !== fetchIdRef.current) return
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
-      setLoading(false)
+      if (thisFetchId === fetchIdRef.current) setLoading(false)
     }
   }, [lat, lng, maxDistanceKm, selectedRouteId, fuelTypes, statusFilter])
 

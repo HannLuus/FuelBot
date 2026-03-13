@@ -3,8 +3,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const RATE_LIMIT_REPORTS_PER_HOUR = 3
 const ANON_DAILY_CAP = 3
 const MAX_DISTANCE_METRES = 1000
+const NOTE_MAX_LENGTH = 280
 // Myanmar is UTC+6:30
 const MYANMAR_OFFSET_MS = (6 * 60 + 30) * 60 * 1000
+
+const VALID_FUEL_CODES = new Set(['RON92', 'RON95', 'DIESEL', 'PREMIUM_DIESEL'])
+const VALID_STATUSES = new Set(['AVAILABLE', 'LIMITED', 'OUT', 'UNKNOWN'])
 
 interface ReportPayload {
   station_id: string
@@ -61,7 +65,31 @@ Deno.serve(async (req) => {
     return jsonError('Missing required fields', 400)
   }
 
-  // 2. Verify station exists
+  // 2. Validate and sanitize fuel_statuses — reject unknown fuel codes or status values
+  if (typeof fuel_statuses !== 'object' || Array.isArray(fuel_statuses)) {
+    return jsonError('fuel_statuses must be an object', 400)
+  }
+  const sanitizedStatuses: Record<string, string> = {}
+  for (const [code, status] of Object.entries(fuel_statuses)) {
+    if (!VALID_FUEL_CODES.has(code)) {
+      return jsonError(`Invalid fuel code: ${code}`, 400)
+    }
+    if (!VALID_STATUSES.has(String(status))) {
+      return jsonError(`Invalid fuel status for ${code}: ${status}`, 400)
+    }
+    sanitizedStatuses[code] = String(status)
+  }
+  if (Object.keys(sanitizedStatuses).length === 0) {
+    return jsonError('fuel_statuses must contain at least one fuel entry', 400)
+  }
+
+  // 3. Validate note length
+  const noteValue = note ? String(note).trim() : null
+  if (noteValue && noteValue.length > NOTE_MAX_LENGTH) {
+    return jsonError(`Note must be ${NOTE_MAX_LENGTH} characters or fewer`, 400)
+  }
+
+  // 4. Verify station exists
   const { data: station, error: stationErr } = await supabase
     .from('stations')
     .select('id, lat, lng, is_verified, verified_owner_id')
@@ -70,7 +98,7 @@ Deno.serve(async (req) => {
 
   if (stationErr || !station) return jsonError('Station not found', 404)
 
-  // 3. Determine reporter role — identity comes from verified JWT, never from body
+  // 5. Determine reporter role — identity comes from verified JWT, never from body
   let role = 'ANON'
   if (
     reporter_role === 'VERIFIED_STATION' &&
@@ -85,7 +113,7 @@ Deno.serve(async (req) => {
     role = 'ANON'
   }
 
-  // 4. Proximity check — mandatory for ANON and CROWD reporters
+  // 6. Proximity check — mandatory for ANON and CROWD reporters
   if (role !== 'VERIFIED_STATION') {
     if (user_lat == null || user_lng == null) {
       return jsonError('LOCATION_REQUIRED: Share your location to submit a report', 400)
@@ -96,7 +124,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 5a. Daily cap: authenticated CROWD reporters may submit at most once per Myanmar calendar day
+  // 7a. Daily cap: authenticated CROWD reporters may submit at most once per Myanmar calendar day
   if (verifiedUserId && role !== 'VERIFIED_STATION') {
     const dayStartUtc = getMyanmarDayStartUtc()
 
@@ -111,7 +139,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 5b. Anonymous daily cap: device_hash may appear at most ANON_DAILY_CAP times per Myanmar day
+  // 7b. Anonymous daily cap: device_hash may appear at most ANON_DAILY_CAP times per Myanmar day
   if (role === 'ANON') {
     const dayStartUtc = getMyanmarDayStartUtc()
 
@@ -127,7 +155,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 5c. Hourly rate limit: max RATE_LIMIT_REPORTS_PER_HOUR reports per device per station per hour
+  // 7c. Hourly rate limit: max RATE_LIMIT_REPORTS_PER_HOUR reports per device per station per hour
   const oneHourAgo = new Date(Date.now() - 3600000).toISOString()
   const { count } = await supabase
     .from('station_status_reports')
@@ -140,48 +168,44 @@ Deno.serve(async (req) => {
     return jsonError('RATE_LIMIT: Too many reports. Please wait before reporting again', 429)
   }
 
-  // 5d. Server-side IP rate limit: secondary gate for anonymous reporters that cannot be forged
+  // 7d. Server-side IP rate limit: secondary gate for anonymous reporters that cannot be forged
+  let ipHash: string | null = null
   if (role === 'ANON') {
     const callerIp = req.headers.get('x-real-ip') ??
       req.headers.get('cf-connecting-ip') ??
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
 
     if (callerIp) {
-      const ipHash = await hashIp(callerIp, station_id)
-      const { count: ipCount } = await supabase
-        .from('station_status_reports')
-        .select('id', { count: 'exact', head: true })
-        .eq('station_id', station_id)
-        .eq('ip_hash', ipHash)
-        .gte('reported_at', oneHourAgo)
+      ipHash = await hashIp(callerIp, station_id)
+      if (ipHash) {
+        const { count: ipCount } = await supabase
+          .from('station_status_reports')
+          .select('id', { count: 'exact', head: true })
+          .eq('station_id', station_id)
+          .eq('ip_hash', ipHash)
+          .gte('reported_at', oneHourAgo)
 
-      if ((ipCount ?? 0) >= RATE_LIMIT_REPORTS_PER_HOUR) {
-        return jsonError('RATE_LIMIT: Too many reports. Please wait before reporting again', 429)
+        if ((ipCount ?? 0) >= RATE_LIMIT_REPORTS_PER_HOUR) {
+          return jsonError('RATE_LIMIT: Too many reports. Please wait before reporting again', 429)
+        }
       }
     }
   }
 
-  // 6. Compute expires_at based on role
+  // 8. Compute expires_at based on role
   const decaySecs = roleDecaySeconds(role)
   const expiresAt = new Date(Date.now() + decaySecs * 1000).toISOString()
 
-  // 7. Insert report
-  const callerIp = req.headers.get('x-real-ip') ??
-    req.headers.get('cf-connecting-ip') ??
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-  const ipHash = (role === 'ANON' && callerIp)
-    ? await hashIp(callerIp, station_id)
-    : null
-
+  // 9. Insert report (use sanitizedStatuses, not the raw client payload)
   const { data, error: insertErr } = await supabase
     .from('station_status_reports')
     .insert({
       station_id,
       reporter_user_id: verifiedUserId ?? null,
       reporter_role: role,
-      fuel_statuses,
+      fuel_statuses: sanitizedStatuses,
       queue_bucket: queue_bucket ?? 'NONE',
-      note: note ?? null,
+      note: noteValue,
       device_hash,
       ip_hash: ipHash,
       expires_at: expiresAt,
@@ -198,9 +222,9 @@ Deno.serve(async (req) => {
           station_id,
           reporter_user_id: verifiedUserId ?? null,
           reporter_role: role,
-          fuel_statuses,
+          fuel_statuses: sanitizedStatuses,
           queue_bucket: queue_bucket ?? 'NONE',
-          note: note ?? null,
+          note: noteValue,
           device_hash,
           expires_at: expiresAt,
         })
@@ -260,8 +284,17 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-async function hashIp(ip: string, stationId: string): Promise<string> {
-  const secret = Deno.env.get('IP_HASH_SECRET') ?? 'fuelbot-ip-rate-limit'
+/**
+ * Returns a per-IP-per-station HMAC hash for rate limiting.
+ * Returns null if IP_HASH_SECRET is not configured — callers skip IP rate limiting in that case.
+ * Never falls back to a public default to prevent the hash from being pre-computed by attackers.
+ */
+async function hashIp(ip: string, stationId: string): Promise<string | null> {
+  const secret = Deno.env.get('IP_HASH_SECRET')
+  if (!secret) {
+    console.warn('IP_HASH_SECRET is not set — IP-based rate limiting is disabled for this request')
+    return null
+  }
   const encoder = new TextEncoder()
   const data = encoder.encode(`${ip}:${stationId}:${secret}`)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
