@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MapPin, RefreshCw, X, Trophy } from 'lucide-react'
+import { MapPin, RefreshCw, X, Trophy, Lightbulb } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
@@ -9,6 +9,7 @@ import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { isStationVerified } from '@/lib/fuelUtils'
 import { StationCard } from '@/components/station/StationCard'
 import { FilterBar } from '@/components/station/FilterBar'
+import { SuggestStationSheet } from '@/components/station/SuggestStationSheet'
 import { Spinner } from '@/components/ui/Spinner'
 import { Button } from '@/components/ui/Button'
 import { supabase } from '@/lib/supabase'
@@ -38,6 +39,7 @@ export function HomePage() {
   } = useLocationStore()
   const { filters } = useFilterStore()
   const [myStats, setMyStats] = useState<MyStats | null>(null)
+  const [suggestOpen, setSuggestOpen] = useState(false)
 
   useEffect(() => {
     if (!user) { setMyStats(null); return }
@@ -184,9 +186,26 @@ export function HomePage() {
             {filteredStations.map((station) => (
               <StationCard key={station.id} station={station} />
             ))}
+
+            {/* Missing-station nudge — always visible at the bottom of the list */}
+            {filteredStations.length > 0 && (
+              <div className="flex items-center justify-center gap-1.5 pt-2 pb-1 text-xs text-gray-500">
+                <Lightbulb className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+                <span>{t('suggest.missingStation')}</span>
+                <button
+                  type="button"
+                  onClick={() => setSuggestOpen(true)}
+                  className="font-semibold text-blue-600 underline underline-offset-2 active:text-blue-700"
+                >
+                  {t('suggest.suggestLink')}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      <SuggestStationSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} />
     </div>
   )
 }

@@ -3,10 +3,12 @@ import { corsHeaders, json } from '../_shared/adminAuth.ts'
 import { emailLogoHtml } from '../_shared/emailHeader.ts'
 
 interface Payload {
-  kind: 'PENDING_REGISTRATION' | 'PENDING_CLAIM'
+  kind: 'PENDING_REGISTRATION' | 'PENDING_CLAIM' | 'PENDING_SUGGESTION'
   station_name?: string
   station_id?: string
   claim_id?: string
+  suggestion_id?: string
+  suggestion_city?: string
 }
 
 Deno.serve(async (req) => {
@@ -38,12 +40,16 @@ Deno.serve(async (req) => {
   const subject =
     payload.kind === 'PENDING_CLAIM'
       ? 'FuelBot: station claim needs approval'
-      : 'FuelBot: station registration needs approval'
+      : payload.kind === 'PENDING_SUGGESTION'
+        ? 'FuelBot: new station suggestion needs review'
+        : 'FuelBot: station registration needs approval'
 
   const details =
     payload.kind === 'PENDING_CLAIM'
       ? `Claim ID: ${payload.claim_id ?? '-'}`
-      : `Station: ${payload.station_name ?? '-'} (${payload.station_id ?? '-'})`
+      : payload.kind === 'PENDING_SUGGESTION'
+        ? `Suggested station: ${payload.station_name ?? '-'}${payload.suggestion_city ? ', ' + payload.suggestion_city : ''} (ID: ${payload.suggestion_id ?? '-'})`
+        : `Station: ${payload.station_name ?? '-'} (${payload.station_id ?? '-'})`
 
   const appBaseUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
   const html = emailLogoHtml(appBaseUrl) + `

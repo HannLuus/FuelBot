@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,20 @@ import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards' | 'suggestions'
+
+interface StationSuggestion {
+  id: string
+  name: string
+  city: string | null
+  address: string | null
+  lat: number | null
+  lng: number | null
+  note: string | null
+  suggested_by: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  created_at: string
+}
 
 interface ReporterRow {
   user_id: string
@@ -35,6 +48,7 @@ export function AdminPage() {
   const [claims, setClaims] = useState<StationClaim[]>([])
   const [registrations, setRegistrations] = useState<Station[]>([])
   const [pendingReferrals, setPendingReferrals] = useState<PendingReferralRewardRow[]>([])
+  const [suggestions, setSuggestions] = useState<StationSuggestion[]>([])
   const [loading, setLoading] = useState(true)
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('KBZ_PAY')
@@ -182,7 +196,7 @@ export function AdminPage() {
   async function loadAll() {
     setLoading(true)
     setError(null)
-    const [flaggedRes, claimsRes, registrationsRes, pendingRefRes] = await Promise.all([
+    const [flaggedRes, claimsRes, registrationsRes, pendingRefRes, suggestionsRes] = await Promise.all([
       supabase
         .from('station_status_reports')
         .select('*')
@@ -205,11 +219,17 @@ export function AdminPage() {
         .select('id, station_id, amount_mmk, status, created_at, stations(name)')
         .eq('status', 'PENDING')
         .order('created_at', { ascending: false }),
+      supabase
+        .from('station_suggestions')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false }),
     ])
     setFlagged(flaggedRes.data ?? [])
     setClaims(claimsRes.data ?? [])
     setRegistrations((registrationsRes.data ?? []) as Station[])
     setPendingReferrals((pendingRefRes.data ?? []) as unknown as PendingReferralRewardRow[])
+    setSuggestions((suggestionsRes.data ?? []) as StationSuggestion[])
     setLoading(false)
   }
 
@@ -355,6 +375,40 @@ export function AdminPage() {
     }
   }
 
+  async function approveSuggestion(id: string) {
+    setWorkingId(id)
+    setError(null)
+    try {
+      const { error: updateErr } = await supabase
+        .from('station_suggestions')
+        .update({ status: 'approved' })
+        .eq('id', id)
+      if (updateErr) throw updateErr
+      await loadAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setWorkingId(null)
+    }
+  }
+
+  async function rejectSuggestion(id: string) {
+    setWorkingId(id)
+    setError(null)
+    try {
+      const { error: updateErr } = await supabase
+        .from('station_suggestions')
+        .update({ status: 'rejected' })
+        .eq('id', id)
+      if (updateErr) throw updateErr
+      await loadAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setWorkingId(null)
+    }
+  }
+
   if (!isAdmin) {
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
@@ -371,7 +425,7 @@ export function AdminPage() {
       <div className="border-b border-gray-100 bg-white px-4 py-3">
         <h1 className="text-lg font-bold text-gray-900">{t('admin.title')}</h1>
         <p className="mt-1 text-xs text-gray-700">
-          {t('admin.registrationQueueSummary', { registrations: registrations.length, claims: claims.length })}
+          {t('admin.registrationQueueSummary', { registrations: registrations.length, claims: claims.length, suggestions: suggestions.length })}
         </p>
       </div>
 
@@ -422,6 +476,18 @@ export function AdminPage() {
           {pendingReferrals.length > 0 && (
             <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-xs text-white">
               {pendingReferrals.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setTab('suggestions')}
+          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'suggestions' ? 'border-b-2 border-amber-500 text-amber-600' : 'text-gray-700'}`}
+        >
+          <Lightbulb className="h-4 w-4" />
+          {t('admin.suggestionsTab')}
+          {suggestions.length > 0 && (
+            <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-xs text-white">
+              {suggestions.length}
             </span>
           )}
         </button>
@@ -841,6 +907,63 @@ export function AdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )
+        ) : tab === 'suggestions' ? (
+          suggestions.length === 0 ? (
+            <p className="py-12 text-center text-gray-700">{t('admin.noSuggestions')}</p>
+          ) : (
+            <div className="space-y-3">
+              {suggestions.map((s) => {
+                const mapsQuery = [s.name, s.city, s.address].filter(Boolean).join(' ')
+                const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(mapsQuery)}`
+                return (
+                  <div key={s.id} className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{s.name}</p>
+                        {s.city && (
+                          <p className="text-xs text-gray-700">{s.city}{s.address ? ` · ${s.address}` : ''}</p>
+                        )}
+                        {s.note && (
+                          <p className="mt-1 text-xs italic text-gray-600">"{s.note}"</p>
+                        )}
+                        <p className="mt-1 text-xs text-gray-400">
+                          {new Date(s.created_at).toLocaleDateString()}
+                          {s.suggested_by ? ` · ${s.suggested_by.slice(0, 8)}…` : ' · anonymous'}
+                        </p>
+                      </div>
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 active:scale-95"
+                      >
+                        <MapPin className="h-3.5 w-3.5" />
+                        {t('admin.openInGoogleMaps')}
+                      </a>
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        loading={workingId === s.id}
+                        onClick={() => void approveSuggestion(s.id)}
+                      >
+                        {t('admin.approveSuggestion')}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        loading={workingId === s.id}
+                        onClick={() => void rejectSuggestion(s.id)}
+                      >
+                        {t('admin.rejectSuggestion')}
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )
         ) : claims.length === 0 ? (

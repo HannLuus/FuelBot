@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { List, Map, PlusCircle, Store, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
+import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
 import { useState, useEffect } from 'react'
 
 export function AppLayout() {
@@ -10,6 +11,7 @@ export function AppLayout() {
   const { user, isAdmin, signOut } = useAuthStore()
   const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const adminCounts = useAdminPendingCount()
 
   useEffect(() => {
     if (!sheetOpen) return
@@ -93,7 +95,14 @@ export function AppLayout() {
             >
               {({ isActive }) => (
                 <>
-                  <Icon className={clsx('h-6 w-6', isActive && 'scale-110 transition-transform')} />
+                  <span className="relative">
+                    <Icon className={clsx('h-6 w-6', isActive && 'scale-110 transition-transform')} />
+                    {to === '/admin' && adminCounts.total > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                        {adminCounts.total > 9 ? '9+' : adminCounts.total}
+                      </span>
+                    )}
+                  </span>
                   <span className={clsx('mt-0.5 font-medium', isActive && 'font-bold')}>
                     {label}
                   </span>

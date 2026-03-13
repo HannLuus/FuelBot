@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
-import { Crosshair, Sun, Moon } from 'lucide-react'
+import { Crosshair, Sun, Moon, Lightbulb } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useMapStyleStore, type MapStyle } from '@/stores/mapStyleStore'
@@ -10,6 +10,7 @@ import { useNearbyStations } from '@/hooks/useNearbyStations'
 import { STATUS_DOT_COLORS, worstStatusForFuels, isStationVerified } from '@/lib/fuelUtils'
 import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { getBrandInitial, getBrandLogoUrl } from '@/lib/brandLogos'
+import { SuggestStationSheet } from '@/components/station/SuggestStationSheet'
 import type { StationWithStatus } from '@/types'
 
 const CARTO_ATTRIBUTION =
@@ -118,6 +119,7 @@ export function MapPage() {
   const { filters } = useFilterStore()
   const { mapStyle, setMapStyle } = useMapStyleStore()
   const { t, i18n } = useTranslation()
+  const [suggestOpen, setSuggestOpen] = useState(false)
 
   const effectiveLat = lat ?? YANGON_LAT
   const effectiveLng = lng ?? YANGON_LNG
@@ -327,6 +329,18 @@ export function MapPage() {
           </div>
         ))}
       </div>
+
+      {/* Missing-station CTA — bottom-right, above legend */}
+      <button
+        type="button"
+        onClick={() => setSuggestOpen(true)}
+        className="absolute bottom-10 right-3 z-[1000] flex items-center gap-1.5 rounded-xl bg-white/90 px-3 py-2 text-xs font-semibold text-amber-700 shadow-lg backdrop-blur-sm hover:bg-amber-50 active:scale-95 dark:bg-gray-900/90 dark:text-amber-300 dark:hover:bg-gray-800"
+      >
+        <Lightbulb className="h-3.5 w-3.5 shrink-0" />
+        {t('suggest.missingStation')}
+      </button>
+
+      <SuggestStationSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} />
     </div>
   )
 }
