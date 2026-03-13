@@ -1,0 +1,62 @@
+---
+description: When to use Supabase MCP, Supabase CLI, app Supabase connection, and Vercel
+alwaysApply: true
+---
+
+# Supabase, Database, and Vercel — Which Connection or CLI to Use
+
+This project has **Supabase MCP**, **Supabase CLI**, a **direct app connection to Supabase** (via env), and **Vercel** for hosting. Use the right one for each task.
+
+## 1. Supabase MCP (Cursor ↔ Supabase)
+
+**Use MCP when:** The AI or you need to inspect or change the **remote project** from inside Cursor (no terminal, no app code).
+
+- **Read/write data:** Run ad-hoc SQL (e.g. inspect rows, one-off fixes) → use MCP tool `execute_sql`. Do **not** use it for DDL that should be versioned.
+- **Schema changes that should be migrations:** Apply a new migration (DDL) via MCP → use `apply_migration` (name + query). Prefer this when you want the change recorded as a migration in the project.
+- **Discover schema:** List tables, list migrations, list extensions → use MCP `list_tables`, `list_migrations`, `list_extensions`.
+- **Types:** Generate TypeScript types from the DB → use MCP `generate_typescript_types`.
+- **Edge Functions (read-only):** List or get edge function details, get logs → use MCP `list_edge_functions`, `get_edge_function`, `get_logs`.
+- **Branches / deploy from Cursor:** Create/branch/merge/reset/delete DB branches, or deploy an edge function from Cursor → use MCP `create_branch`, `deploy_edge_function`, etc.
+
+**Config:** `.cursor/mcp.json` → server `project-0-FuelBot-supabase` (project ref `feenwusofmhnpuahekvu`). No API keys in MCP; auth is OAuth via Cursor.
+
+## 2. Supabase CLI (terminal)
+
+**Use the CLI when:** You need versioned schema, local dev, or deploying functions from the repo.
+
+- **Apply migrations from repo to remote:** `supabase db push` (after `supabase link --project-ref feenwusofmhnpuahekvu`).
+- **Pull remote schema into repo:** `supabase db pull` (generates migration files).
+- **Deploy Edge Functions:** `supabase functions deploy <name>` (e.g. `submit-report`, `send-fuel-alerts`, `snapshot-station-statuses`). See README for full list.
+- **Local Supabase (Docker):** `supabase start`; local MCP at `http://localhost:54321/mcp` if you add it to `.cursor/mcp.json`.
+- **Link project (one-time):** `supabase login` then `supabase link --project-ref feenwusofmhnpuahekvu`.
+
+Use the CLI for anything that should be **reproducible from the repo** (migrations, function deploys). Use MCP for **interactive** DB queries, applying a one-off migration from Cursor, or generating types.
+
+## 3. Direct app connection to Supabase (code + env)
+
+**Use the app connection when:** Writing or changing **application code** that talks to Supabase (frontend or server).
+
+- **Frontend:** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env` (and in Vercel env). Use `@supabase/supabase-js` with these (e.g. `createClient(url, anonKey)`).
+- **Server / Edge Functions / scripts that need admin:** `SUPABASE_SERVICE_ROLE_KEY` (never in client). Use for bypassing RLS (e.g. imports, admin actions).
+
+Do **not** add a separate “direct DB” connection (e.g. raw Postgres URL) unless the project explicitly introduces one. The **direct connection** is the existing Supabase client + env; use it for all app and script code.
+
+## 4. Vercel
+
+**Use Vercel for:** Hosting the frontend and deployment-related config.
+
+- **Deploy:** Push to connected repo or `vercel` CLI; build uses `package.json` scripts and `vercel.json` (rewrites, headers).
+- **Env vars:** Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (and any other `VITE_*`) in Vercel so the built app has the same Supabase connection as local.
+
+We use the **existing** Vercel connection for the project; no extra “connection” setup beyond env and deploy.
+
+## Summary
+
+| Task | Use |
+|------|-----|
+| Ad-hoc SQL, list tables/migrations, generate types, apply one-off migration from Cursor | **Supabase MCP** |
+| `db push` / `db pull`, deploy Edge Functions, `supabase start` | **Supabase CLI** |
+| App code (React, Edge Functions, scripts) talking to Supabase | **App connection** (env + `@supabase/supabase-js`) |
+| Deploy frontend, set build/env | **Vercel** |
+
+Use the connections and CLIs we already have; don’t introduce new DB URLs or clients unless the project adds them.

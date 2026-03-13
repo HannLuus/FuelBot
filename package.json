@@ -14,7 +14,11 @@
     "build-verified-stations": "node scripts/build-verified-stations.mjs",
     "geocode-verified-stations": "node scripts/geocode-verified-stations.mjs",
     "import-verified-stations": "IMPORT_CSV=verified-stations.csv node scripts/import-stations-from-csv.mjs",
-    "geocode-fix-all-stations": "node scripts/geocode-and-fix-all-stations.mjs"
+    "geocode-fix-all-stations": "node scripts/geocode-and-fix-all-stations.mjs",
+    "find-name-duplicates": "node scripts/find-name-duplicates.mjs",
+    "fix-duplicate-locations": "node scripts/fix-duplicate-locations-with-google.mjs",
+    "lookup-coordinates": "node scripts/lookup-coordinates-by-text-search.mjs",
+    "discover": "node scripts/discover-and-ingest-by-region.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
@@ -32,6 +36,7 @@
   },
   "devDependencies": {
     "@google/genai": "^1.0.0",
+    "supabase": "^2.78.0",
     "@eslint/js": "^9.39.1",
     "dotenv": "^16.4.5",
     "@tailwindcss/vite": "^4.2.1",

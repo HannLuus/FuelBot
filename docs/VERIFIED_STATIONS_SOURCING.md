@@ -94,6 +94,8 @@ Until the **live** Supabase has the column, RPC, and data, the API returns no `v
 2. `npm run geocode-verified-stations` — for each row with an address, calls Google Geocoding API; fills lat/lng only when we get a result in Myanmar. Requires `GOOGLE_GEOCODING_API_KEY` or `GOOGLE_MAPS_API_KEY` in `.env`; enable [Geocoding API](https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com).
 3. `npm run import-verified-stations` — imports the CSV; rows with coordinates get a map pin, rows without stay address-only (not on map).
 
+**Duplicate stations (same name, different coordinates):** When the same station name appears with different lat/lng, the map shows multiple pins for one place. See **[docs/MYANMAR_STATION_LOCATIONS.md](MYANMAR_STATION_LOCATIONS.md)** for how names work (e.g. MDY = Mandalay) and the workflow. Use `npm run find-name-duplicates` to list duplicates, then `npm run fix-duplicate-locations -- [--dry-run] [--apply]` to resolve them using Google Maps and optionally update the DB.
+
 ---
 
 ## Next steps

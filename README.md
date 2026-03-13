@@ -79,6 +79,19 @@ Government figures put Myanmar at **~2,600–2,700** registered filling stations
   ```
 - See [docs/VERIFIED_STATIONS_SOURCING.md](docs/VERIFIED_STATIONS_SOURCING.md). Coordinates come only from geocoding the address (e.g. Google Geocoding API), not from invented or spread positions.
 
+### Discovery (add stations from Places API)
+
+To discover and add fuel stations by region (Denko, BOC, PT Power, Max Energy, Asia Energy) using Google Places API:
+
+1. In `.env` set `GOOGLE_GEOCODING_API_KEY` or `GOOGLE_MAPS_API_KEY`, and ensure Places API (New) is enabled in Google Cloud. Keep `VITE_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
+2. From the project root run:
+   ```bash
+   npm run discover -- --region="Shan South"
+   ```
+   Or with a district: `npm run discover -- --region="Ayeyarwady"`  
+   Dry-run (no DB writes): `npm run discover -- --region="Shan South" --dry-run`
+3. See [docs/MYANMAR_STATION_LOCATIONS.md](docs/MYANMAR_STATION_LOCATIONS.md) for the full region tick-list and options.
+
 ---
 
 ## Database
