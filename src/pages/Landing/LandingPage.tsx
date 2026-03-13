@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, Globe, Users, Store, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Globe, Users, Store, ShieldCheck, Trophy, Gift } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { usePWAInstall } from '@/hooks/usePWAInstall'
 import { SUBSCRIPTION_TIERS, formatMmk } from '@/lib/subscriptionTiers'
@@ -15,16 +15,25 @@ interface RecognitionStation {
   recognition_photo_url: string | null
 }
 
+interface TopReporter {
+  user_id: string
+  display_name: string | null
+  report_count: number
+  rank: number
+}
+
 export function LandingPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const lang = i18n.language === 'my' ? 'my' : 'en'
   const [recognitions, setRecognitions] = useState<RecognitionStation[]>([])
+  const [topReporters, setTopReporters] = useState<TopReporter[]>([])
   const [showIOSInstallModal, setShowIOSInstallModal] = useState(false)
   const { showInstallUI, canInstall, isIOS, isPrompting, prompt } = usePWAInstall()
 
   useEffect(() => {
     void loadRecognitions()
+    void loadTopReporters()
   }, [])
 
   useEffect(() => {
@@ -46,6 +55,14 @@ export function LandingPage() {
       .limit(6)
 
     setRecognitions((data ?? []) as RecognitionStation[])
+  }
+
+  async function loadTopReporters() {
+    const { data } = await supabase.rpc('get_top_reporters', {
+      period_days: 30,
+      result_limit: 10,
+    })
+    setTopReporters((data ?? []) as TopReporter[])
   }
 
   function toggleLang() {
@@ -150,6 +167,77 @@ export function LandingPage() {
             <Link to="/operator" className="text-sm font-semibold text-blue-600 underline">
               {t('landing.getReferralCodeCta')}
             </Link>
+          </div>
+        </section>
+
+        {/* Top reporters leaderboard */}
+        <section className="rounded-2xl bg-white p-6 shadow-sm">
+          <div className="mb-1 flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-amber-500" />
+            <h2 className="text-lg font-semibold text-gray-900">{t('landing.topReportersTitle')}</h2>
+          </div>
+          <p className="mb-4 text-sm text-gray-700">{t('landing.topReportersSubtitle')}</p>
+          {topReporters.length === 0 ? (
+            <p className="text-sm text-gray-700">{t('landing.topReportersEmpty')}</p>
+          ) : (
+            <ol className="space-y-2">
+              {topReporters.map((reporter) => {
+                const isTop = Number(reporter.rank) === 1
+                return (
+                  <li
+                    key={reporter.user_id}
+                    className={[
+                      'flex items-center gap-3 rounded-xl border px-4 py-3',
+                      isTop
+                        ? 'border-amber-300 bg-amber-50'
+                        : 'border-gray-200 bg-gray-50',
+                    ].join(' ')}
+                  >
+                    <span
+                      className={[
+                        'min-w-[2rem] text-center text-sm font-bold',
+                        isTop ? 'text-amber-600' : 'text-gray-700',
+                      ].join(' ')}
+                    >
+                      {t('landing.topReporterRank', { rank: reporter.rank })}
+                    </span>
+                    <span className="flex-1 text-sm font-semibold text-gray-900">
+                      {reporter.display_name ?? `Reporter #${reporter.rank}`}
+                    </span>
+                    <span className="text-sm text-gray-700">
+                      {t('landing.topReporterReports', { count: reporter.report_count })}
+                    </span>
+                    {isTop && (
+                      <span className="rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-white">
+                        {t('landing.topReporterGuaranteed')}
+                      </span>
+                    )}
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+        </section>
+
+        {/* Reward rules */}
+        <section className="rounded-2xl bg-white p-6 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <Gift className="h-5 w-5 text-green-600" />
+            <h2 className="text-lg font-semibold text-gray-900">{t('landing.rewardRulesTitle')}</h2>
+          </div>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesOnceADay')}</li>
+            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesMinimum')}</li>
+            <li className="flex gap-2"><span className="mt-0.5 text-amber-500">★</span>{t('landing.rewardRulesTopPerformer')}</li>
+            <li className="flex gap-2"><span className="mt-0.5 text-blue-500">◉</span>{t('landing.rewardRulesDraw')}</li>
+            <li className="flex gap-2"><span className="mt-0.5 text-green-500">◆</span>{t('landing.rewardRulesPartner')}</li>
+            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesSignIn')}</li>
+          </ul>
+          <div className="mt-4">
+            <Button size="sm" variant="secondary" onClick={() => navigate('/auth?mode=signup')}>
+              {t('auth.signUp')}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </section>
 

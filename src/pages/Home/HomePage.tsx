@@ -1,15 +1,23 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MapPin, RefreshCw, X } from 'lucide-react'
+import { MapPin, RefreshCw, X, Trophy } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
+import { useAuthStore } from '@/stores/authStore'
 import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { isStationVerified } from '@/lib/fuelUtils'
 import { StationCard } from '@/components/station/StationCard'
 import { FilterBar } from '@/components/station/FilterBar'
 import { Spinner } from '@/components/ui/Spinner'
 import { Button } from '@/components/ui/Button'
+import { supabase } from '@/lib/supabase'
+
+interface MyStats {
+  report_count: number
+  rank: number
+  total_reporters: number
+}
 
 // Default to central Yangon when location is unavailable
 const YANGON_LAT = 16.8661
@@ -17,6 +25,7 @@ const YANGON_LNG = 96.1561
 
 export function HomePage() {
   const { t } = useTranslation()
+  const { user } = useAuthStore()
   const {
     lat,
     lng,
@@ -28,6 +37,16 @@ export function HomePage() {
     clearError,
   } = useLocationStore()
   const { filters } = useFilterStore()
+  const [myStats, setMyStats] = useState<MyStats | null>(null)
+
+  useEffect(() => {
+    if (!user) { setMyStats(null); return }
+    void (async () => {
+      const { data } = await supabase.rpc('get_my_reporter_stats', { period_days: 30 })
+      const row = (data as MyStats[] | null)?.[0]
+      if (row && Number(row.report_count) > 0) setMyStats(row)
+    })()
+  }, [user])
 
   // Only auto-request location when permission was already granted (e.g. returning user).
   // Chrome on Android requires the first request to be from a user gesture; auto-request on load fails.
@@ -67,6 +86,19 @@ export function HomePage() {
   return (
     <div className="flex h-full flex-col">
       <FilterBar />
+
+      {/* Reporter stats strip — only when user has reported this month */}
+      {myStats && (
+        <div className="shrink-0 flex items-center gap-2 border-b border-amber-100 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+          <Trophy className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+          <span className="font-semibold">{t('home.yourStatsThisMonth')}: {myStats.report_count}</span>
+          {Number(myStats.rank) > 0 && (
+            <span className="ml-1 text-amber-700">
+              · {t('home.yourRank', { rank: myStats.rank })}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Use my location CTA — first-time users must tap (Chrome requires user gesture for geolocation) */}
       {showUseMyLocationCta && (

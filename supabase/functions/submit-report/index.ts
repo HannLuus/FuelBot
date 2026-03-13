@@ -2,6 +2,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RATE_LIMIT_REPORTS_PER_HOUR = 3
 const MAX_DISTANCE_METRES = 1000
+// Myanmar is UTC+6:30
+const MYANMAR_OFFSET_MS = (6 * 60 + 30) * 60 * 1000
 
 interface ReportPayload {
   station_id: string
@@ -71,7 +73,27 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 4. Rate limit: max RATE_LIMIT_REPORTS_PER_HOUR reports per device per station per hour
+  // 4a. Daily cap: crowd reporters may report at most once per Myanmar calendar day.
+  // VERIFIED_STATION operators are exempt — they must be able to update their station freely.
+  if (user_id && role !== 'VERIFIED_STATION') {
+    const nowMs = Date.now()
+    const myanmarMs = nowMs + MYANMAR_OFFSET_MS
+    const myanmarMidnight = new Date(myanmarMs)
+    myanmarMidnight.setUTCHours(0, 0, 0, 0)
+    const dayStartUtc = new Date(myanmarMidnight.getTime() - MYANMAR_OFFSET_MS).toISOString()
+
+    const { count: dayCount } = await supabase
+      .from('station_status_reports')
+      .select('id', { count: 'exact', head: true })
+      .eq('reporter_user_id', user_id)
+      .gte('reported_at', dayStartUtc)
+
+    if ((dayCount ?? 0) >= 1) {
+      return jsonError('DAILY_LIMIT: You have already reported today. Come back tomorrow.', 429)
+    }
+  }
+
+  // 4b. Rate limit: max RATE_LIMIT_REPORTS_PER_HOUR reports per device per station per hour
   const oneHourAgo = new Date(Date.now() - 3600000).toISOString()
   const { count } = await supabase
     .from('station_status_reports')

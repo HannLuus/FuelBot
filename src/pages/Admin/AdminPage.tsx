@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,14 @@ import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards'
+
+interface ReporterRow {
+  user_id: string
+  display_name: string | null
+  report_count: number
+  rank: number
+}
 type PaymentMethod = 'KBZ_PAY' | 'WAVEPAY' | 'BANK_TRANSFER'
 
 interface PendingReferralRewardRow {
@@ -51,6 +58,16 @@ export function AdminPage() {
   const [paymentConfigSaving, setPaymentConfigSaving] = useState(false)
   const [paymentConfigSaved, setPaymentConfigSaved] = useState(false)
 
+  // Rewards tab state
+  const [rewardsPeriodDays, setRewardsPeriodDays] = useState(30)
+  const [rewardsMinReports, setRewardsMinReports] = useState(5)
+  const [rewardsDrawCount, setRewardsDrawCount] = useState(3)
+  const [reporters, setReporters] = useState<ReporterRow[]>([])
+  const [rewardsLoading, setRewardsLoading] = useState(false)
+  const [drawResult, setDrawResult] = useState<ReporterRow[] | null>(null)
+  const [rewardsRecorded, setRewardsRecorded] = useState(false)
+  const [rewardsRecording, setRewardsRecording] = useState(false)
+
   useEffect(() => {
     void loadAll()
   }, [])
@@ -77,6 +94,68 @@ export function AdminPage() {
       }
     })()
   }, [tab])
+
+  useEffect(() => {
+    if (tab !== 'rewards') return
+    void loadReporters()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, rewardsPeriodDays])
+
+  async function loadReporters() {
+    setRewardsLoading(true)
+    setDrawResult(null)
+    setRewardsRecorded(false)
+    const { data } = await supabase.rpc('get_top_reporters', {
+      period_days: rewardsPeriodDays,
+      result_limit: 100,
+    })
+    setReporters((data ?? []) as ReporterRow[])
+    setRewardsLoading(false)
+  }
+
+  function runDraw() {
+    const eligible = reporters.filter(
+      (r) => Number(r.rank) > 1 && Number(r.report_count) >= rewardsMinReports,
+    )
+    if (eligible.length === 0) { setDrawResult([]); return }
+    const shuffled = [...eligible].sort(() => Math.random() - 0.5)
+    setDrawResult(shuffled.slice(0, rewardsDrawCount))
+    setRewardsRecorded(false)
+  }
+
+  async function recordWinners() {
+    if (!drawResult) return
+    const periodLabel = new Date().toISOString().slice(0, 7)
+    setRewardsRecording(true)
+    const topPerformer = reporters.find((r) => Number(r.rank) === 1)
+
+    const rows = [
+      ...(topPerformer
+        ? [{
+            period_label: periodLabel,
+            user_id: topPerformer.user_id,
+            reward_type: 'TOP_PERFORMER',
+            report_count: Number(topPerformer.report_count),
+            rank: 1,
+          }]
+        : []),
+      ...drawResult.map((r) => ({
+        period_label: periodLabel,
+        user_id: r.user_id,
+        reward_type: 'LUCKY_DRAW',
+        report_count: Number(r.report_count),
+        rank: Number(r.rank),
+      })),
+    ]
+
+    const { error: insertErr } = await supabase.from('reward_events').insert(rows)
+    setRewardsRecording(false)
+    if (insertErr) {
+      setError(insertErr.message)
+      return
+    }
+    setRewardsRecorded(true)
+  }
 
   async function savePaymentConfig() {
     setPaymentConfigSaving(true)
@@ -353,6 +432,13 @@ export function AdminPage() {
           <Settings className="h-4 w-4" />
           {t('admin.paymentSettings')}
         </button>
+        <button
+          onClick={() => setTab('rewards')}
+          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'rewards' ? 'border-b-2 border-amber-500 text-amber-600' : 'text-gray-700'}`}
+        >
+          <Trophy className="h-4 w-4" />
+          {t('admin.rewardsTab')}
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -585,6 +671,150 @@ export function AdminPage() {
               ))}
             </div>
           )
+        ) : tab === 'rewards' ? (
+          <div className="space-y-5">
+            <h2 className="text-base font-bold text-gray-900">{t('admin.rewardsTitle')}</h2>
+
+            {/* Controls */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-700">{t('admin.rewardsPeriodLabel')}</label>
+                <select
+                  value={rewardsPeriodDays}
+                  onChange={(e) => setRewardsPeriodDays(Number(e.target.value))}
+                  className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
+                >
+                  <option value={30}>30 days</option>
+                  <option value={31}>31 days</option>
+                  <option value={28}>28 days</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-700">{t('admin.rewardsMinReports')}</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={31}
+                  value={rewardsMinReports}
+                  onChange={(e) => setRewardsMinReports(Number(e.target.value))}
+                  className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-700">{t('admin.rewardsDrawCount')}</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={rewardsDrawCount}
+                  onChange={(e) => setRewardsDrawCount(Number(e.target.value))}
+                  className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button size="sm" variant="secondary" loading={rewardsLoading} onClick={() => void loadReporters()}>
+                  Refresh
+                </Button>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-700">{t('admin.rewardsPeriodNote', { days: rewardsPeriodDays })}</p>
+
+            {rewardsLoading ? (
+              <div className="flex justify-center py-8"><Spinner /></div>
+            ) : reporters.length === 0 ? (
+              <p className="py-8 text-center text-gray-700">{t('admin.rewardsNoReporters')}</p>
+            ) : (
+              <>
+                {/* Leaderboard */}
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold text-gray-800">{t('admin.rewardsLeaderboardTitle')}</h3>
+                  <ol className="space-y-1.5">
+                    {reporters.map((r) => (
+                      <li
+                        key={r.user_id}
+                        className={[
+                          'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm',
+                          Number(r.rank) === 1
+                            ? 'border-amber-300 bg-amber-50'
+                            : 'border-gray-200 bg-white',
+                        ].join(' ')}
+                      >
+                        <span className="w-7 text-center font-bold text-gray-700">#{r.rank}</span>
+                        <span className="flex-1 text-gray-900">
+                          {r.display_name ?? r.user_id.slice(0, 12) + '…'}
+                        </span>
+                        <span className="text-gray-700">{r.report_count} reports</span>
+                        {Number(r.rank) === 1 && (
+                          <span className="rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-white">
+                            {t('admin.rewardsGuaranteedLabel')}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                {/* Draw pool summary */}
+                {(() => {
+                  const eligible = reporters.filter(
+                    (r) => Number(r.rank) > 1 && Number(r.report_count) >= rewardsMinReports,
+                  )
+                  return (
+                    <p className="text-xs text-gray-700">
+                      {t('admin.rewardsEligibleCount', { count: eligible.length, min: rewardsMinReports })}
+                    </p>
+                  )
+                })()}
+
+                {/* Run draw */}
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="primary"
+                    onClick={runDraw}
+                  >
+                    <Trophy className="h-4 w-4" />
+                    {drawResult === null ? t('admin.rewardsRunDraw') : t('admin.rewardsReRunDraw')}
+                  </Button>
+                </div>
+
+                {/* Draw result */}
+                {drawResult !== null && (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-blue-800">{t('admin.rewardsDrawResultTitle')}</h3>
+                    {drawResult.length === 0 ? (
+                      <p className="text-sm text-gray-700">No eligible reporters in the pool.</p>
+                    ) : (
+                      <ol className="mb-4 space-y-1.5">
+                        {drawResult.map((r) => (
+                          <li key={r.user_id} className="flex items-center gap-2 rounded-lg border border-blue-100 bg-white px-3 py-2 text-sm">
+                            <span className="flex-1 text-gray-900">
+                              {r.display_name ?? r.user_id.slice(0, 12) + '…'}
+                            </span>
+                            <span className="text-gray-700">{r.report_count} reports · rank #{r.rank}</span>
+                            <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs font-bold text-white">
+                              {t('admin.rewardsDrawLabel')}
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                    {rewardsRecorded ? (
+                      <p className="text-sm font-semibold text-green-700">{t('admin.rewardsRecorded')}</p>
+                    ) : (
+                      <Button
+                        variant="primary"
+                        loading={rewardsRecording}
+                        onClick={() => void recordWinners()}
+                      >
+                        {t('admin.rewardsRecordWinners')}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         ) : tab === 'flagged' ? (
           flagged.length === 0 ? (
             <p className="py-12 text-center text-gray-700">{t('admin.noFlagged')}</p>

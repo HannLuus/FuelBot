@@ -8,6 +8,7 @@ import { FUEL_CODES, FUEL_DISPLAY, QUEUE_LABEL } from '@/lib/fuelUtils'
 import { getDeviceHash } from '@/lib/deviceHash'
 import { supabase } from '@/lib/supabase'
 import { useLocationStore } from '@/stores/locationStore'
+import { useAuthStore } from '@/stores/authStore'
 import type { FuelCode, FuelStatus, QueueBucket, FuelStatuses } from '@/types'
 
 type FuelStatusChoice = FuelStatus | 'SKIP'
@@ -27,6 +28,7 @@ export function ReportPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
   const { lat, lng } = useLocationStore()
+  const { user } = useAuthStore()
 
   const [step, setStep] = useState(1)
   const [fuelStatuses, setFuelStatuses] = useState<Record<FuelCode, FuelStatusChoice>>({
@@ -38,7 +40,7 @@ export function ReportPage() {
   const [queueBucket, setQueueBucket] = useState<QueueBucket>('NONE')
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [result, setResult] = useState<'success' | 'error' | 'toofar' | 'ratelimit' | null>(null)
+  const [result, setResult] = useState<'success' | 'error' | 'toofar' | 'ratelimit' | 'dailylimit' | null>(null)
 
   function setFuelStatus(code: FuelCode, value: FuelStatusChoice) {
     setFuelStatuses((prev) => ({ ...prev, [code]: value }))
@@ -63,6 +65,7 @@ export function ReportPage() {
           note: note.trim() || null,
           user_lat: lat,
           user_lng: lng,
+          user_id: user?.id ?? undefined,
         },
       })
 
@@ -70,6 +73,7 @@ export function ReportPage() {
         const msg = error.message ?? ''
         if (msg.includes('TOO_FAR')) { setResult('toofar'); return }
         if (msg.includes('RATE_LIMIT')) { setResult('ratelimit'); return }
+        if (msg.includes('DAILY_LIMIT')) { setResult('dailylimit'); return }
         setResult('error')
         return
       }
@@ -216,6 +220,11 @@ export function ReportPage() {
         {result === 'ratelimit' && (
           <div className="mt-5 rounded-2xl bg-yellow-50 p-4 text-sm font-medium text-yellow-700">
             {t('report.rateLimited')}
+          </div>
+        )}
+        {result === 'dailylimit' && (
+          <div className="mt-5 rounded-2xl bg-blue-50 p-4 text-sm font-medium text-blue-700">
+            {t('report.dailyLimit')}
           </div>
         )}
       </div>
