@@ -17,6 +17,7 @@ import {
   REPORTER_ROLE_LABEL,
 } from '@/lib/fuelUtils'
 import { useAuthStore } from '@/stores/authStore'
+import { subscribeToPush, unsubscribeFromPush } from '@/lib/pushSubscription'
 
 interface ReliabilityRow {
   reports_last_7d: number
@@ -102,11 +103,15 @@ export function StationDetailPage() {
         .eq('user_id', user.id)
         .eq('station_id', station.id)
       setIsFollowing(false)
+      await unsubscribeFromPush()
     } else {
       await supabase
         .from('station_followers')
         .insert({ user_id: user.id, station_id: station.id })
       setIsFollowing(true)
+      // Subscribe to push notifications so the user receives alerts when fuel is back in stock.
+      // subscribeToPush handles permission prompting and saving the subscription to the DB.
+      await subscribeToPush()
     }
   }
 

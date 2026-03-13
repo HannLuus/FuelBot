@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, ArrowRight, Send, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Send, CheckCircle2, MapPin } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Button } from '@/components/ui/Button'
 import { FUEL_CODES, FUEL_DISPLAY, QUEUE_LABEL } from '@/lib/fuelUtils'
@@ -27,8 +27,19 @@ export function ReportPage() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
-  const { lat, lng } = useLocationStore()
+  const { lat, lng, requestLocation } = useLocationStore()
   const { user } = useAuthStore()
+
+  const locationReady = lat != null && lng != null
+
+  // Request location on mount if not already available — the server now requires coordinates
+  // for all non-verified-station reports.
+  useEffect(() => {
+    if (!locationReady) {
+      requestLocation()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const [step, setStep] = useState(1)
   const [fuelStatuses, setFuelStatuses] = useState<Record<FuelCode, FuelStatusChoice>>({
@@ -40,7 +51,7 @@ export function ReportPage() {
   const [queueBucket, setQueueBucket] = useState<QueueBucket>('NONE')
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [result, setResult] = useState<'success' | 'error' | 'toofar' | 'ratelimit' | 'dailylimit' | null>(null)
+  const [result, setResult] = useState<'success' | 'error' | 'toofar' | 'ratelimit' | 'dailylimit' | 'locationrequired' | null>(null)
 
   function setFuelStatus(code: FuelCode, value: FuelStatusChoice) {
     setFuelStatuses((prev) => ({ ...prev, [code]: value }))
@@ -74,6 +85,7 @@ export function ReportPage() {
         if (msg.includes('TOO_FAR')) { setResult('toofar'); return }
         if (msg.includes('RATE_LIMIT')) { setResult('ratelimit'); return }
         if (msg.includes('DAILY_LIMIT')) { setResult('dailylimit'); return }
+        if (msg.includes('LOCATION_REQUIRED')) { setResult('locationrequired'); return }
         setResult('error')
         return
       }
@@ -126,6 +138,23 @@ export function ReportPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto scroll-touch px-4 pt-5 pb-4">
+        {/* Location required banner */}
+        {!locationReady && (
+          <div className="mb-4 flex items-start gap-3 rounded-2xl bg-amber-50 p-3.5">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <div>
+              <p className="text-sm font-semibold text-amber-800">{t('report.locationNeeded')}</p>
+              <button
+                type="button"
+                onClick={() => requestLocation({ highAccuracy: true })}
+                className="mt-1 text-xs font-medium text-amber-700 underline"
+              >
+                {t('report.tapToShareLocation')}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Step 1 — fuel status per type */}
         {step === 1 && (
           <div>
@@ -227,6 +256,11 @@ export function ReportPage() {
             {t('report.dailyLimit')}
           </div>
         )}
+        {result === 'locationrequired' && (
+          <div className="mt-5 rounded-2xl bg-orange-50 p-4 text-sm font-medium text-orange-700">
+            {t('report.locationRequired')}
+          </div>
+        )}
       </div>
 
       {/* Sticky footer — always visible, big tap target */}
@@ -242,6 +276,7 @@ export function ReportPage() {
             size="lg"
             className="w-full"
             loading={submitting}
+            disabled={!locationReady}
             onClick={() => void submit()}
           >
             <Send className="h-5 w-5" />

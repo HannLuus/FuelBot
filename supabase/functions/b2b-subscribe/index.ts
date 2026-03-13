@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders, json, requireAuthedUser } from '../_shared/adminAuth.ts'
+import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
 import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
@@ -41,6 +41,7 @@ Deno.serve(async (req) => {
     .select('id')
     .eq('user_id', authed.user.id)
     .gt('valid_until', new Date().toISOString())
+    .in('status', ['PENDING', 'CONFIRMED'])
     .limit(1)
 
   if (existingErr) {
@@ -63,6 +64,7 @@ Deno.serve(async (req) => {
       plan_type: 'route_view',
       route_id: null,
       valid_until: validUntil.toISOString(),
+      status: 'PENDING',
       payment_method: payload.payment_method,
       payment_reference: payload.payment_reference,
       screenshot_path: payload.screenshot_path?.trim() || null,
@@ -88,13 +90,13 @@ Deno.serve(async (req) => {
         html: emailLogoHtml(appBaseUrl) + `
           <h2>B2B Route Access Payment Reported</h2>
           <p>A user has signed up for B2B route access (all routes).</p>
-          <p><strong>User ID:</strong> ${authed.user.id}</p>
-          <p><strong>User Email:</strong> ${authed.user.email}</p>
+          <p><strong>User ID:</strong> ${escapeHtml(authed.user.id)}</p>
+          <p><strong>User Email:</strong> ${escapeHtml(authed.user.email ?? '—')}</p>
           <p><strong>Expected amount:</strong> ${EXPECTED_AMOUNT_MMK.toLocaleString('en-US')} MMK</p>
-          <p><strong>Payment Method:</strong> ${payload.payment_method}</p>
-          <p><strong>Payment Reference:</strong> ${payload.payment_reference}</p>
-          ${payload.screenshot_path ? `<p><strong>Payment screenshot:</strong> ${payload.screenshot_path} (check Storage bucket b2b-payment-screenshots for review / future bot).</p>` : ''}
-          <p>Please verify the payment in your wallet/bank. If this is a fake payment, delete the row in the b2b_subscriptions table.</p>
+          <p><strong>Payment Method:</strong> ${escapeHtml(payload.payment_method)}</p>
+          <p><strong>Payment Reference:</strong> ${escapeHtml(payload.payment_reference)}</p>
+          ${payload.screenshot_path ? `<p><strong>Payment screenshot:</strong> ${escapeHtml(payload.screenshot_path)} (check Storage bucket b2b-payment-screenshots for review / future bot).</p>` : ''}
+          <p>Please verify the payment in your wallet/bank. Confirm access in the admin panel, or reject if the payment is not found.</p>
         `,
       })
     } catch (err) {

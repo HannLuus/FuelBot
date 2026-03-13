@@ -12,6 +12,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'autoUpdate',
       includeAssets: ['FuelbotLogo.png'],
       manifest: {
@@ -42,28 +45,8 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        skipWaiting: true,
-        clientsClaim: true,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 300 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/.*\.(openstreetmap|cartocdn)\.(org|com)\/.*/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'map-tiles',
-              expiration: { maxEntries: 200, maxAgeSeconds: 86400 },
-            },
-          },
-        ],
       },
     }),
   ],

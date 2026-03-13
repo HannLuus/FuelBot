@@ -1,5 +1,5 @@
 import { Resend } from 'npm:resend@2.0.0'
-import { corsHeaders, json } from '../_shared/adminAuth.ts'
+import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
 import { emailLogoHtml } from '../_shared/emailHeader.ts'
 
 interface Payload {
@@ -15,6 +15,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders() })
   }
+
+  const authed = await requireAuthedUser(req.headers.get('Authorization'))
+  if ('error' in authed) return authed.error
 
   let payload: Payload
   try {
@@ -46,10 +49,10 @@ Deno.serve(async (req) => {
 
   const details =
     payload.kind === 'PENDING_CLAIM'
-      ? `Claim ID: ${payload.claim_id ?? '-'}`
+      ? `Claim ID: ${escapeHtml(payload.claim_id ?? '-')}`
       : payload.kind === 'PENDING_SUGGESTION'
-        ? `Suggested station: ${payload.station_name ?? '-'}${payload.suggestion_city ? ', ' + payload.suggestion_city : ''} (ID: ${payload.suggestion_id ?? '-'})`
-        : `Station: ${payload.station_name ?? '-'} (${payload.station_id ?? '-'})`
+        ? `Suggested station: ${escapeHtml(payload.station_name ?? '-')}${payload.suggestion_city ? ', ' + escapeHtml(payload.suggestion_city) : ''} (ID: ${escapeHtml(payload.suggestion_id ?? '-')})`
+        : `Station: ${escapeHtml(payload.station_name ?? '-')} (${escapeHtml(payload.station_id ?? '-')})`
 
   const appBaseUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
   const html = emailLogoHtml(appBaseUrl) + `

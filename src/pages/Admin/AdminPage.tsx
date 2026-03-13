@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards' | 'suggestions'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards' | 'suggestions' | 'b2b'
 
 interface StationSuggestion {
   id: string
@@ -40,6 +40,26 @@ interface PendingReferralRewardRow {
   stations: { name: string } | null
 }
 
+interface PendingB2BRow {
+  id: string
+  user_id: string
+  plan_type: string
+  valid_until: string
+  payment_method: string | null
+  payment_reference: string | null
+  screenshot_path: string | null
+  created_at: string
+}
+
+function fairShuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = a[i]; a[i] = a[j]; a[j] = tmp
+  }
+  return a
+}
+
 export function AdminPage() {
   const { t } = useTranslation()
   const { isAdmin } = useAuthStore()
@@ -49,8 +69,11 @@ export function AdminPage() {
   const [registrations, setRegistrations] = useState<Station[]>([])
   const [pendingReferrals, setPendingReferrals] = useState<PendingReferralRewardRow[]>([])
   const [suggestions, setSuggestions] = useState<StationSuggestion[]>([])
+  const [pendingB2B, setPendingB2B] = useState<PendingB2BRow[]>([])
   const [loading, setLoading] = useState(true)
   const [workingId, setWorkingId] = useState<string | null>(null)
+  const [rejectingStation, setRejectingStation] = useState<Station | null>(null)
+  const [rejectReasonInput, setRejectReasonInput] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('KBZ_PAY')
   const [paymentReference, setPaymentReference] = useState('')
   const [referralPaymentMethod, setReferralPaymentMethod] = useState<PaymentMethod>('WAVEPAY')
@@ -132,8 +155,7 @@ export function AdminPage() {
       (r) => Number(r.rank) > 1 && Number(r.report_count) >= rewardsMinReports,
     )
     if (eligible.length === 0) { setDrawResult([]); return }
-    const shuffled = [...eligible].sort(() => Math.random() - 0.5)
-    setDrawResult(shuffled.slice(0, rewardsDrawCount))
+    setDrawResult(fairShuffle(eligible).slice(0, rewardsDrawCount))
     setRewardsRecorded(false)
   }
 
@@ -196,7 +218,7 @@ export function AdminPage() {
   async function loadAll() {
     setLoading(true)
     setError(null)
-    const [flaggedRes, claimsRes, registrationsRes, pendingRefRes, suggestionsRes] = await Promise.all([
+    const [flaggedRes, claimsRes, registrationsRes, pendingRefRes, suggestionsRes, b2bRes] = await Promise.all([
       supabase
         .from('station_status_reports')
         .select('*')
@@ -224,13 +246,36 @@ export function AdminPage() {
         .select('*')
         .eq('status', 'pending')
         .order('created_at', { ascending: false }),
+      supabase
+        .from('b2b_subscriptions')
+        .select('id, user_id, plan_type, valid_until, payment_method, payment_reference, screenshot_path, created_at')
+        .eq('status', 'PENDING')
+        .order('created_at', { ascending: false }),
     ])
     setFlagged(flaggedRes.data ?? [])
     setClaims(claimsRes.data ?? [])
     setRegistrations((registrationsRes.data ?? []) as Station[])
     setPendingReferrals((pendingRefRes.data ?? []) as unknown as PendingReferralRewardRow[])
     setSuggestions((suggestionsRes.data ?? []) as StationSuggestion[])
+    setPendingB2B((b2bRes.data ?? []) as PendingB2BRow[])
     setLoading(false)
+  }
+
+  async function confirmB2B(subscriptionId: string, action: 'confirm' | 'reject') {
+    setWorkingId(subscriptionId)
+    setError(null)
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('admin-confirm-b2b', {
+        body: { subscription_id: subscriptionId, action },
+      })
+      if (fnErr) throw fnErr
+      if (data?.error) throw new Error(data.error)
+      await loadAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errors.generic'))
+    } finally {
+      setWorkingId(null)
+    }
   }
 
   async function dismissReport(id: string) {
@@ -356,17 +401,18 @@ export function AdminPage() {
     }
   }
 
-  async function rejectRegistration(station: Station) {
-    const rejectReason = window.prompt(t('admin.rejectReason'), t('admin.tierUnderDeclaredReject'))
-    if (rejectReason === null) return
+  async function confirmRejectRegistration(station: Station) {
+    const reason = rejectReasonInput.trim() || t('admin.tierUnderDeclaredReject')
     setWorkingId(station.id)
     setError(null)
     try {
       const { data, error: fnErr } = await supabase.functions.invoke('admin-reject-registration', {
-        body: { station_id: station.id, reason: rejectReason },
+        body: { station_id: station.id, reason },
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
+      setRejectingStation(null)
+      setRejectReasonInput('')
       await loadAll()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.generic'))
@@ -505,6 +551,18 @@ export function AdminPage() {
           <Trophy className="h-4 w-4" />
           {t('admin.rewardsTab')}
         </button>
+        <button
+          onClick={() => setTab('b2b')}
+          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'b2b' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
+        >
+          <Wifi className="h-4 w-4" />
+          B2B
+          {pendingB2B.length > 0 && (
+            <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
+              {pendingB2B.length}
+            </span>
+          )}
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -603,12 +661,35 @@ export function AdminPage() {
                       <Button
                         size="sm"
                         variant="danger"
-                        loading={workingId === station.id}
-                        onClick={() => void rejectRegistration(station)}
+                        onClick={() => { setRejectingStation(station); setRejectReasonInput(t('admin.tierUnderDeclaredReject')) }}
                       >
                         {t('admin.reject')}
                       </Button>
                     </div>
+                    {rejectingStation?.id === station.id && (
+                      <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3">
+                        <p className="mb-2 text-xs font-semibold text-red-800">{t('admin.rejectReason')}</p>
+                        <textarea
+                          value={rejectReasonInput}
+                          onChange={(e) => setRejectReasonInput(e.target.value)}
+                          rows={2}
+                          className="w-full rounded-lg border border-red-300 bg-white px-2 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-red-400"
+                        />
+                        <div className="mt-2 flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            loading={workingId === station.id}
+                            onClick={() => void confirmRejectRegistration(station)}
+                          >
+                            {t('admin.confirmReject')}
+                          </Button>
+                          <Button size="sm" variant="secondary" onClick={() => { setRejectingStation(null); setRejectReasonInput('') }}>
+                            {t('admin.cancel')}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                     {!station.payment_received_at && (
                       <p className="mt-2 text-xs text-amber-700">Payment not marked yet. Approve is disabled.</p>
                     )}
@@ -964,6 +1045,62 @@ export function AdminPage() {
                   </div>
                 )
               })}
+            </div>
+          )
+        ) : tab === 'b2b' ? (
+          pendingB2B.length === 0 ? (
+            <p className="py-12 text-center text-gray-700">No pending B2B subscriptions.</p>
+          ) : (
+            <div className="space-y-3">
+              {pendingB2B.map((sub) => (
+                <div key={sub.id} className="rounded-xl border border-gray-200 bg-white p-4">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {sub.plan_type === 'national_view' ? 'National View' : 'Route Access'}
+                  </p>
+                  <p className="text-xs text-gray-700">User: {sub.user_id.slice(0, 8)}…</p>
+                  <p className="text-xs text-gray-700">
+                    Valid until: {new Date(sub.valid_until).toLocaleDateString()}
+                  </p>
+                  {sub.payment_method && (
+                    <p className="text-xs text-gray-700">Method: {sub.payment_method}</p>
+                  )}
+                  {sub.payment_reference && (
+                    <p className="text-xs text-gray-700">Reference: {sub.payment_reference}</p>
+                  )}
+                  {sub.screenshot_path && (
+                    <a
+                      href={sub.screenshot_path}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600 underline"
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      View payment screenshot
+                    </a>
+                  )}
+                  <p className="mt-1 text-xs text-gray-700">
+                    Submitted: {new Date(sub.created_at).toLocaleDateString()}
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      loading={workingId === sub.id}
+                      onClick={() => void confirmB2B(sub.id, 'confirm')}
+                    >
+                      Confirm Payment
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      loading={workingId === sub.id}
+                      onClick={() => void confirmB2B(sub.id, 'reject')}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           )
         ) : claims.length === 0 ? (

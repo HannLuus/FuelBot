@@ -260,7 +260,7 @@ export function AuthPage() {
                 id="auth-password"
                 type="password"
                 required
-                minLength={6}
+                minLength={8}
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -313,12 +313,12 @@ export function AuthPage() {
                   {t('auth.newPassword')}
                 </label>
                 <input
-                  id="auth-new-password"
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                  value={password}
+                id="auth-new-password"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   style={{ fontSize: '16px' }}
                   className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
@@ -329,11 +329,11 @@ export function AuthPage() {
                   {t('auth.confirmPassword')}
                 </label>
                 <input
-                  id="auth-confirm-password"
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
+                id="auth-confirm-password"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   style={{ fontSize: '16px' }}

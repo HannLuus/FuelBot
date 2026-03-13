@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'npm:resend@2.0.0'
 import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { resolveReferral } from '../_shared/referralResolver.ts'
+import { escapeHtml } from '../_shared/adminAuth.ts'
 
 const YANGON_LAT = 16.8661
 const YANGON_LNG = 96.1561
@@ -125,9 +126,9 @@ Deno.serve(async (req) => {
         subject: 'FuelBot: station registration needs approval',
         html: emailLogoHtml(appUrl) + `
           <h3>New station registration pending review</h3>
-          <p>Station: ${name}</p>
-          <p>Township: ${township}</p>
-          <p>City: ${city}</p>
+          <p>Station: ${escapeHtml(name)}</p>
+          <p>Township: ${escapeHtml(township)}</p>
+          <p>City: ${escapeHtml(city)}</p>
         `,
       })
     } catch (err) {

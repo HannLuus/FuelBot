@@ -65,8 +65,12 @@ Deno.serve(async (req) => {
     role = 'ANON'
   }
 
-  // 3. Proximity check (for non-verified-station reports, if coordinates provided)
-  if (role !== 'VERIFIED_STATION' && user_lat != null && user_lng != null) {
+  // 3. Proximity check — coordinates are mandatory for ANON and CROWD reporters.
+  // VERIFIED_STATION owners may report without location (they manage their own station).
+  if (role !== 'VERIFIED_STATION') {
+    if (user_lat == null || user_lng == null) {
+      return jsonError('LOCATION_REQUIRED: Share your location to submit a report', 400)
+    }
     const distMetres = haversine(user_lat, user_lng, station.lat, station.lng)
     if (distMetres > MAX_DISTANCE_METRES) {
       return jsonError('TOO_FAR: You are too far from this station', 400)

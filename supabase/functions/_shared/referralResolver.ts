@@ -50,25 +50,21 @@ export async function resolveReferral(
     return { user_id: norm.user_id, code: norm.code }
   }
 
-  // 3) Fuzzy: fetch all codes and find one that matches (code includes input or input includes code)
-  const { data: all } = await supabase
+  // 3) Fuzzy: DB-side ILIKE search on the suffix portion, strictly sanitised and limited.
+  // Only attempt if the suffix is at least 4 alphanumeric characters to avoid broad matches.
+  const fuzzyInput = normalized.replace(/^FB-/, '').replace(/[^A-Z0-9]/g, '')
+  if (fuzzyInput.length < 4) return null
+
+  const { data: fuzzy } = await supabase
     .from('referral_codes')
     .select('user_id, code')
-  if (!all?.length) return null
+    .ilike('code', `%${fuzzyInput}%`)
+    .limit(1)
+    .maybeSingle()
 
-  const fuzzyInput = normalized.replace(/^FB-/, '')
-  for (const row of all) {
-    const rowCode = (row.code ?? '').trim().toUpperCase()
-    const rowSuffix = rowCode.replace(/^FB-/, '')
-    const match =
-      rowCode === normalized ||
-      rowSuffix === fuzzyInput ||
-      (fuzzyInput.length >= 4 && rowSuffix.includes(fuzzyInput)) ||
-      (rowSuffix.length >= 4 && fuzzyInput.includes(rowSuffix))
-    if (match && row.user_id) {
-      if (excludeUserId && row.user_id === excludeUserId) return null
-      return { user_id: row.user_id, code: row.code }
-    }
+  if (fuzzy?.user_id) {
+    if (excludeUserId && fuzzy.user_id === excludeUserId) return null
+    return { user_id: fuzzy.user_id, code: fuzzy.code }
   }
 
   return null

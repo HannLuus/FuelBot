@@ -228,7 +228,7 @@ sender_name = "FuelBot"
 # Custom confirmation (signup) email — warm welcome instead of default
 [auth.email.template.confirmation]
 subject = "Welcome to FuelBot — confirm your email"
-content_path = "./templates/confirmation.html"
+content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize invite email template
 # [auth.email.template.invite]

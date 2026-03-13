@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders, json, requireAuthedUser } from '../_shared/adminAuth.ts'
+import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
 import { emailLogoHtml } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
   if (resendKey && adminEmail) {
     try {
       const resend = new Resend(resendKey)
-      const stationLabel = `${station.name} (${station.township}, ${station.city})`
+      const stationLabel = `${escapeHtml(station.name)} (${escapeHtml(station.township)}, ${escapeHtml(station.city)})`
       await resend.emails.send({
         from: 'FuelBot <onboarding@resend.dev>',
         to: [adminEmail],
@@ -84,13 +84,13 @@ Deno.serve(async (req) => {
           <h2>Payment reported – please verify</h2>
           <p>A station owner has reported that they have paid.</p>
           <p><strong>Station:</strong> ${stationLabel}</p>
-          <p><strong>Station ID:</strong> ${station.id}</p>
+          <p><strong>Station ID:</strong> ${escapeHtml(station.id)}</p>
           <p><strong>Expected amount:</strong> ${EXPECTED_AMOUNT_MMK.toLocaleString('en-US')} MMK</p>
-          <p><strong>Payment method:</strong> ${paymentMethod || '—'}</p>
-          <p><strong>Payment reference:</strong> ${paymentReference || '—'}</p>
-          ${screenshotPath ? `<p><strong>Payment screenshot:</strong> ${screenshotPath} (check Storage bucket b2b-payment-screenshots)</p>` : ''}
+          <p><strong>Payment method:</strong> ${escapeHtml(paymentMethod || '—')}</p>
+          <p><strong>Payment reference:</strong> ${escapeHtml(paymentReference || '—')}</p>
+          ${screenshotPath ? `<p><strong>Payment screenshot:</strong> ${escapeHtml(screenshotPath)} (check Storage bucket b2b-payment-screenshots)</p>` : ''}
           <p>Please verify the payment in your wallet/bank and mark payment received in the admin panel.</p>
-          <p><a href="${appUrl}">Open admin panel</a></p>
+          <p><a href="${escapeHtml(appUrl)}">Open admin panel</a></p>
         `,
       })
     } catch (err) {

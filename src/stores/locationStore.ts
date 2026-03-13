@@ -10,6 +10,8 @@ interface LocationState {
   loading: boolean
   /** Only set after we've checked (or attempted) permission. */
   permissionChecked: boolean
+  /** True when location was obtained from an IP geolocation fallback (not GPS). */
+  usingIpFallback: boolean
   requestLocation: (options?: { highAccuracy?: boolean }) => void
   /** Check permission without requesting. Resolves to null if Permissions API not available. */
   checkPermission: (options?: { onGranted?: () => void }) => Promise<GeolocationPermissionState>
@@ -22,6 +24,7 @@ export const useLocationStore = create<LocationState>((set) => ({
   error: null,
   loading: false,
   permissionChecked: false,
+  usingIpFallback: false,
 
   clearError: () => set({ error: null }),
 
@@ -88,7 +91,7 @@ export const useLocationStore = create<LocationState>((set) => ({
           try {
             const { lat, lng } = await fetcher()
             if (!isNaN(lat) && !isNaN(lng)) {
-              set({ lat, lng, loading: false, error: null })
+              set({ lat, lng, loading: false, error: null, usingIpFallback: true })
               success = true
               break
             }
@@ -121,6 +124,7 @@ export const useLocationStore = create<LocationState>((set) => ({
         lng: pos.coords.longitude,
         loading: false,
         error: null,
+        usingIpFallback: false,
       })
     }
 

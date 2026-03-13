@@ -36,6 +36,7 @@ export function HomePage() {
     checkPermission,
     permissionChecked,
     clearError,
+    usingIpFallback,
   } = useLocationStore()
   const { filters } = useFilterStore()
   const [myStats, setMyStats] = useState<MyStats | null>(null)
@@ -113,6 +114,21 @@ export function HomePage() {
             className="shrink-0 flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 font-semibold text-white active:bg-blue-700 dark:bg-blue-500 dark:active:bg-blue-600"
           >
             {t('home.useMyLocation')}
+          </button>
+        </div>
+      )}
+
+      {/* IP fallback banner — shown when GPS unavailable and approximate location is used */}
+      {usingIpFallback && !locError && (
+        <div className="shrink-0 flex items-center gap-2 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+          <span className="flex-1">{t('home.usingIpLocation')}</span>
+          <button
+            type="button"
+            onClick={() => requestLocation({ highAccuracy: true })}
+            className="shrink-0 font-semibold underline underline-offset-2"
+          >
+            {t('home.useGps')}
           </button>
         </div>
       )}

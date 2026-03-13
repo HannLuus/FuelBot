@@ -111,11 +111,12 @@ export function useNearbyStations({
     void fetchStations()
   }, [fetchStations])
 
-  // Keep latest fetchStations in a ref so Realtime callback always refreshes with current params without recreating the channel
-  const fetchStationsRef = useRef(fetchStations)
-  fetchStationsRef.current = fetchStations
+  // Keep latest stations in a ref so Realtime callback can do a surgical update without stale closure
+  const stationsRef = useRef(stations)
+  stationsRef.current = stations
 
-  // Realtime subscription only when logged in. Single channel per user session to avoid multiple WebSocket connections and console errors.
+  // Realtime subscription only when logged in. Performs surgical in-place status update instead of
+  // a full refetch so B2B national view users don't re-download hundreds of stations on every change.
   const user = useAuthStore((s) => s.user)
   useEffect(() => {
     if (!user) return
@@ -123,8 +124,18 @@ export function useNearbyStations({
       .channel('station_status_changes')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'station_current_status' },
-        () => void fetchStationsRef.current(),
+        { event: 'UPDATE', schema: 'public', table: 'station_current_status' },
+        (payload) => {
+          const updated = payload.new as unknown as StationWithStatus['current_status']
+          if (!updated) return
+          setStations((prev) =>
+            prev.map((s) =>
+              s.id === (updated as { station_id?: string })?.station_id
+                ? { ...s, current_status: updated }
+                : s,
+            ),
+          )
+        },
       )
       .subscribe((status) => {
         if (status === 'CHANNEL_ERROR' && channel) {
@@ -181,17 +192,25 @@ export function useStationDetail(stationId: string) {
   return { station, reports, loading, error, refresh: fetch }
 }
 
-// Fallback for when PostGIS RPC is unavailable: load all active stations and compute distance client-side
+// Fallback for when PostGIS RPC is unavailable: load stations within a bounding box and compute distance client-side.
+// The bounding box pre-filter avoids pulling the entire stations table into the browser.
 export async function fetchStationsFallback(
   lat: number,
   lng: number,
   maxDistanceKm: number,
 ): Promise<StationWithStatus[]> {
+  const degLat = maxDistanceKm / 111.0
+  const degLng = maxDistanceKm / (111.0 * Math.cos((lat * Math.PI) / 180))
+
   const { data, error } = await supabase
     .from('stations')
     .select('*, current_status:station_current_status(*)')
     .eq('is_active', true)
     .eq('country_code', 'MM')
+    .gte('lat', lat - degLat)
+    .lte('lat', lat + degLat)
+    .gte('lng', lng - degLng)
+    .lte('lng', lng + degLng)
 
   if (error) throw error
 
