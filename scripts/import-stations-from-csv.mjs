@@ -196,6 +196,13 @@ async function main() {
     const street = emptyToNull(col(row, 'street'))
     const township = street || ''
     const workingHours = parseWorkingHoursJson(col(row, 'working_hours'))
+    // Only stations where the business owner has verified the Google Maps listing
+    // get verification_source='distributor' and show "Verified on Google".
+    // Unverified rows (verified=False in CSV) get null — they appear on the map
+    // but show no verification badge.
+    // NOTE: is_verified is ALWAYS false here. is_verified=true is only ever set by
+    // admin-approve-registration after payment, and unlocks paid premium features.
+    const googleVerified = parseBool(col(row, 'verified'))
     inserts.push({
       id: randomUUID(),
       name,
@@ -212,7 +219,7 @@ async function main() {
       city,
       country_code: 'MM',
       is_verified: false,
-      verification_source: 'distributor',
+      verification_source: googleVerified ? 'distributor' : null,
       is_active: true,
       created_at: now,
       updated_at: now,
