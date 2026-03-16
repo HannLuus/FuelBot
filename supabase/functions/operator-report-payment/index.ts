@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
-import { emailLogoHtml } from '../_shared/emailHeader.ts'
+import { emailLogoHtml, RESEND_FROM } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 const EXPECTED_AMOUNT_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK') ?? '120000')
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       const resend = new Resend(resendKey)
       const stationLabel = `${escapeHtml(station.name)} (${escapeHtml(station.township)}, ${escapeHtml(station.city)})`
       await resend.emails.send({
-        from: 'FuelBot <onboarding@resend.dev>',
+        from: RESEND_FROM,
         to: [adminEmail],
         subject: 'FuelBot: payment reported – please verify',
         html: emailLogoHtml(appBaseUrl) + `

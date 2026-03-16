@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
 
   const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY')
   const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY')
-  const vapidSubject = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:admin@fuelbot.app'
+  const vapidSubject = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:support@fuelbotmm.com'
 
   if (!vapidPublicKey || !vapidPrivateKey) {
     console.warn('send-fuel-alerts: VAPID keys not set, skipping push delivery')

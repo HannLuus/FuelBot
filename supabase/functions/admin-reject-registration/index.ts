@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
-import { emailLogoHtml } from '../_shared/emailHeader.ts'
+import { emailLogoHtml, RESEND_FROM } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 interface Payload {
@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
       if (ownerEmail) {
         const appUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
         await resend.emails.send({
-          from: 'FuelBot <onboarding@resend.dev>',
+          from: RESEND_FROM,
           to: [ownerEmail],
           subject: 'FuelBot: station registration rejected',
           html: emailLogoHtml(appUrl) + `

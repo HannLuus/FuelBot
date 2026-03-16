@@ -1,6 +1,6 @@
 import { Resend } from 'npm:resend@2.0.0'
 import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
-import { emailLogoHtml } from '../_shared/emailHeader.ts'
+import { emailLogoHtml, RESEND_FROM } from '../_shared/emailHeader.ts'
 
 interface Payload {
   kind: 'PENDING_REGISTRATION' | 'PENDING_CLAIM' | 'PENDING_SUGGESTION'
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
 
   try {
     await resend.emails.send({
-      from: 'FuelBot <onboarding@resend.dev>',
+      from: RESEND_FROM,
       to: [adminEmail],
       subject,
       html,

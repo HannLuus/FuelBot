@@ -16,6 +16,7 @@ dist-ssr
 .env
 .env.local
 .env.production
+.cursor/mcp.json
 Untitled
 
 # Editor directories and files

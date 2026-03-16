@@ -53,7 +53,11 @@ export function TermsPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900">{t('legal.termsContactTitle')}</h2>
-            <p className="mt-1 text-gray-700">{t('landing.footerContact')}</p>
+            <p className="mt-1 text-gray-700">
+              <a href={`mailto:${t('landing.contactEmail')}`} className="text-blue-600 underline hover:text-blue-800">
+                {t('landing.footerContact')}
+              </a>
+            </p>
           </section>
         </div>
 

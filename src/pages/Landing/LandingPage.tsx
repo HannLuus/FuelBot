@@ -364,7 +364,9 @@ export function LandingPage() {
             </Link>
           </div>
           <p className="mt-2 text-center text-sm text-gray-700">
-            {t('landing.footerContact')}
+            <a href={`mailto:${t('landing.contactEmail')}`} className="text-blue-600 underline hover:text-blue-800">
+              {t('landing.footerContact')}
+            </a>
           </p>
         </div>
       </footer>
