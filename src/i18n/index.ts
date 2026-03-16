@@ -3,7 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import en from './locales/en'
 import my from './locales/my'
 
-const savedLang = localStorage.getItem('fuelbot_lang') || 'en'
+const savedLang = localStorage.getItem('fuelbot_lang') || 'my'
 
 i18n
   .use(initReactI18next)
