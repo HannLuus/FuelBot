@@ -114,13 +114,7 @@ export function LandingPage() {
               to="/auth"
               className="flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold text-gray-700 active:bg-gray-100"
             >
-              {t('auth.signIn')}
-            </Link>
-            <Link
-              to="/auth?mode=signup"
-              className="flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold text-blue-600 active:bg-blue-50"
-            >
-              {t('auth.signUp')}
+              {t('auth.signInOrSignUp')}
             </Link>
             <Button size="sm" onClick={() => navigate('/home')}>
               {t('landing.enterApp')}
