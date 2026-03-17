@@ -426,6 +426,11 @@ export default {
     cityRequired: 'City is required.',
     signInRequired: 'Please sign in to suggest a station and receive referral rewards.',
     signInCta: 'Sign in to continue',
+    tapMapToSetLocation: 'Tap the map to set the station location.',
+    locationSet: 'Location set',
+    clearLocation: 'Clear location',
+    continueToDetails: 'Continue',
+    changeLocation: 'Change location',
   },
   admin: {
     title: 'Admin Panel',

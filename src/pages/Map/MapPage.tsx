@@ -120,6 +120,9 @@ export function MapPage() {
   const { mapStyle, setMapStyle } = useMapStyleStore()
   const { t, i18n } = useTranslation()
   const [suggestOpen, setSuggestOpen] = useState(false)
+  const [suggestLat, setSuggestLat] = useState<number | null>(null)
+  const [suggestLng, setSuggestLng] = useState<number | null>(null)
+  const suggestionMarkerRef = useRef<L.Marker | null>(null)
 
   const effectiveLat = lat ?? YANGON_LAT
   const effectiveLng = lng ?? YANGON_LNG
@@ -234,6 +237,51 @@ export function MapPage() {
     })
   }, [filteredStations, navigate, filters.fuelTypes, t])
 
+  // Suggestion pin: show when user has picked a location on the map
+  useEffect(() => {
+    if (!mapRef.current || suggestLat == null || suggestLng == null) {
+      suggestionMarkerRef.current?.remove()
+      suggestionMarkerRef.current = null
+      return
+    }
+    suggestionMarkerRef.current?.remove()
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:28px; height:28px; border-radius:50%;
+        background:#22c55e; border:3px solid white;
+        box-shadow:0 2px 8px rgba(0,0,0,0.4);
+      " title="Suggested location"></div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+    })
+    suggestionMarkerRef.current = L.marker([suggestLat, suggestLng], { icon }).addTo(mapRef.current)
+    return () => {
+      suggestionMarkerRef.current?.remove()
+      suggestionMarkerRef.current = null
+    }
+  }, [suggestLat, suggestLng])
+
+  // When suggestion sheet is open, map clicks set the suggested station location
+  useEffect(() => {
+    if (!mapRef.current || !suggestOpen) return
+    const map = mapRef.current
+    function onMapClick(e: L.LeafletMouseEvent) {
+      setSuggestLat(e.latlng.lat)
+      setSuggestLng(e.latlng.lng)
+    }
+    map.on('click', onMapClick)
+    return () => {
+      map.off('click', onMapClick)
+    }
+  }, [suggestOpen])
+
+  function handleSuggestClose() {
+    setSuggestOpen(false)
+    setSuggestLat(null)
+    setSuggestLng(null)
+  }
+
   // When showing whole country or a route, fit map bounds to all stations (and user location)
   const isNationalView = filters.maxDistanceKm >= WHOLE_COUNTRY_KM
   const isRouteView = !!filters.selectedRouteId
@@ -340,7 +388,17 @@ export function MapPage() {
         {t('suggest.missingStation')}
       </button>
 
-      <SuggestStationSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} />
+      <SuggestStationSheet
+        open={suggestOpen}
+        onClose={handleSuggestClose}
+        pickedLat={suggestLat}
+        pickedLng={suggestLng}
+        onClearLocation={() => {
+          setSuggestLat(null)
+          setSuggestLng(null)
+        }}
+        hideBackdrop
+      />
     </div>
   )
 }

@@ -426,6 +426,11 @@ export default {
     cityRequired: 'မြို့ လိုအပ်သည်။',
     signInRequired: 'ဆိုင်အကြံပြုရန်နှင့် referral ဆုရရန် အကောင့်ဝင်ပါ။',
     signInCta: 'ဆက်လုပ်ရန် အကောင့်ဝင်မည်',
+    tapMapToSetLocation: 'ဆိုင်တည်နေရာ သတ်မှတ်ရန် မြေပုံကို နှိပ်ပါ။',
+    locationSet: 'တည်နေရာ သတ်မှတ်ပြီး',
+    clearLocation: 'တည်နေရာ ဖျက်မည်',
+    continueToDetails: 'ဆက်မည်',
+    changeLocation: 'တည်နေရာ ပြောင်းမည်',
   },
   admin: {
     title: 'စီမံခန့်ခွဲမှုဘောင်',
