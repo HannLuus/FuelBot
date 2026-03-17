@@ -2,6 +2,11 @@
   "mcpServers": {
     "supabase": {
       "url": "https://mcp.supabase.com/mcp?project_ref=feenwusofmhnpuahekvu"
+    },
+    "vercel": {
+      "command": "npx",
+      "args": ["-y", "@mistertk/vercel-mcp"],
+      "envFile": ".env"
     }
   }
 }
