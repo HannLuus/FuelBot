@@ -9,14 +9,16 @@ This project has **Supabase MCP**, **Supabase CLI**, a **direct app connection t
 
 ## 1. Supabase MCP (Cursor ↔ Supabase)
 
+**The AI has MCP access to the Supabase project.** Use it. Do not ask the user to run Supabase CLI for tasks that MCP can do (deploy Edge Functions, run SQL, apply migrations, list tables, generate types). Deploying Edge Functions is the AI’s job via MCP — use `deploy_edge_function`, not “run `supabase functions deploy` in the terminal”.
+
 **Use MCP when:** The AI or you need to inspect or change the **remote project** from inside Cursor (no terminal, no app code).
 
 - **Read/write data:** Run ad-hoc SQL (e.g. inspect rows, one-off fixes) → use MCP tool `execute_sql`. Do **not** use it for DDL that should be versioned.
 - **Schema changes that should be migrations:** Apply a new migration (DDL) via MCP → use `apply_migration` (name + query). Prefer this when you want the change recorded as a migration in the project.
 - **Discover schema:** List tables, list migrations, list extensions → use MCP `list_tables`, `list_migrations`, `list_extensions`.
 - **Types:** Generate TypeScript types from the DB → use MCP `generate_typescript_types`.
-- **Edge Functions (read-only):** List or get edge function details, get logs → use MCP `list_edge_functions`, `get_edge_function`, `get_logs`.
-- **Branches / deploy from Cursor:** Create/branch/merge/reset/delete DB branches, or deploy an edge function from Cursor → use MCP `create_branch`, `deploy_edge_function`, etc.
+- **Edge Functions:** List/get details/logs → `list_edge_functions`, `get_edge_function`, `get_logs`. **Deploy an Edge Function** → use MCP `deploy_edge_function` (provide `name`, `entrypoint_path`, `verify_jwt`, and `files` from the repo). Do not tell the user to run `supabase functions deploy`; the AI deploys via MCP.
+- **Branches:** Create/branch/merge/reset/delete DB branches → use MCP `create_branch`, etc.
 
 **Config:** `.cursor/mcp.json` → server `project-0-FuelBot-supabase` (project ref `feenwusofmhnpuahekvu`). No API keys in MCP; auth is OAuth via Cursor.
 
@@ -26,11 +28,11 @@ This project has **Supabase MCP**, **Supabase CLI**, a **direct app connection t
 
 - **Apply migrations from repo to remote:** `supabase db push` (after `supabase link --project-ref feenwusofmhnpuahekvu`).
 - **Pull remote schema into repo:** `supabase db pull` (generates migration files).
-- **Deploy Edge Functions:** `supabase functions deploy <name>` (e.g. `submit-report`, `send-fuel-alerts`, `snapshot-station-statuses`). See README for full list.
+- **Deploy Edge Functions (fallback):** If MCP deploy is unavailable, `supabase functions deploy <name>` in terminal. Prefer MCP `deploy_edge_function` from Cursor.
 - **Local Supabase (Docker):** `supabase start`; local MCP at `http://localhost:54321/mcp` if you add it to `.cursor/mcp.json`.
 - **Link project (one-time):** `supabase login` then `supabase link --project-ref feenwusofmhnpuahekvu`.
 
-Use the CLI for anything that should be **reproducible from the repo** (migrations, function deploys). Use MCP for **interactive** DB queries, applying a one-off migration from Cursor, or generating types.
+Use the CLI for **reproducible from repo** (e.g. `db push`, `db pull`, `supabase start`). Use MCP for **interactive** work from Cursor: DB queries, one-off migrations, generating types, and **deploying Edge Functions**.
 
 ## 3. Direct app connection to Supabase (code + env)
 
@@ -54,8 +56,8 @@ We use the **existing** Vercel connection for the project; no extra “connectio
 
 | Task | Use |
 |------|-----|
-| Ad-hoc SQL, list tables/migrations, generate types, apply one-off migration from Cursor | **Supabase MCP** |
-| `db push` / `db pull`, deploy Edge Functions, `supabase start` | **Supabase CLI** |
+| Ad-hoc SQL, list tables/migrations, generate types, apply one-off migration, **deploy Edge Functions** | **Supabase MCP** (AI must use it) |
+| `db push` / `db pull`, `supabase start` | **Supabase CLI** |
 | App code (React, Edge Functions, scripts) talking to Supabase | **App connection** (env + `@supabase/supabase-js`) |
 | Deploy frontend, set build/env | **Vercel** |
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { X, Lightbulb } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -13,6 +14,8 @@ interface Props {
 export function SuggestStationSheet({ open, onClose }: Props) {
   const { t } = useTranslation()
   const { user } = useAuthStore()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const [name, setName] = useState('')
   const [city, setCity] = useState('')
@@ -47,6 +50,11 @@ export function SuggestStationSheet({ open, onClose }: Props) {
     setCityError(false)
     setError(null)
 
+    if (!user) {
+      setError(t('suggest.signInRequired'))
+      return
+    }
+
     let valid = true
     if (!name.trim()) { setNameError(true); valid = false }
     if (!city.trim()) { setCityError(true); valid = false }
@@ -59,7 +67,7 @@ export function SuggestStationSheet({ open, onClose }: Props) {
         city: city.trim(),
         address: address.trim() || null,
         note: note.trim() || null,
-        suggested_by: user?.id ?? null,
+        suggested_by: user.id,
       })
       if (insertError) throw insertError
 
@@ -135,7 +143,24 @@ export function SuggestStationSheet({ open, onClose }: Props) {
             </div>
           ) : (
             <form onSubmit={(e) => { void handleSubmit(e) }} noValidate>
-              <p className="mb-4 text-sm text-gray-600">{t('suggest.intro')}</p>
+              <p className="mb-4 text-sm text-gray-700">{t('suggest.intro')}</p>
+
+              {!user && (
+                <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                  <p className="text-sm text-amber-900">{t('suggest.signInRequired')}</p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => {
+                      handleClose()
+                      navigate(`/auth?redirect=${encodeURIComponent(location.pathname)}`)
+                    }}
+                  >
+                    {t('suggest.signInCta')}
+                  </Button>
+                </div>
+              )}
 
               {/* Name */}
               <div className="mb-3">
@@ -208,6 +233,7 @@ export function SuggestStationSheet({ open, onClose }: Props) {
                 variant="primary"
                 size="md"
                 loading={submitting}
+                disabled={!user}
                 className="w-full"
               >
                 {submitting ? t('suggest.submitting') : t('suggest.submit')}

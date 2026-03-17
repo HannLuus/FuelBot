@@ -158,7 +158,7 @@ export function LandingPage() {
           </div>
           <p className="text-gray-700">{t('landing.whatYouEarnBody')}</p>
           <div className="mt-4">
-            <Link to="/operator" className="text-sm font-semibold text-blue-600 underline">
+            <Link to="/earn" className="text-sm font-semibold text-blue-600 underline">
               {t('landing.getReferralCodeCta')}
             </Link>
           </div>

@@ -74,6 +74,7 @@ interface StationSuggestion {
   note: string | null
   suggested_by: string | null
   status: 'pending' | 'approved' | 'rejected'
+  station_id?: string | null
   created_at: string
 }
 
@@ -496,11 +497,11 @@ export function AdminPage() {
     setWorkingId(id)
     setError(null)
     try {
-      const { error: updateErr } = await supabase
-        .from('station_suggestions')
-        .update({ status: 'approved' })
-        .eq('id', id)
-      if (updateErr) throw updateErr
+      const { data, error: fnErr } = await supabase.functions.invoke('admin-create-station-from-suggestion', {
+        body: { suggestion_id: id },
+      })
+      if (fnErr) throw fnErr
+      if (data?.error) throw new Error(data.error)
       await loadAll()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.generic'))
@@ -1082,9 +1083,9 @@ export function AdminPage() {
                         {s.note && (
                           <p className="mt-1 text-xs italic text-gray-600">"{s.note}"</p>
                         )}
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-gray-700">
                           {new Date(s.created_at).toLocaleDateString()}
-                          {s.suggested_by ? ` · ${s.suggested_by.slice(0, 8)}…` : ' · anonymous'}
+                          {s.suggested_by ? ` · ${s.suggested_by.slice(0, 8)}…` : ` · ${t('admin.legacyAnonymousSuggestion')}`}
                         </p>
                       </div>
                       <a
@@ -1104,7 +1105,7 @@ export function AdminPage() {
                         loading={workingId === s.id}
                         onClick={() => void approveSuggestion(s.id)}
                       >
-                        {t('admin.approveSuggestion')}
+                        {t('admin.createStationFromSuggestion')}
                       </Button>
                       <Button
                         size="sm"

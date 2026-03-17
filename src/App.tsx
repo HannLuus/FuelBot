@@ -12,6 +12,7 @@ import { PrivacyPage } from '@/pages/Legal/PrivacyPage'
 import { BenefitsStationPage } from '@/pages/Benefits/BenefitsStationPage'
 import { BenefitsFleetPage } from '@/pages/Benefits/BenefitsFleetPage'
 import { B2BPage } from '@/pages/B2B/B2BPage'
+import { EarnPage } from '@/pages/Earn/EarnPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
@@ -58,6 +59,7 @@ export default function App() {
           />
           <Route path="/operator" element={<OperatorPage />} />
           <Route path="/operator/claim/:stationId" element={<OperatorPage />} />
+          <Route path="/earn" element={<EarnPage />} />
           <Route path="/b2b" element={<B2BPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>

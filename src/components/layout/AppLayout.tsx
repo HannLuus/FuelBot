@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Store, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck } from 'lucide-react'
+import { List, Map, PlusCircle, Store, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
@@ -31,6 +31,7 @@ export function AppLayout() {
   const navItems = [
     { to: '/home', label: t('nav.nearby'), icon: List, end: true },
     { to: '/map', label: t('nav.map'), icon: Map },
+    { to: '/earn', label: t('nav.earn'), icon: Gift },
     { to: '/b2b', label: t('nav.routeAccess'), icon: Truck },
     { to: '/operator', label: t('nav.operator'), icon: Store },
     ...(isAdmin ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
@@ -209,6 +210,15 @@ export function AppLayout() {
                 className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
               >
                 <span>{t('legal.termsAndPrivacy')}</span>
+              </Link>
+
+              <Link
+                to="/earn"
+                onClick={() => setSheetOpen(false)}
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+              >
+                <Gift className="h-5 w-5 text-gray-700 shrink-0" />
+                <span>{t('nav.earn')}</span>
               </Link>
 
               <Link

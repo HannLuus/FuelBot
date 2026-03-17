@@ -56,8 +56,10 @@ npm run dev
 supabase functions deploy submit-report
 supabase functions deploy send-fuel-alerts
 supabase functions deploy operator-report-payment
+supabase functions deploy get-referral-code --no-verify-jwt   # auth done in function; see docs/REFERRAL_CODE_FLOW.md
 supabase functions deploy admin-mark-referral-collected
 supabase functions deploy admin-mark-referral-paid
+supabase functions deploy admin-create-station-from-suggestion
 supabase functions deploy snapshot-station-statuses
 ```
 
