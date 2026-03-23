@@ -1,6 +1,6 @@
 import { Resend } from 'npm:resend@2.0.0'
 import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
-import { emailLogoHtml, RESEND_FROM } from '../_shared/emailHeader.ts'
+import { emailLogoHtml, getAppAdminUrl, getAppBaseUrl, RESEND_FROM } from '../_shared/emailHeader.ts'
 
 interface Payload {
   kind: 'PENDING_REGISTRATION' | 'PENDING_CLAIM' | 'PENDING_SUGGESTION'
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
   const adminEmail = Deno.env.get('ADMIN_NOTIFICATION_EMAIL') ?? Deno.env.get('ADMIN_EMAIL')
   const resendKey = Deno.env.get('RESEND_API_KEY')
-  const appUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app/admin'
+  const appUrl = getAppAdminUrl()
 
   if (!resendKey) {
     console.warn('notify-admin skipped: RESEND_API_KEY missing')
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
         ? `Suggested station: ${escapeHtml(payload.station_name ?? '-')}${payload.suggestion_city ? ', ' + escapeHtml(payload.suggestion_city) : ''} (ID: ${escapeHtml(payload.suggestion_id ?? '-')})`
         : `Station: ${escapeHtml(payload.station_name ?? '-')} (${escapeHtml(payload.station_id ?? '-')})`
 
-  const appBaseUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
+  const appBaseUrl = getAppBaseUrl()
   const html = emailLogoHtml(appBaseUrl) + `
     <h2>FuelBot admin action required</h2>
     <p>${details}</p>

@@ -7,6 +7,7 @@
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3'
+import { getAppBaseUrl } from '../_shared/emailHeader.ts'
 
 const PUSH_BATCH_SIZE = 100
 
@@ -106,7 +107,7 @@ Deno.serve(async (req) => {
     .select('endpoint, p256dh, auth')
     .in('user_id', followerIds)
 
-  const stationPageUrl = `${Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'}/station/${stationId}`
+  const stationPageUrl = `${getAppBaseUrl()}/station/${stationId}`
   const pushPayload = JSON.stringify({
     title: 'Fuel back in stock!',
     body: `${fuelCodesBack} is now available nearby.`,

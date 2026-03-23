@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
-import { emailLogoHtml, RESEND_FROM } from '../_shared/emailHeader.ts'
+import { emailLogoHtml, getAppBaseUrl, RESEND_FROM } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 const STATION_ANNUAL_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK') ?? Deno.env.get('TIER_PRICE_SMALL_MMK') ?? '120000')
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
   if (resendApi) {
     try {
       const resend = new Resend(resendApi)
-      const appUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
+      const appUrl = getAppBaseUrl()
       const stationLabel = `${station.name} (${station.township}, ${station.city})`
 
       // Notify station owner about approval and Option B payout obligation.

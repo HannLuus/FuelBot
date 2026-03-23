@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
-import { emailLogoHtml, RESEND_FROM } from '../_shared/emailHeader.ts'
+import { emailLogoHtml, getAppBaseUrl, RESEND_FROM } from '../_shared/emailHeader.ts'
 import { Resend } from 'npm:resend@2.0.0'
 
 const EXPECTED_AMOUNT_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK') ?? '120000')
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
   if (resendKey && adminEmail) {
     try {
       const resend = new Resend(resendKey)
-      const appBaseUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
+      const appBaseUrl = getAppBaseUrl()
       await resend.emails.send({
         from: RESEND_FROM,
         to: [adminEmail],

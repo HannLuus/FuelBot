@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'npm:resend@2.0.0'
-import { emailLogoHtml, RESEND_FROM } from '../_shared/emailHeader.ts'
+import { emailLogoHtml, getAppBaseUrl, RESEND_FROM } from '../_shared/emailHeader.ts'
 import { resolveReferral } from '../_shared/referralResolver.ts'
 import { escapeHtml } from '../_shared/adminAuth.ts'
 
@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
   if (resendApi && adminEmail) {
     try {
       const resend = new Resend(resendApi)
-      const appUrl = Deno.env.get('APP_URL') ?? 'https://fuelbot.vercel.app'
+      const appUrl = getAppBaseUrl()
       await resend.emails.send({
         from: RESEND_FROM,
         to: [adminEmail],
