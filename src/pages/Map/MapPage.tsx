@@ -15,8 +15,10 @@ import type { StationWithStatus } from '@/types'
 
 const CARTO_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+const OSM_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
-function makeTileLayer(style: MapStyle): L.TileLayer {
+function makeCartoTileLayer(style: MapStyle): L.TileLayer {
   const url =
     style === 'dark'
       ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
@@ -25,6 +27,14 @@ function makeTileLayer(style: MapStyle): L.TileLayer {
     subdomains: 'abcd',
     maxZoom: 20,
     attribution: CARTO_ATTRIBUTION,
+  })
+}
+
+function makeOsmFallbackTileLayer(): L.TileLayer {
+  return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    subdomains: 'abc',
+    maxZoom: 20,
+    attribution: OSM_ATTRIBUTION,
   })
 }
 
@@ -113,6 +123,7 @@ export function MapPage() {
   const mapRef = useRef<L.Map | null>(null)
   const markersRef = useRef<L.Marker[]>([])
   const tileLayerRef = useRef<L.TileLayer | null>(null)
+  const tileFallbackActiveRef = useRef(false)
   const userLocationLayerRef = useRef<L.CircleMarker | null>(null)
   const navigate = useNavigate()
   const { lat, lng, requestLocation, loading: locationLoading, error: locationError } = useLocationStore()
@@ -138,6 +149,24 @@ export function MapPage() {
 
   const filteredStations = filters.verifiedOnly ? stations.filter(isStationVerified) : stations
 
+  function activateTileFallback() {
+    if (!mapRef.current || tileFallbackActiveRef.current) return
+    tileFallbackActiveRef.current = true
+    tileLayerRef.current?.remove()
+    tileLayerRef.current = makeOsmFallbackTileLayer().addTo(mapRef.current)
+  }
+
+  function addCartoLayerWithFallback(style: MapStyle) {
+    if (!mapRef.current) return
+    const layer = makeCartoTileLayer(style)
+    layer.on('tileerror', () => {
+      // Some mobile networks/adblockers/CSP combinations block Carto hosts.
+      // Fall back to OSM so the map never stays blank.
+      activateTileFallback()
+    })
+    tileLayerRef.current = layer.addTo(mapRef.current)
+  }
+
   // Initialise Leaflet map once
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
@@ -149,8 +178,7 @@ export function MapPage() {
     })
 
     const initialStyle = useMapStyleStore.getState().mapStyle
-    const layer = makeTileLayer(initialStyle).addTo(mapRef.current)
-    tileLayerRef.current = layer
+    addCartoLayerWithFallback(initialStyle)
 
     if (lat != null && lng != null) {
       const circle = L.circleMarker([lat, lng], {
@@ -168,6 +196,7 @@ export function MapPage() {
     return () => {
       tileLayerRef.current?.remove()
       tileLayerRef.current = null
+      tileFallbackActiveRef.current = false
       userLocationLayerRef.current?.remove()
       userLocationLayerRef.current = null
       mapRef.current?.remove()
@@ -180,8 +209,11 @@ export function MapPage() {
     if (!mapRef.current || !tileLayerRef.current) return
     tileLayerRef.current.remove()
     tileLayerRef.current = null
-    const layer = makeTileLayer(mapStyle).addTo(mapRef.current)
-    tileLayerRef.current = layer
+    if (tileFallbackActiveRef.current) {
+      tileLayerRef.current = makeOsmFallbackTileLayer().addTo(mapRef.current)
+      return
+    }
+    addCartoLayerWithFallback(mapStyle)
   }, [mapStyle])
 
   // When user location updates (e.g. after tapping "My location"), center map and update pin

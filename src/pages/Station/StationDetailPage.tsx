@@ -344,7 +344,7 @@ export function StationDetailPage() {
         )}
 
         {/* Report wrong location — so we can fix or remove bad data */}
-        {station.id && (
+        {station.id && station.verification_source !== 'distributor' && (
           <div className="mx-4 mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
             {reportWrongLocationSent ? (
               <p className="text-sm text-amber-900">{t('station.reportWrongLocationSent')}</p>
