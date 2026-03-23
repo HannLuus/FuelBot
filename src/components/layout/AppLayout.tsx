@@ -43,7 +43,7 @@ export function AppLayout() {
       <header className="shrink-0 flex items-center justify-between border-b border-gray-100 bg-white px-4 shadow-sm" style={{ minHeight: '52px' }}>
         <button
           type="button"
-          onClick={() => navigate('/home')}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 min-h-[44px]"
         >
           <img src="/FuelbotLogo.png" alt="" className="h-8 w-auto" />
