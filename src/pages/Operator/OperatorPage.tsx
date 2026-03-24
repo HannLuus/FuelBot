@@ -127,6 +127,7 @@ export function OperatorPage() {
   const paymentInstructions = paymentConfig.payment_instructions
   const paymentQrUrl = paymentConfig.payment_qr_url
   const paymentPhoneKpay = paymentConfig.payment_phone_kpay || ''
+  const authRedirectPath = `/auth?mode=signup&redirect=${encodeURIComponent(`/station${window.location.search}`)}`
 
   useEffect(() => {
     if (!user) return
@@ -602,7 +603,7 @@ export function OperatorPage() {
         <div>
           <Store className="mx-auto mb-3 h-12 w-12 text-gray-700" />
           <p className="text-gray-700 mb-3">{t('auth.signIn')}</p>
-          <Button onClick={() => navigate('/auth')}>{t('auth.signIn')}</Button>
+          <Button onClick={() => navigate(authRedirectPath)}>{t('auth.signIn')}</Button>
         </div>
       </div>
     )
@@ -786,6 +787,20 @@ export function OperatorPage() {
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    {t('operator.referralCode')}
+                  </label>
+                  <input
+                    type="text"
+                    value={referralCodeInput}
+                    onChange={(e) => setReferralCodeInput(e.target.value.toUpperCase())}
+                    placeholder={t('operator.referralCodePlaceholder')}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <p className="mt-1 text-[11px] text-gray-700">{t('operator.referralCodeOptionalNote')}</p>
                 </div>
 
                 <div>

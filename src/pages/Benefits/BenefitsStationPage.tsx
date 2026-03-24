@@ -77,7 +77,7 @@ export function BenefitsStationPage() {
 
         <p className="mt-8">
           <Link
-            to="/operator"
+            to="/station"
             className="font-medium text-blue-600 underline active:text-blue-800"
           >
             {t('landing.registerStationCta')}

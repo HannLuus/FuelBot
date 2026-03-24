@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ArrowRight, Send, CheckCircle2, MapPin } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Button } from '@/components/ui/Button'
+import { Spinner } from '@/components/ui/Spinner'
 import { FUEL_CODES, FUEL_DISPLAY, QUEUE_LABEL } from '@/lib/fuelUtils'
 import { getDeviceHash } from '@/lib/deviceHash'
 import { supabase } from '@/lib/supabase'
@@ -21,6 +22,10 @@ const FUEL_STATUS_OPTIONS: { value: FuelStatusChoice; emoji: string; labelKey: s
 
 const QUEUE_OPTIONS: QueueBucket[] = ['NONE', 'MIN_0_15', 'MIN_15_30', 'MIN_30_60', 'MIN_60_PLUS']
 
+function track(event: string, payload?: Record<string, unknown>) {
+  console.info(`[analytics] ${event}`, payload ?? {})
+}
+
 export function ReportPage() {
   const { id: stationId } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -29,6 +34,41 @@ export function ReportPage() {
   const { lat, lng, requestLocation } = useLocationStore()
 
   const locationReady = lat != null && lng != null
+  const [stationName, setStationName] = useState<string | null>(null)
+  const [stationArea, setStationArea] = useState<string>('')
+  const [stationLoading, setStationLoading] = useState(true)
+  const [stationMissing, setStationMissing] = useState(false)
+
+  useEffect(() => {
+    if (!stationId) {
+      navigate('/report', { replace: true })
+      return
+    }
+    let cancelled = false
+    setStationMissing(false)
+    setStationName(null)
+    setStationArea('')
+    setStationLoading(true)
+    void (async () => {
+      const { data, error } = await supabase
+        .from('stations')
+        .select('id, name, township, city')
+        .eq('id', stationId)
+        .eq('is_active', true)
+        .single()
+      if (cancelled) return
+      if (error || !data) {
+        setStationMissing(true)
+      } else {
+        setStationName(data.name)
+        setStationArea(`${data.township}, ${data.city}`)
+      }
+      setStationLoading(false)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [stationId, navigate])
 
   // Request location on mount if not already available — the server now requires coordinates
   // for all non-verified-station reports.
@@ -38,6 +78,10 @@ export function ReportPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (stationId) track('report_form_opened', { station_id: stationId })
+  }, [stationId])
 
   const [step, setStep] = useState(1)
   const [fuelStatuses, setFuelStatuses] = useState<Record<FuelCode, FuelStatusChoice>>({
@@ -89,7 +133,8 @@ export function ReportPage() {
       }
 
       setResult('success')
-      setTimeout(() => navigate(stationId ? `/station/${stationId}` : '/'), 1800)
+      track('report_submit_success', { station_id: stationId })
+      setTimeout(() => navigate(stationId ? `/station/${stationId}` : '/report'), 1800)
     } catch {
       setResult('error')
     } finally {
@@ -109,18 +154,44 @@ export function ReportPage() {
     )
   }
 
+  if (stationLoading) {
+    return (
+      <div className="flex h-full items-center justify-center"><Spinner /></div>
+    )
+  }
+
+  if (stationMissing) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
+        <p className="text-lg font-bold text-gray-900">{t('report.stationNotFoundTitle')}</p>
+        <p className="text-sm text-gray-700">{t('report.stationNotFoundBody')}</p>
+        <Button type="button" onClick={() => navigate('/report')}>
+          {t('report.selectAnotherStation')}
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-full flex-col bg-white">
       {/* Header with 44px back button */}
       <div className="flex items-center gap-3 border-b border-gray-100 px-2 py-1">
         <button
-          onClick={() => (step > 1 ? setStep(step - 1) : navigate(-1))}
+          onClick={() => (step > 1 ? setStep(step - 1) : navigate('/report'))}
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl active:bg-gray-100"
           aria-label="Back"
         >
           <ArrowLeft className="h-5 w-5 text-gray-700" />
         </button>
-        <h1 className="text-base font-bold text-gray-900">{t('report.title')}</h1>
+        <div>
+          <h1 className="text-base font-bold text-gray-900">{t('report.title')}</h1>
+          {stationName && (
+            <p className="text-xs text-gray-700">
+              {stationName}
+              {stationArea ? ` · ${stationArea}` : ''}
+            </p>
+          )}
+        </div>
         {/* Step progress */}
         <div className="ml-auto flex gap-1.5 pr-3">
           {[1, 2, 3].map((s) => (
@@ -136,6 +207,19 @@ export function ReportPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto scroll-touch px-4 pt-5 pb-4">
+        <div className="mb-4 rounded-2xl border border-blue-200 bg-blue-50 p-3">
+          <p className="text-xs font-semibold text-blue-900">{t('report.reportingFor')}</p>
+          <p className="text-sm font-semibold text-blue-900">{stationName}</p>
+          {stationArea && <p className="text-xs text-blue-900">{stationArea}</p>}
+          <button
+            type="button"
+            onClick={() => navigate('/report')}
+            className="mt-2 text-xs font-semibold text-blue-700 underline underline-offset-2"
+          >
+            {t('report.changeStation')}
+          </button>
+        </div>
+
         {/* Location required banner */}
         {!locationReady && (
           <div className="mb-4 flex items-start gap-3 rounded-2xl bg-amber-50 p-3.5">

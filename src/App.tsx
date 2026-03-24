@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { HomePage } from '@/pages/Home/HomePage'
 import { StationDetailPage } from '@/pages/Station/StationDetailPage'
 import { ReportPage } from '@/pages/Report/ReportPage'
+import { ReportStationPickerPage } from '@/pages/Report/ReportStationPickerPage'
 import { AdminPage } from '@/pages/Admin/AdminPage'
 import { OperatorPage } from '@/pages/Operator/OperatorPage'
 import { AuthPage } from '@/pages/Auth/AuthPage'
@@ -43,8 +44,11 @@ export default function App() {
         <Route path="/benefits/fleet-owners" element={<BenefitsFleetPage />} />
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
+          <Route path="/station" element={<OperatorPage />} />
           <Route path="/station/:id" element={<StationDetailPage />} />
-          <Route path="/report/:id?" element={<ReportPage />} />
+          <Route path="/station/claim/:stationId" element={<OperatorPage />} />
+          <Route path="/report" element={<ReportStationPickerPage />} />
+          <Route path="/report/:id" element={<ReportPage />} />
           <Route
             path="/map"
             element={

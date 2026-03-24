@@ -31,7 +31,7 @@ export function EarnPage() {
 
   const shareLink = useMemo(() => {
     if (!referralCode) return ''
-    return `${window.location.origin}/operator?ref=${encodeURIComponent(referralCode)}`
+    return `${window.location.origin}/station?ref=${encodeURIComponent(referralCode)}`
   }, [referralCode])
 
   useEffect(() => {

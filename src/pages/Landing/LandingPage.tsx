@@ -36,7 +36,7 @@ export function LandingPage() {
   const [showIOSInstallModal, setShowIOSInstallModal] = useState(false)
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const { canInstall, isIOS, isPrompting, prompt } = usePWAInstall()
+  const { canInstall, isIOS, isPrompting, prompt, showInstallUI } = usePWAInstall()
 
   useEffect(() => {
     void loadRecognitions()
@@ -96,10 +96,13 @@ export function LandingPage() {
 
   async function handleInstallClick() {
     if (canInstall) {
-      await prompt()
-    } else {
-      setShowIOSInstallModal(true)
+      const accepted = await prompt()
+      if (!accepted) {
+        setShowIOSInstallModal(true)
+      }
+      return
     }
+    setShowIOSInstallModal(true)
   }
 
   return (
@@ -114,16 +117,18 @@ export function LandingPage() {
             <span className="text-base font-bold text-gray-900">{t('app.name')}</span>
           </button>
           <div className="hidden items-center gap-2 sm:flex">
-            <button
-              type="button"
-              onClick={handleInstallClick}
-              disabled={isPrompting}
-              className="flex min-h-[44px] min-w-[44px] flex-shrink-0 items-center justify-center rounded-xl active:bg-gray-100 disabled:opacity-60 disabled:pointer-events-none"
-              aria-label={t('landing.installAppAria')}
-              title={t('landing.installApp')}
-            >
-              <img src="/FuelbotLogo.png" alt="" className="h-7 w-7" />
-            </button>
+            {showInstallUI && (
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                disabled={isPrompting}
+                className="flex min-h-[44px] min-w-[44px] flex-shrink-0 items-center justify-center rounded-xl active:bg-gray-100 disabled:opacity-60 disabled:pointer-events-none"
+                aria-label={t('landing.installAppAria')}
+                title={t('landing.installApp')}
+              >
+                <img src="/FuelbotLogo.png" alt="" className="h-7 w-7" />
+              </button>
+            )}
             <button
               onClick={toggleLang}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-sm font-semibold text-gray-700 active:bg-gray-100"
@@ -157,18 +162,20 @@ export function LandingPage() {
         {showMobileMenu && (
           <div className="border-t border-gray-200 bg-white sm:hidden">
             <div className="mx-auto max-w-5xl space-y-2 px-4 py-3">
-              <Button
-                type="button"
-                variant="secondary"
-                className="w-full justify-center"
-                onClick={() => {
-                  setShowMobileMenu(false)
-                  void handleInstallClick()
-                }}
-                disabled={isPrompting}
-              >
-                {t('landing.installApp')}
-              </Button>
+              {showInstallUI && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full justify-center"
+                  onClick={() => {
+                    setShowMobileMenu(false)
+                    void handleInstallClick()
+                  }}
+                  disabled={isPrompting}
+                >
+                  {t('landing.installApp')}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="secondary"
@@ -236,16 +243,8 @@ export function LandingPage() {
             <Button onClick={() => navigate('/home')}>
               {t('landing.openFuelBot')}
             </Button>
-            <Button variant="secondary" onClick={() => navigate('/operator')}>
+            <Button variant="secondary" onClick={() => navigate('/station')}>
               {t('landing.registerStationCta')}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => void handleInstallClick()}
-              disabled={isPrompting}
-            >
-              {t('landing.installApp')}
             </Button>
           </div>
         </section>
