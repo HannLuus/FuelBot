@@ -6,20 +6,22 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useB2BEntitlements } from '@/hooks/useB2BEntitlements'
+import { useB2BPricing, type B2BDurationMonths, quoteB2BPrice } from '@/hooks/useB2BPricing'
 import { usePaymentConfig } from '@/hooks/usePaymentConfig'
 import { useAuthStore } from '@/stores/authStore'
 import { formatMmk } from '@/lib/subscriptionTiers'
 
 const BUCKET = 'b2b-payment-screenshots'
-const ANNUAL_PRICE = Number(import.meta.env.VITE_STATION_SUBSCRIPTION_ANNUAL_MMK ?? '120000')
+const DURATION_OPTIONS: B2BDurationMonths[] = [3, 6, 12]
 
 export function B2BPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const { routeAccessValidUntil, loading: entLoading, refresh } = useB2BEntitlements()
+  const { config: pricingConfig, loading: pricingLoading } = useB2BPricing()
 
-  const [paymentMethod, setPaymentMethod] = useState('KBZ_PAY')
+  const [durationMonths, setDurationMonths] = useState<B2BDurationMonths>(3)
   const [paymentReference, setPaymentReference] = useState('')
   const [screenshotPath, setScreenshotPath] = useState<string | null>(null)
   const [uploadingScreenshot, setUploadingScreenshot] = useState(false)
@@ -31,7 +33,6 @@ export function B2BPage() {
   const paymentConfig = usePaymentConfig()
   const paymentInstructions = paymentConfig.payment_instructions ?? ''
   const paymentQrUrl = paymentConfig.payment_qr_url ?? ''
-  const paymentPhoneWavePay = (paymentConfig.payment_phone_wavepay ?? '').trim()
   const paymentPhoneKpay = (paymentConfig.payment_phone_kpay ?? '').trim()
 
   if (!user) {
@@ -117,7 +118,8 @@ export function B2BPage() {
     try {
       const { data, error: fnErr } = await supabase.functions.invoke('b2b-subscribe', {
         body: {
-          payment_method: paymentMethod,
+          payment_method: 'KBZ_PAY',
+          duration_months: durationMonths,
           payment_reference: paymentReference.trim(),
           screenshot_path: screenshotPath || undefined,
         },
@@ -142,12 +144,47 @@ export function B2BPage() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <p className="text-sm text-gray-700">{t('b2b.description')}</p>
 
-        {/* Pricing — same style as Operator tiers section */}
+        {/* Pricing */}
         <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <h2 className="text-sm font-bold text-gray-900 mb-3">{t('landing.perYear')}</h2>
-          <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-            <p className="text-lg font-bold text-blue-900">{formatMmk(ANNUAL_PRICE)} / {t('landing.perYear')}</p>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-blue-800">
+          <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.choosePlanDuration')}</h2>
+          {pricingLoading ? (
+            <div className="flex justify-center py-6">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-3">
+              {DURATION_OPTIONS.map((m) => {
+                const quote = quoteB2BPrice(pricingConfig, m)
+                const selected = durationMonths === m
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setDurationMonths(m)}
+                    className={[
+                      'rounded-xl border p-3 text-left transition-all',
+                      selected ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500' : 'border-gray-200 bg-white hover:border-blue-300',
+                    ].join(' ')}
+                  >
+                    <p className="text-sm font-semibold text-gray-900">{t('b2b.durationLabel', { months: m })}</p>
+                    <p className="mt-1 text-base font-bold text-blue-900">{formatMmk(quote.paid)}</p>
+                    {quote.promoOn && quote.savings > 0 ? (
+                      <>
+                        <p className="text-xs text-gray-700 line-through">{formatMmk(quote.list)}</p>
+                        <p className="text-xs font-semibold text-green-700">
+                          {t('b2b.promoSavingsLine', { percent: quote.promoPercent, savings: formatMmk(quote.savings) })}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-xs text-gray-700">{t('b2b.listPriceOnly')}</p>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+          <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
+            <ul className="list-inside list-disc space-y-1 text-sm text-blue-800">
               <li>{t('b2b.allRoutesAccess')}</li>
               <li>{t('b2b.oneAccountPerSub')}</li>
             </ul>
@@ -175,14 +212,14 @@ export function B2BPage() {
               <img src={paymentQrUrl} alt="Payment QR" className="h-40 w-40 rounded border border-gray-200 object-cover" />
             </div>
           ) : null}
-          {(paymentPhoneWavePay || paymentPhoneKpay) ? (
+          {paymentPhoneKpay ? (
             <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
-              {paymentPhoneWavePay ? (
-                <p>WavePay: <a href={`tel:${paymentPhoneWavePay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneWavePay}</a></p>
-              ) : null}
-              {paymentPhoneKpay ? (
-                <p className="mt-1">KPay / KBZ Pay: <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneKpay}</a></p>
-              ) : null}
+              <p>
+                KPay / KBZ Pay:{' '}
+                <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">
+                  {paymentPhoneKpay}
+                </a>
+              </p>
             </div>
           ) : null}
         </section>
@@ -201,21 +238,10 @@ export function B2BPage() {
               <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.paymentDetails')}</h2>
 
               <div className="space-y-3">
-                <div>
-                  <label htmlFor="b2b-payment-method" className="mb-1.5 block text-xs font-medium text-gray-700">
-                    {t('admin.paymentMethod')}
-                  </label>
-                  <select
-                    id="b2b-payment-method"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="KBZ_PAY">KBZ Pay</option>
-                    <option value="WAVEPAY">WavePay</option>
-                    <option value="BANK_TRANSFER">Bank Transfer</option>
-                  </select>
-                </div>
+                <p className="text-xs text-gray-700">{t('b2b.kpayOnlyNotice')}</p>
+                <p className="text-xs text-gray-700">
+                  {t('b2b.selectedDurationSummary', { months: durationMonths })}
+                </p>
 
                 <div>
                   <label htmlFor="b2b-payment-ref" className="mb-1.5 block text-xs font-medium text-gray-700">

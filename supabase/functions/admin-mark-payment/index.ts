@@ -3,7 +3,7 @@ import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
 
 interface Payload {
   station_id: string
-  payment_method: 'KBZ_PAY' | 'WAVEPAY' | 'BANK_TRANSFER'
+  payment_method: 'KBZ_PAY'
   payment_reference?: string
 }
 
@@ -22,8 +22,11 @@ Deno.serve(async (req) => {
     return json({ error: 'Invalid JSON' }, 400)
   }
 
-  if (!payload.station_id || !payload.payment_method) {
-    return json({ error: 'station_id and payment_method are required' }, 400)
+  if (!payload.station_id) {
+    return json({ error: 'station_id is required' }, 400)
+  }
+  if (payload.payment_method !== 'KBZ_PAY') {
+    return json({ error: 'Only KBZ Pay (KPay) is supported' }, 400)
   }
 
   const service = createClient(
@@ -31,15 +34,18 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
 
-  const { error } = await service
-    .from('stations')
-    .update({
-      payment_received_at: new Date().toISOString(),
-      payment_method: payload.payment_method,
-      payment_reference: payload.payment_reference?.trim() || null,
-      payment_confirmed_by: admin.user.id,
-    })
-    .eq('id', payload.station_id)
+  const refTrim = payload.payment_reference?.trim()
+  const patch: Record<string, unknown> = {
+    payment_received_at: new Date().toISOString(),
+    payment_method: payload.payment_method,
+    payment_confirmed_by: admin.user.id,
+  }
+  // Keep the operator-submitted reference when admin leaves this blank.
+  if (refTrim) {
+    patch.payment_reference = refTrim
+  }
+
+  const { error } = await service.from('stations').update(patch).eq('id', payload.station_id)
 
   if (error) {
     console.error('admin-mark-payment error:', error)

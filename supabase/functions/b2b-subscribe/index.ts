@@ -1,13 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAuthedUser, escapeHtml } from '../_shared/adminAuth.ts'
 import { emailLogoHtml, getAppBaseUrl, RESEND_FROM } from '../_shared/emailHeader.ts'
+import { quoteB2BPrice, type B2BPricingConfigRow } from '../_shared/b2bPricing.ts'
 import { Resend } from 'npm:resend@2.0.0'
-
-const EXPECTED_AMOUNT_MMK = Number(Deno.env.get('STATION_SUBSCRIPTION_ANNUAL_MMK') ?? '120000')
 
 interface Payload {
   payment_method: string
   payment_reference: string
+  duration_months: 3 | 6 | 12
   screenshot_path?: string | null
 }
 
@@ -26,8 +26,14 @@ Deno.serve(async (req) => {
     return json({ error: 'Invalid JSON' }, 400)
   }
 
-  if (!payload.payment_method || !payload.payment_reference) {
-    return json({ error: 'payment_method and payment_reference are required' }, 400)
+  if (!payload.payment_reference?.trim()) {
+    return json({ error: 'payment_reference is required' }, 400)
+  }
+  if (payload.payment_method !== 'KBZ_PAY') {
+    return json({ error: 'Only KBZ Pay (KPay) is accepted' }, 400)
+  }
+  if (![3, 6, 12].includes(Number(payload.duration_months))) {
+    return json({ error: 'duration_months must be one of 3, 6, or 12' }, 400)
   }
 
   const service = createClient(
@@ -40,8 +46,7 @@ Deno.serve(async (req) => {
     .from('b2b_subscriptions')
     .select('id')
     .eq('user_id', authed.user.id)
-    .gt('valid_until', new Date().toISOString())
-    .in('status', ['PENDING', 'CONFIRMED'])
+    .or(`status.eq.PENDING,and(status.eq.CONFIRMED,valid_until.gt.${new Date().toISOString()})`)
     .limit(1)
 
   if (existingErr) {
@@ -53,9 +58,24 @@ Deno.serve(async (req) => {
     return json({ error: 'User already has an active B2B subscription' }, 400)
   }
 
-  // Insert new subscription: valid for 1 year from now
-  const validUntil = new Date()
-  validUntil.setFullYear(validUntil.getFullYear() + 1)
+  const { data: pricing } = await service
+    .from('b2b_pricing_config')
+    .select('list_price_3m_mmk, list_price_6m_mmk, list_price_12m_mmk, promo_price_3m_mmk, promo_price_6m_mmk, promo_price_12m_mmk, promo_enabled, promo_starts_at, promo_ends_at')
+    .eq('id', 'default')
+    .maybeSingle()
+  const cfg = (pricing ?? {
+    list_price_3m_mmk: 36000,
+    list_price_6m_mmk: 72000,
+    list_price_12m_mmk: 144000,
+    promo_price_3m_mmk: 28800,
+    promo_price_6m_mmk: 57600,
+    promo_price_12m_mmk: 115200,
+    promo_enabled: true,
+    promo_starts_at: null,
+    promo_ends_at: null,
+  }) as B2BPricingConfigRow
+  const quote = quoteB2BPrice(cfg, payload.duration_months)
+  const nowIso = new Date().toISOString()
 
   const { error: insertErr } = await service
     .from('b2b_subscriptions')
@@ -63,10 +83,17 @@ Deno.serve(async (req) => {
       user_id: authed.user.id,
       plan_type: 'route_view',
       route_id: null,
-      valid_until: validUntil.toISOString(),
+      // Entitlement starts at admin confirmation; keep pending rows inert.
+      valid_until: nowIso,
       status: 'PENDING',
       payment_method: payload.payment_method,
       payment_reference: payload.payment_reference,
+      duration_months: payload.duration_months,
+      price_list_mmk: quote.listPriceMmk,
+      price_promo_mmk: quote.promoPriceMmk,
+      price_paid_mmk: quote.paidPriceMmk,
+      promo_applied: quote.promoApplied,
+      promo_percent: quote.promoPercent,
       screenshot_path: payload.screenshot_path?.trim() || null,
     })
 
@@ -92,7 +119,10 @@ Deno.serve(async (req) => {
           <p>A user has signed up for B2B route access (all routes).</p>
           <p><strong>User ID:</strong> ${escapeHtml(authed.user.id)}</p>
           <p><strong>User Email:</strong> ${escapeHtml(authed.user.email ?? '—')}</p>
-          <p><strong>Expected amount:</strong> ${EXPECTED_AMOUNT_MMK.toLocaleString('en-US')} MMK</p>
+          <p><strong>Plan duration:</strong> ${payload.duration_months} months</p>
+          <p><strong>List price:</strong> ${quote.listPriceMmk.toLocaleString('en-US')} MMK</p>
+          <p><strong>Promo price:</strong> ${quote.promoPriceMmk.toLocaleString('en-US')} MMK</p>
+          <p><strong>Expected amount paid:</strong> ${quote.paidPriceMmk.toLocaleString('en-US')} MMK ${quote.promoApplied ? '(promo active)' : '(no promo)'}</p>
           <p><strong>Payment Method:</strong> ${escapeHtml(payload.payment_method)}</p>
           <p><strong>Payment Reference:</strong> ${escapeHtml(payload.payment_reference)}</p>
           ${payload.screenshot_path ? `<p><strong>Payment screenshot:</strong> ${escapeHtml(payload.screenshot_path)} (check Storage bucket b2b-payment-screenshots for review / future bot).</p>` : ''}

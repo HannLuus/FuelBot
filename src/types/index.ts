@@ -66,6 +66,13 @@ export interface Station {
   /** CamelCase alias from some API responses; use verification_source ?? verificationSource. */
   verificationSource?: 'distributor' | 'crowd' | 'owner' | null
   subscription_tier_requested?: SubscriptionTierRequested | null
+  /** Snapshot when operator reported payment (aligned with b2b_pricing_config). */
+  subscription_duration_months?: number | null
+  subscription_price_list_mmk?: number | null
+  subscription_price_promo_mmk?: number | null
+  subscription_price_paid_mmk?: number | null
+  subscription_promo_applied?: boolean | null
+  subscription_promo_percent?: number | null
   payment_received_at?: string | null
   payment_reported_at?: string | null
   payment_method?: string | null

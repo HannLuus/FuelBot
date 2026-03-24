@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi, Upload } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
+
+const PAYMENT_CONFIG_BUCKET = 'payment-config'
+/** Single object key; content type comes from upload (PNG/JPEG/WebP/GIF). */
+const PAYMENT_QR_OBJECT_KEY = 'payment-qr'
 
 /** Returns true only for HTTPS URLs hosted on our Supabase project's storage domain.
  *  Prevents user-supplied arbitrary URLs (javascript:, data:, phishing links) from
@@ -84,8 +88,6 @@ interface ReporterRow {
   report_count: number
   rank: number
 }
-type PaymentMethod = 'KBZ_PAY' | 'WAVEPAY' | 'BANK_TRANSFER'
-
 interface PendingReferralRewardRow {
   id: string
   station_id: string
@@ -103,6 +105,12 @@ interface PendingB2BRow {
   payment_method: string | null
   payment_reference: string | null
   screenshot_path: string | null
+  duration_months: number | null
+  price_list_mmk: number | null
+  price_promo_mmk: number | null
+  price_paid_mmk: number | null
+  promo_applied: boolean | null
+  promo_percent: number | null
   created_at: string
 }
 
@@ -113,6 +121,36 @@ function fairShuffle<T>(arr: T[]): T[] {
     const tmp = a[i]; a[i] = a[j]; a[j] = tmp
   }
   return a
+}
+
+function toLocalDateTimeInputValue(isoLike: string | null | undefined): string {
+  if (!isoLike) return ''
+  const date = new Date(isoLike)
+  if (Number.isNaN(date.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+function fromLocalDateTimeInputValue(input: string): string | null {
+  if (!input) return null
+  const date = new Date(input)
+  if (Number.isNaN(date.getTime())) return null
+  return date.toISOString()
+}
+
+/** Refresh session then invoke with an explicit Bearer token so Edge Functions see up-to-date JWT claims
+ *  (e.g. after app_metadata role changes). Matches project URL + anon key from env. */
+async function invokeAdminEdgeFunction(name: string, body: Record<string, unknown>) {
+  const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession()
+  if (refreshErr) console.warn('refreshSession before admin invoke:', refreshErr.message)
+  const session = refreshed.session ?? (await supabase.auth.getSession()).data.session
+  if (!session?.access_token) {
+    throw new Error('Not signed in')
+  }
+  return supabase.functions.invoke(name, {
+    body,
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
 }
 
 export function AdminPage() {
@@ -129,26 +167,38 @@ export function AdminPage() {
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [rejectingStation, setRejectingStation] = useState<Station | null>(null)
   const [rejectReasonInput, setRejectReasonInput] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('KBZ_PAY')
   const [paymentReference, setPaymentReference] = useState('')
-  const [referralPaymentMethod, setReferralPaymentMethod] = useState<PaymentMethod>('WAVEPAY')
   const [referralPaymentRef, setReferralPaymentRef] = useState('')
   const [referralPayStationId, setReferralPayStationId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [paymentConfig, setPaymentConfig] = useState<{
     payment_instructions: string
     payment_qr_url: string
-    payment_phone_wavepay: string
     payment_phone_kpay: string
   }>({
     payment_instructions: '',
     payment_qr_url: '',
-    payment_phone_wavepay: '',
     payment_phone_kpay: '',
   })
   const [paymentConfigLoading, setPaymentConfigLoading] = useState(false)
   const [paymentConfigSaving, setPaymentConfigSaving] = useState(false)
   const [paymentConfigSaved, setPaymentConfigSaved] = useState(false)
+  const [uploadingQr, setUploadingQr] = useState(false)
+  const paymentQrUploadInputRef = useRef<HTMLInputElement>(null)
+  const [b2bPricing, setB2BPricing] = useState({
+    list_price_3m_mmk: 36000,
+    list_price_6m_mmk: 72000,
+    list_price_12m_mmk: 144000,
+    promo_price_3m_mmk: 28800,
+    promo_price_6m_mmk: 57600,
+    promo_price_12m_mmk: 115200,
+    promo_enabled: true,
+    promo_starts_at: '',
+    promo_ends_at: '',
+  })
+  const [b2bPricingLoading, setB2BPricingLoading] = useState(false)
+  const [b2bPricingSaving, setB2BPricingSaving] = useState(false)
+  const [b2bPricingSaved, setB2BPricingSaved] = useState(false)
 
   // Rewards tab state
   const [rewardsPeriodDays, setRewardsPeriodDays] = useState(30)
@@ -171,14 +221,13 @@ export function AdminPage() {
       try {
         const { data } = await supabase
           .from('payment_config')
-          .select('payment_instructions, payment_qr_url, payment_phone_wavepay, payment_phone_kpay')
+          .select('payment_instructions, payment_qr_url, payment_phone_kpay')
           .eq('id', 'default')
           .maybeSingle()
-        const row = data as { payment_instructions?: string | null; payment_qr_url?: string | null; payment_phone_wavepay?: string | null; payment_phone_kpay?: string | null } | null
+        const row = data as { payment_instructions?: string | null; payment_qr_url?: string | null; payment_phone_kpay?: string | null } | null
         setPaymentConfig({
           payment_instructions: row?.payment_instructions?.trim() ?? '',
           payment_qr_url: row?.payment_qr_url?.trim() ?? '',
-          payment_phone_wavepay: row?.payment_phone_wavepay?.trim() ?? '',
           payment_phone_kpay: row?.payment_phone_kpay?.trim() ?? '',
         })
       } finally {
@@ -192,6 +241,34 @@ export function AdminPage() {
     void loadReporters()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, rewardsPeriodDays])
+
+  useEffect(() => {
+    if (tab !== 'b2b') return
+    setB2BPricingLoading(true)
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from('b2b_pricing_config')
+          .select('list_price_3m_mmk, list_price_6m_mmk, list_price_12m_mmk, promo_price_3m_mmk, promo_price_6m_mmk, promo_price_12m_mmk, promo_enabled, promo_starts_at, promo_ends_at')
+          .eq('id', 'default')
+          .maybeSingle()
+        if (!data) return
+        setB2BPricing({
+          list_price_3m_mmk: Number(data.list_price_3m_mmk ?? 36000),
+          list_price_6m_mmk: Number(data.list_price_6m_mmk ?? 72000),
+          list_price_12m_mmk: Number(data.list_price_12m_mmk ?? 144000),
+          promo_price_3m_mmk: Number(data.promo_price_3m_mmk ?? 28800),
+          promo_price_6m_mmk: Number(data.promo_price_6m_mmk ?? 57600),
+          promo_price_12m_mmk: Number(data.promo_price_12m_mmk ?? 115200),
+          promo_enabled: Boolean(data.promo_enabled ?? true),
+          promo_starts_at: toLocalDateTimeInputValue(data.promo_starts_at),
+          promo_ends_at: toLocalDateTimeInputValue(data.promo_ends_at),
+        })
+      } finally {
+        setB2BPricingLoading(false)
+      }
+    })()
+  }, [tab])
 
   async function loadReporters() {
     setRewardsLoading(true)
@@ -256,7 +333,6 @@ export function AdminPage() {
       .update({
         payment_instructions: paymentConfig.payment_instructions.trim() || null,
         payment_qr_url: paymentConfig.payment_qr_url.trim() || null,
-        payment_phone_wavepay: paymentConfig.payment_phone_wavepay.trim() || null,
         payment_phone_kpay: paymentConfig.payment_phone_kpay.trim() || null,
         updated_at: new Date().toISOString(),
       })
@@ -268,6 +344,60 @@ export function AdminPage() {
     }
     setPaymentConfigSaved(true)
     setError(null)
+  }
+
+  async function saveB2BPricing() {
+    setB2BPricingSaving(true)
+    setB2BPricingSaved(false)
+    const { error: upErr } = await supabase
+      .from('b2b_pricing_config')
+      .update({
+        list_price_3m_mmk: Math.max(1, Math.round(b2bPricing.list_price_3m_mmk)),
+        list_price_6m_mmk: Math.max(1, Math.round(b2bPricing.list_price_6m_mmk)),
+        list_price_12m_mmk: Math.max(1, Math.round(b2bPricing.list_price_12m_mmk)),
+        promo_price_3m_mmk: Math.max(1, Math.round(b2bPricing.promo_price_3m_mmk)),
+        promo_price_6m_mmk: Math.max(1, Math.round(b2bPricing.promo_price_6m_mmk)),
+        promo_price_12m_mmk: Math.max(1, Math.round(b2bPricing.promo_price_12m_mmk)),
+        promo_enabled: b2bPricing.promo_enabled,
+        promo_starts_at: fromLocalDateTimeInputValue(b2bPricing.promo_starts_at),
+        promo_ends_at: fromLocalDateTimeInputValue(b2bPricing.promo_ends_at),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', 'default')
+    setB2BPricingSaving(false)
+    if (upErr) {
+      setError(upErr.message)
+      return
+    }
+    setError(null)
+    setB2BPricingSaved(true)
+  }
+
+  async function uploadPaymentQrFile(file: File) {
+    if (!isAdmin) return
+    setUploadingQr(true)
+    setError(null)
+    try {
+      if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
+        setError(t('admin.paymentQrInvalidType'))
+        return
+      }
+      const { error: upErr } = await supabase.storage.from(PAYMENT_CONFIG_BUCKET).upload(PAYMENT_QR_OBJECT_KEY, file, {
+        upsert: true,
+        contentType: file.type,
+        cacheControl: '3600',
+      })
+      if (upErr) {
+        setError(upErr.message)
+        return
+      }
+      const { data } = supabase.storage.from(PAYMENT_CONFIG_BUCKET).getPublicUrl(PAYMENT_QR_OBJECT_KEY)
+      const url = `${data.publicUrl}?v=${Date.now()}`
+      setPaymentConfig((c) => ({ ...c, payment_qr_url: url }))
+      setPaymentConfigSaved(false)
+    } finally {
+      setUploadingQr(false)
+    }
   }
 
   async function loadAll() {
@@ -303,7 +433,7 @@ export function AdminPage() {
         .order('created_at', { ascending: false }),
       supabase
         .from('b2b_subscriptions')
-        .select('id, user_id, plan_type, valid_until, payment_method, payment_reference, screenshot_path, created_at')
+        .select('id, user_id, plan_type, valid_until, payment_method, payment_reference, screenshot_path, duration_months, price_list_mmk, price_promo_mmk, price_paid_mmk, promo_applied, promo_percent, created_at')
         .eq('status', 'PENDING')
         .order('created_at', { ascending: false }),
     ])
@@ -320,8 +450,9 @@ export function AdminPage() {
     setWorkingId(subscriptionId)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('admin-confirm-b2b', {
-        body: { subscription_id: subscriptionId, action },
+      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-confirm-b2b', {
+        subscription_id: subscriptionId,
+        action,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
@@ -398,12 +529,10 @@ export function AdminPage() {
     setWorkingId(stationId)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('admin-mark-payment', {
-        body: {
-          station_id: stationId,
-          payment_method: paymentMethod,
-          payment_reference: paymentReference.trim() || null,
-        },
+      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-mark-payment', {
+        station_id: stationId,
+        payment_method: 'KBZ_PAY',
+        payment_reference: paymentReference.trim() || null,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
@@ -420,8 +549,8 @@ export function AdminPage() {
     setWorkingId(stationId)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('admin-approve-registration', {
-        body: { station_id: stationId },
+      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-approve-registration', {
+        station_id: stationId,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
@@ -437,8 +566,8 @@ export function AdminPage() {
     setWorkingId(stationId)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('admin-mark-referral-collected', {
-        body: { station_id: stationId },
+      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-mark-referral-collected', {
+        station_id: stationId,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
@@ -454,12 +583,10 @@ export function AdminPage() {
     setWorkingId(stationId)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('admin-mark-referral-paid', {
-        body: {
-          station_id: stationId,
-          payment_method: referralPaymentMethod,
-          payment_reference: referralPaymentRef.trim() || undefined,
-        },
+      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-mark-referral-paid', {
+        station_id: stationId,
+        payment_method: 'KBZ_PAY',
+        payment_reference: referralPaymentRef.trim() || undefined,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
@@ -478,8 +605,9 @@ export function AdminPage() {
     setWorkingId(station.id)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('admin-reject-registration', {
-        body: { station_id: station.id, reason },
+      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-reject-registration', {
+        station_id: station.id,
+        reason,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
@@ -497,8 +625,8 @@ export function AdminPage() {
     setWorkingId(id)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('admin-create-station-from-suggestion', {
-        body: { suggestion_id: id },
+      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-create-station-from-suggestion', {
+        suggestion_id: id,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
@@ -650,15 +778,25 @@ export function AdminPage() {
             <div className="space-y-3">
               {registrations.map((station) => {
                 const tier = (station.subscription_tier_requested ?? 'small') as SubscriptionTierRequested
-                const amount = getTierPrice(tier)
+                const legacyAnnual = getTierPrice(tier)
                 const tierCfg = SUBSCRIPTION_TIERS.find((item) => item.key === tier)
+                const snapshotPaid = station.subscription_price_paid_mmk
+                const snapshotMonths = station.subscription_duration_months
+                const expectedLine =
+                  snapshotPaid != null &&
+                  snapshotMonths != null &&
+                  [3, 6, 12].includes(Number(snapshotMonths))
+                    ? ` · ${t('admin.expectedAmount')}: ${formatMmk(Number(snapshotPaid))} · ${t('b2b.durationLabel', { months: Number(snapshotMonths) })}`
+                    : legacyAnnual
+                      ? ` · ${t('admin.expectedAmount')}: ${formatMmk(legacyAnnual)} / year`
+                      : ''
                 return (
                   <div key={station.id} className="rounded-xl border border-gray-200 bg-white p-4">
                     <p className="text-sm font-semibold text-gray-900">{station.name}</p>
                     <p className="text-xs text-gray-700">{station.township}, {station.city}</p>
                     <p className="mt-1 text-xs text-gray-700">
                       {t('admin.requestedTier')}: <span className="font-semibold">{tierCfg?.name.en ?? tier}</span>
-                      {amount ? ` · ${t('admin.expectedAmount')}: ${formatMmk(amount)} / year` : ''}
+                      {expectedLine}
                     </p>
                     <p className="text-xs text-gray-700">
                       Owner: {station.verified_owner_id?.slice(0, 8)}… · {new Date(station.created_at).toLocaleDateString()}
@@ -668,6 +806,12 @@ export function AdminPage() {
                         {t('admin.paymentReportedAt')}: {new Date(station.payment_reported_at).toLocaleString()}
                       </p>
                     )}
+                    {station.payment_reported_at && station.payment_reference ? (
+                      <p className="mt-1 text-xs text-gray-700">
+                        {t('admin.operatorSubmittedRef')}:{' '}
+                        <span className="font-mono">{station.payment_reference}</span>
+                      </p>
+                    ) : null}
 
                     <div className="mt-3">
                       <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.stationPhotos')}</p>
@@ -696,16 +840,9 @@ export function AdminPage() {
                       )}
                     </div>
 
-                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                      <select
-                        value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                        className="rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-900"
-                      >
-                        <option value="KBZ_PAY">KBZ Pay</option>
-                        <option value="WAVEPAY">WavePay</option>
-                        <option value="BANK_TRANSFER">Bank transfer</option>
-                      </select>
+                    <p className="mt-3 text-xs text-gray-700">{t('admin.markPaymentKpayOnly')}</p>
+                    <p className="mt-1 text-xs text-gray-700">{t('admin.paymentReferenceOptionalKeepOperator')}</p>
+                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
                       <input
                         value={paymentReference}
                         onChange={(e) => setPaymentReference(e.target.value)}
@@ -787,27 +924,54 @@ export function AdminPage() {
                   onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_instructions: e.target.value }))}
                   placeholder={t('admin.paymentInstructionsPlaceholder')}
                   rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-600"
                 />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-700">{t('admin.paymentQrUrlLabel')}</label>
+                <p className="mb-2 text-xs text-gray-700">{t('admin.paymentQrHelp')}</p>
                 <input
                   type="url"
                   value={paymentConfig.payment_qr_url}
                   onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_qr_url: e.target.value }))}
                   placeholder={t('admin.paymentQrUrlPlaceholder')}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-600"
                 />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-gray-700">{t('admin.paymentPhoneWavePayLabel')}</label>
                 <input
-                  type="text"
-                  value={paymentConfig.payment_phone_wavepay}
-                  onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_phone_wavepay: e.target.value }))}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  ref={paymentQrUploadInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="sr-only"
+                  aria-hidden
+                  tabIndex={-1}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    e.target.value = ''
+                    if (f) void uploadPaymentQrFile(f)
+                  }}
                 />
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    loading={uploadingQr}
+                    onClick={() => paymentQrUploadInputRef.current?.click()}
+                  >
+                    <Upload className="mr-1.5 h-4 w-4 shrink-0" aria-hidden />
+                    {uploadingQr ? t('admin.paymentQrUploading') : t('admin.paymentQrUpload')}
+                  </Button>
+                </div>
+                {paymentConfig.payment_qr_url.trim() ? (
+                  <div className="mt-3">
+                    <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.paymentQrPreview')}</p>
+                    <img
+                      src={paymentConfig.payment_qr_url.trim()}
+                      alt=""
+                      className="h-40 w-40 rounded border border-gray-200 object-cover"
+                    />
+                  </div>
+                ) : null}
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-700">{t('admin.paymentPhoneKpayLabel')}</label>
@@ -815,7 +979,8 @@ export function AdminPage() {
                   type="text"
                   value={paymentConfig.payment_phone_kpay}
                   onChange={(e) => setPaymentConfig((c) => ({ ...c, payment_phone_kpay: e.target.value }))}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  placeholder={t('admin.paymentPhoneKpayPlaceholder')}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-600"
                 />
               </div>
               <Button
@@ -859,16 +1024,9 @@ export function AdminPage() {
                     </Button>
                   </div>
                   {referralPayStationId === reward.station_id && (
-                    <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
-                      <select
-                        value={referralPaymentMethod}
-                        onChange={(e) => setReferralPaymentMethod(e.target.value as PaymentMethod)}
-                        className="rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-900"
-                      >
-                        <option value="WAVEPAY">WavePay</option>
-                        <option value="KBZ_PAY">KBZ Pay</option>
-                        <option value="BANK_TRANSFER">Bank transfer</option>
-                      </select>
+                    <div className="mt-3 flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                      <p className="text-xs text-gray-700">{t('admin.referralPaidKpayOnly')}</p>
+                      <div className="flex flex-wrap items-end gap-2">
                       <input
                         value={referralPaymentRef}
                         onChange={(e) => setReferralPaymentRef(e.target.value)}
@@ -886,6 +1044,7 @@ export function AdminPage() {
                       <Button size="sm" variant="secondary" onClick={() => { setReferralPayStationId(null); setReferralPaymentRef('') }}>
                         {t('admin.cancel')}
                       </Button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1122,10 +1281,65 @@ export function AdminPage() {
             </div>
           )
         ) : tab === 'b2b' ? (
-          pendingB2B.length === 0 ? (
-            <p className="py-12 text-center text-gray-700">No pending B2B subscriptions.</p>
-          ) : (
-            <div className="space-y-3">
+          <div className="space-y-4">
+            {b2bPricingLoading ? (
+              <div className="flex justify-center py-4">
+                <Spinner />
+              </div>
+            ) : (
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <p className="text-sm font-semibold text-gray-900">{t('admin.b2bPricingTitle')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('admin.b2bPricingIntro')}</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2b3MonthList')}
+                    <input type="number" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.list_price_3m_mmk} onChange={(e) => setB2BPricing((s) => ({ ...s, list_price_3m_mmk: Number(e.target.value || 0) }))} />
+                  </label>
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2b6MonthList')}
+                    <input type="number" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.list_price_6m_mmk} onChange={(e) => setB2BPricing((s) => ({ ...s, list_price_6m_mmk: Number(e.target.value || 0) }))} />
+                  </label>
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2b12MonthList')}
+                    <input type="number" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.list_price_12m_mmk} onChange={(e) => setB2BPricing((s) => ({ ...s, list_price_12m_mmk: Number(e.target.value || 0) }))} />
+                  </label>
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2b3MonthPromo')}
+                    <input type="number" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.promo_price_3m_mmk} onChange={(e) => setB2BPricing((s) => ({ ...s, promo_price_3m_mmk: Number(e.target.value || 0) }))} />
+                  </label>
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2b6MonthPromo')}
+                    <input type="number" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.promo_price_6m_mmk} onChange={(e) => setB2BPricing((s) => ({ ...s, promo_price_6m_mmk: Number(e.target.value || 0) }))} />
+                  </label>
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2b12MonthPromo')}
+                    <input type="number" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.promo_price_12m_mmk} onChange={(e) => setB2BPricing((s) => ({ ...s, promo_price_12m_mmk: Number(e.target.value || 0) }))} />
+                  </label>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <label className="flex items-center gap-2 text-xs text-gray-700">
+                    <input type="checkbox" checked={b2bPricing.promo_enabled} onChange={(e) => setB2BPricing((s) => ({ ...s, promo_enabled: e.target.checked }))} />
+                    {t('admin.b2bPromoEnabled')}
+                  </label>
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2bPromoStarts')}
+                    <input type="datetime-local" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.promo_starts_at} onChange={(e) => setB2BPricing((s) => ({ ...s, promo_starts_at: e.target.value }))} />
+                  </label>
+                  <label className="text-xs text-gray-700">
+                    {t('admin.b2bPromoEnds')}
+                    <input type="datetime-local" className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900" value={b2bPricing.promo_ends_at} onChange={(e) => setB2BPricing((s) => ({ ...s, promo_ends_at: e.target.value }))} />
+                  </label>
+                </div>
+                <Button className="mt-3" variant="primary" loading={b2bPricingSaving} onClick={() => void saveB2BPricing()}>
+                  {b2bPricingSaved ? t('admin.b2bPricingSaved') : t('admin.b2bPricingSave')}
+                </Button>
+              </div>
+            )}
+
+            {pendingB2B.length === 0 ? (
+              <p className="py-12 text-center text-gray-700">No pending B2B subscriptions.</p>
+            ) : (
+              <div className="space-y-3">
               {pendingB2B.map((sub) => (
                 <div key={sub.id} className="rounded-xl border border-gray-200 bg-white p-4">
                   <p className="text-sm font-semibold text-gray-900">
@@ -1141,6 +1355,15 @@ export function AdminPage() {
                   {sub.payment_reference && (
                     <p className="text-xs text-gray-700">Reference: {sub.payment_reference}</p>
                   )}
+                  {sub.duration_months && (
+                    <p className="text-xs text-gray-700">Duration: {sub.duration_months} months</p>
+                  )}
+                  {sub.price_paid_mmk ? (
+                    <p className="text-xs text-gray-700">
+                      Price paid: {sub.price_paid_mmk.toLocaleString('en-US')} MMK
+                      {sub.promo_applied ? ` (promo ${Number(sub.promo_percent ?? 0)}% off)` : ''}
+                    </p>
+                  ) : null}
                   {sub.screenshot_path && (
                     <StorageFileButton
                       bucket="b2b-payment-screenshots"
@@ -1171,8 +1394,9 @@ export function AdminPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          )
+              </div>
+            )}
+          </div>
         ) : claims.length === 0 ? (
           <p className="py-12 text-center text-gray-700">{t('admin.noClaims')}</p>
         ) : (

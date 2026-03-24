@@ -26,7 +26,7 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 - [x] Edge Function: `admin-reject-registration` (station_id); clear verified_owner_id and optionally tier/payment/photo fields
 - [x] Edge Function or webhook: Send admin email (Resend) on new pending registration (station created with verified_owner_id)
 - [x] Edge Function or webhook: Send admin email (Resend) on new pending claim (station_claims insert, status PENDING)
-- [x] Admins table or custom claim: Identify admin users; add test admin (best.iptvmm@gmail.com)
+- [x] Admins table or custom claim: Identify admin users; add test admin (support@fuelbotmm.com)
 - [x] Server-side: Best-match referral resolution (exact → normalized → fuzzy); validate when owner saves tier (exists, not own code); set referrer_user_id only after validation
 
 ---
@@ -69,7 +69,7 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 - [x] Admin: Display station and location photos so admin can verify actual size
 - [x] Admin: Tier verification — reject if under-declared (photos show station clearly larger than declared tier)
 - [x] Admin: Tier verification — accept if over-declared (boasting; we get more revenue)
-- [x] Admin: "Mark payment received" form/modal — payment method (KBZ Pay, WavePay, Bank transfer), reference (optional)
+- [x] Admin: "Mark payment received" — KBZ Pay (KPay) only, reference (optional)
 - [x] Admin: On Mark payment: update station payment_received_at, payment_method, payment_reference, payment_confirmed_by
 - [x] Admin: "Approve" button — set is_verified = true; optional create subscriptions row (tier, 1 year)
 - [x] Admin: "Reject" button — clear verified_owner_id and optionally tier/payment/photo fields; optional reject reason (e.g. "Tier under-declared")
@@ -104,7 +104,7 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 
 ## 7. Admin notifications
 
-- [x] Set ADMIN_NOTIFICATION_EMAIL in env (testing: best.iptvmm@gmail.com)
+- [x] Set ADMIN_NOTIFICATION_EMAIL in env (production: support@fuelbotmm.com)
 - [x] Trigger: Email on new pending registration (e.g. Database Webhook on stations insert where verified_owner_id not null)
 - [x] Trigger: Email on new pending claim (e.g. Database Webhook on station_claims insert where status PENDING)
 - [x] Admin panel: Summary line or badge "N pending registrations, M pending claims" visible when opening Admin
@@ -117,7 +117,7 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 - [x] Routing: `/` and `/landing` show landing; app routes (/home, /station/*, /operator, /map) show app; logged-in at `/` optionally redirect to /home
 - [x] Section "What we want to achieve": Real-time fuel, trust/quality, help everyone, transparent/fair, Myanmar first; short copy
 - [x] Section "What you can earn": 15% referral, who gets the deal gets the reward, no cap; optional CTA to get referral code
-- [x] Section "What it costs for fuel stations": Small/Medium/Large tiers with MMK/year; payment methods (KBZ Pay, WavePay, bank)
+- [x] Section "What it costs for fuel stations": Small/Medium/Large tiers with MMK/year; payment via KBZ Pay (KPay)
 - [x] Landing i18n: all landing.* keys in en and my
 - [x] Language switcher on landing (if not global)
 - [x] Footer: optional contact

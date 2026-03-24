@@ -3,7 +3,7 @@ import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
 
 interface Payload {
   station_id: string
-  payment_method: 'KBZ_PAY' | 'WAVEPAY' | 'BANK_TRANSFER'
+  payment_method: 'KBZ_PAY'
   payment_reference?: string
 }
 
@@ -22,8 +22,11 @@ Deno.serve(async (req) => {
     return json({ error: 'Invalid JSON' }, 400)
   }
 
-  if (!payload.station_id || !payload.payment_method) {
-    return json({ error: 'station_id and payment_method are required' }, 400)
+  if (!payload.station_id) {
+    return json({ error: 'station_id is required' }, 400)
+  }
+  if (payload.payment_method !== 'KBZ_PAY') {
+    return json({ error: 'Only KBZ Pay (KPay) is supported' }, 400)
   }
 
   const service = createClient(

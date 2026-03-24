@@ -7,7 +7,6 @@ interface ImportMetaEnv {
   readonly VITE_DEVICE_HASH_SALT?: string
   readonly VITE_PAYMENT_INSTRUCTIONS?: string
   readonly VITE_PAYMENT_QR_URL?: string
-  readonly VITE_PAYMENT_PHONE_WAVEPAY?: string
   readonly VITE_PAYMENT_PHONE_KPAY?: string
   readonly VITE_ADMIN_NOTIFICATION_EMAIL?: string
   readonly VITE_STATION_SUBSCRIPTION_ANNUAL_MMK?: string

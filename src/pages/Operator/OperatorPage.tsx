@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { FUEL_CODES, FUEL_DISPLAY, STATUS_LABEL, QUEUE_LABEL, formatRelativeTime } from '@/lib/fuelUtils'
 import type { Station, FuelCode, FuelStatus, QueueBucket, FuelStatuses, StationCurrentStatus, SubscriptionTierRequested } from '@/types'
-import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
+import { formatMmk } from '@/lib/subscriptionTiers'
 import { usePaymentConfig } from '@/hooks/usePaymentConfig'
+import { useB2BPricing, type B2BDurationMonths, quoteB2BPrice } from '@/hooks/useB2BPricing'
 
 const PAYMENT_SCREENSHOT_BUCKET = 'b2b-payment-screenshots'
+const DURATION_OPTIONS: B2BDurationMonths[] = [3, 6, 12]
 
 type FuelStatusOrSkip = FuelStatus | 'SKIP'
 type SaveState = 'idle' | 'saving' | 'success' | 'error'
@@ -95,6 +97,7 @@ export function OperatorPage() {
   })
   const [queue] = useState<QueueBucket>('NONE')
   const [tier, setTier] = useState<SubscriptionTierRequested>('small')
+  const [durationMonths, setDurationMonths] = useState<B2BDurationMonths>(3)
   const [referralCodeInput, setReferralCodeInput] = useState('')
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
@@ -110,17 +113,19 @@ export function OperatorPage() {
   const [editableStationBrand, setEditableStationBrand] = useState('')
   const [setLocationLoading, setSetLocationLoading] = useState(false)
   const [setLocationMessage, setSetLocationMessage] = useState<string | null>(null)
-  const [operatorPaymentMethod, setOperatorPaymentMethod] = useState('KBZ_PAY')
   const [operatorPaymentReference, setOperatorPaymentReference] = useState('')
   const [operatorScreenshotPath, setOperatorScreenshotPath] = useState<string | null>(null)
   const [uploadingPaymentScreenshot, setUploadingPaymentScreenshot] = useState(false)
   const paymentScreenshotInputRef = useRef<HTMLInputElement>(null)
 
-  const selectedTierPrice = useMemo(() => getTierPrice(tier), [tier])
+  const { config: pricingConfig, loading: pricingLoading } = useB2BPricing()
+  const selectedDurationQuote = useMemo(
+    () => quoteB2BPrice(pricingConfig, durationMonths),
+    [pricingConfig, durationMonths],
+  )
   const paymentConfig = usePaymentConfig()
   const paymentInstructions = paymentConfig.payment_instructions
   const paymentQrUrl = paymentConfig.payment_qr_url
-  const paymentPhoneWavePay = paymentConfig.payment_phone_wavepay || ''
   const paymentPhoneKpay = paymentConfig.payment_phone_kpay || ''
 
   useEffect(() => {
@@ -255,6 +260,10 @@ export function OperatorPage() {
     setMyStation(data ?? null)
     if (data) {
       setTier((data.subscription_tier_requested as SubscriptionTierRequested) ?? 'small')
+      const reportedMonths = Number(data.subscription_duration_months)
+      if ([3, 6, 12].includes(reportedMonths)) {
+        setDurationMonths(reportedMonths as B2BDurationMonths)
+      }
       setStationPhotos(data.station_photo_urls ?? [])
       setLocationPhoto(data.location_photo_url ?? null)
       setRecognitionPhotoUrl(data.recognition_photo_url ?? null)
@@ -473,8 +482,9 @@ export function OperatorPage() {
       const { data, error } = await supabase.functions.invoke('operator-report-payment', {
         body: {
           station_id: myStation.id,
-          payment_method: operatorPaymentMethod,
+          payment_method: 'KBZ_PAY',
           payment_reference: operatorPaymentReference.trim(),
+          duration_months: durationMonths,
           screenshot_path: operatorScreenshotPath || undefined,
         },
       })
@@ -640,28 +650,60 @@ export function OperatorPage() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Tiers */}
         <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.tiersTitle')}</h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {SUBSCRIPTION_TIERS.map((cfg) => (
-              <button
-                key={cfg.key}
-                type="button"
-                onClick={() => setTier(cfg.key)}
-                className={`rounded-xl border p-3 text-left ${
-                  tier === cfg.key ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'
-                }`}
-              >
-                <p className="font-semibold text-gray-900">{cfg.name[lang]}</p>
-                <p className="mt-1 text-xs text-gray-700">{cfg.description[lang]}</p>
-                <p className="mt-2 text-sm font-bold text-gray-900">{formatMmk(cfg.annualPriceMmk)} / {t('landing.perYear')}</p>
-              </button>
-            ))}
+          <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.selectTier')}</h2>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {(['small', 'medium', 'large'] as const).map((tierOption) => {
+              const selected = tier === tierOption
+              return (
+                <button
+                  key={tierOption}
+                  type="button"
+                  onClick={() => setTier(tierOption)}
+                  className={`rounded-xl border p-3 text-left ${selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}`}
+                >
+                  <p className="font-semibold text-gray-900">{t(`operator.${tierOption}`)}</p>
+                </button>
+              )
+            })}
           </div>
-          {selectedTierPrice ? (
-            <p className="mt-3 text-xs text-gray-700">
-              {t('operator.selectTier')} · {formatMmk(selectedTierPrice)} / {t('landing.perYear')}
-            </p>
-          ) : null}
+
+          <h2 className="mt-4 text-sm font-bold text-gray-900 mb-3">{t('b2b.choosePlanDuration')}</h2>
+          {pricingLoading ? (
+            <div className="flex justify-center py-4">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-3">
+              {DURATION_OPTIONS.map((m) => {
+                const quote = quoteB2BPrice(pricingConfig, m)
+                const selected = durationMonths === m
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setDurationMonths(m)}
+                    className={`rounded-xl border p-3 text-left ${selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}`}
+                  >
+                    <p className="font-semibold text-gray-900">{t('b2b.durationLabel', { months: m })}</p>
+                    <p className="mt-2 text-sm font-bold text-gray-900">{formatMmk(quote.paid)}</p>
+                    {quote.promoOn && quote.savings > 0 ? (
+                      <>
+                        <p className="text-xs text-gray-700 line-through">{formatMmk(quote.list)}</p>
+                        <p className="text-xs font-semibold text-green-700">
+                          {t('b2b.promoSavingsLine', { percent: quote.promoPercent, savings: formatMmk(quote.savings) })}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-xs text-gray-700">{t('b2b.listPriceOnly')}</p>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+          <p className="mt-3 text-xs text-gray-700">
+            {t('b2b.selectedDurationSummary', { months: durationMonths })} · {formatMmk(selectedDurationQuote.paid)}
+          </p>
           <p className="mt-4 text-sm font-medium text-gray-800">{t('operator.whatYouGetTitle')}</p>
           <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-gray-700">
             <li>{t('operator.whatYouGetReliability')}</li>
@@ -976,14 +1018,14 @@ export function OperatorPage() {
                     <img src={paymentQrUrl} alt="Payment QR" className="h-40 w-40 rounded border border-gray-200 object-cover" />
                   </div>
                 ) : null}
-                {(paymentPhoneWavePay || paymentPhoneKpay) ? (
+                {paymentPhoneKpay ? (
                   <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
-                    {paymentPhoneWavePay ? (
-                      <p>WavePay: <a href={`tel:${paymentPhoneWavePay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneWavePay}</a></p>
-                    ) : null}
-                    {paymentPhoneKpay ? (
-                      <p className="mt-1">KPay / KBZ Pay: <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">{paymentPhoneKpay}</a></p>
-                    ) : null}
+                    <p>
+                      KPay / KBZ Pay:{' '}
+                      <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">
+                        {paymentPhoneKpay}
+                      </a>
+                    </p>
                   </div>
                 ) : null}
               </section>
@@ -994,21 +1036,7 @@ export function OperatorPage() {
               <section className="rounded-2xl border border-gray-200 bg-white p-4">
                 <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.paymentDetails')}</h2>
                 <div className="space-y-3">
-                  <div>
-                    <label htmlFor="operator-payment-method" className="mb-1.5 block text-xs font-medium text-gray-700">
-                      {t('admin.paymentMethod')}
-                    </label>
-                    <select
-                      id="operator-payment-method"
-                      value={operatorPaymentMethod}
-                      onChange={(e) => setOperatorPaymentMethod(e.target.value)}
-                      className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="KBZ_PAY">KBZ Pay</option>
-                      <option value="WAVEPAY">WavePay</option>
-                      <option value="BANK_TRANSFER">Bank Transfer</option>
-                    </select>
-                  </div>
+                  <p className="text-xs text-gray-700">{t('b2b.kpayOnlyNotice')}</p>
                   <div>
                     <label htmlFor="operator-payment-ref" className="mb-1.5 block text-xs font-medium text-gray-700">
                       {t('admin.paymentReference')} *

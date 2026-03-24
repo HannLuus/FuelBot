@@ -29,11 +29,9 @@ Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the Supabase dashb
 
 Also configure:
 
-- `VITE_PAYMENT_INSTRUCTIONS` — text shown to operators (e.g. "Pay 10,000 MMK/month via WavePay or KBZ Pay. Put your station name in the reference.")
-- `VITE_PAYMENT_QR_URL` — optional URL to your payment QR image
-- `VITE_PAYMENT_PHONE_WAVEPAY` — optional WavePay phone number for receiving payments
-- `VITE_PAYMENT_PHONE_KPAY` — optional KBZ Pay / KPay phone number
-- `ADMIN_NOTIFICATION_EMAIL` (for admin action emails; test: `best.iptvmm@gmail.com`)
+- Payment copy, KPay QR URL, and optional KPay phone: **Admin → Payment settings** (`payment_config` in Supabase), not `VITE_*` vars
+- `ADMIN_NOTIFICATION_EMAIL` (for admin action emails; e.g. `support@fuelbotmm.com`)
+- **Invoices:** On station approval and B2B payment confirmation, customers receive a tax invoice email (Commercial Tax % configurable; default 5%). Optional Edge secrets: `INVOICE_COMMERCIAL_TAX_PERCENT`, `INVOICE_SUPPORT_EMAIL`, `INVOICE_COMPANY_NAME`. Rows are stored in table `invoices` with sequential `FB-YYYY-######` numbers via `allocate_invoice_number()`.
 - Station subscription (flat 10,000 MMK/month = 120,000 MMK/year):
   - `VITE_STATION_SUBSCRIPTION_ANNUAL_MMK=120000`
   - `STATION_SUBSCRIPTION_ANNUAL_MMK=120000` (Edge Functions)
@@ -56,10 +54,16 @@ npm run dev
 supabase functions deploy submit-report
 supabase functions deploy send-fuel-alerts
 supabase functions deploy operator-report-payment
+supabase functions deploy contact-us
 supabase functions deploy get-referral-code --no-verify-jwt   # auth done in function; see docs/REFERRAL_CODE_FLOW.md
-supabase functions deploy admin-mark-referral-collected
-supabase functions deploy admin-mark-referral-paid
-supabase functions deploy admin-create-station-from-suggestion
+# Admin panel invokeables: disable gateway JWT so preflight/post hit the function; each uses requireAdminUser()
+supabase functions deploy admin-approve-registration --no-verify-jwt
+supabase functions deploy admin-reject-registration --no-verify-jwt
+supabase functions deploy admin-create-station-from-suggestion --no-verify-jwt
+supabase functions deploy admin-confirm-b2b --no-verify-jwt
+supabase functions deploy admin-mark-payment --no-verify-jwt
+supabase functions deploy admin-mark-referral-collected --no-verify-jwt
+supabase functions deploy admin-mark-referral-paid --no-verify-jwt
 supabase functions deploy snapshot-station-statuses
 ```
 
@@ -194,7 +198,7 @@ You can run the script in stages (e.g. one region per run) and concatenate or re
 ### Admin
 - Review flagged reports
 - Review pending station registrations with station/location photos
-- Mark payment received (KBZ Pay, WavePay, bank transfer + reference)
+- Mark payment received (KBZ Pay / KPay + reference)
 - Tier verification policy: reject under-declared tier, accept over-declared tier
 - Approve / reject station claims
 - Device suspension
