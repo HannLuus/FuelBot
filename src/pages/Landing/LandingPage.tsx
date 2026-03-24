@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, Globe, Users, Store, ShieldCheck, Trophy, Gift } from 'lucide-react'
+import { ArrowRight, Globe, Users, Store, ShieldCheck, Trophy, Gift, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { usePWAInstall } from '@/hooks/usePWAInstall'
 import { supabase } from '@/lib/supabase'
@@ -35,6 +35,7 @@ export function LandingPage() {
   const [topReporters, setTopReporters] = useState<TopReporter[]>([])
   const [showIOSInstallModal, setShowIOSInstallModal] = useState(false)
   const [carouselIndex, setCarouselIndex] = useState(0)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const { canInstall, isIOS, isPrompting, prompt } = usePWAInstall()
 
   useEffect(() => {
@@ -50,6 +51,15 @@ export function LandingPage() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [showIOSInstallModal])
+
+  useEffect(() => {
+    if (!showMobileMenu) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setShowMobileMenu(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [showMobileMenu])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -103,7 +113,7 @@ export function LandingPage() {
             <img src="/FuelbotLogo.png" alt="" className="h-8 w-auto" />
             <span className="text-base font-bold text-gray-900">{t('app.name')}</span>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             <button
               type="button"
               onClick={handleInstallClick}
@@ -132,7 +142,66 @@ export function LandingPage() {
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
+
+          <button
+            type="button"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-700 active:bg-gray-100 sm:hidden"
+            onClick={() => setShowMobileMenu((prev) => !prev)}
+            aria-label={showMobileMenu ? t('common.close') : 'Open menu'}
+            aria-expanded={showMobileMenu}
+          >
+            {showMobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
+
+        {showMobileMenu && (
+          <div className="border-t border-gray-200 bg-white sm:hidden">
+            <div className="mx-auto max-w-5xl space-y-2 px-4 py-3">
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full justify-center"
+                onClick={() => {
+                  setShowMobileMenu(false)
+                  void handleInstallClick()
+                }}
+                disabled={isPrompting}
+              >
+                {t('landing.installApp')}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full justify-center"
+                onClick={() => {
+                  setShowMobileMenu(false)
+                  toggleLang()
+                }}
+              >
+                <Globe className="h-4 w-4" />
+                {t('common.toggleLanguage')}
+              </Button>
+              <Link
+                to="/auth"
+                className="flex min-h-[44px] w-full items-center justify-center rounded-xl bg-gray-100 px-4 text-sm font-semibold text-gray-800 active:bg-gray-200"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                {t('auth.signIn')}
+              </Link>
+              <Button
+                size="sm"
+                className="w-full justify-center"
+                onClick={() => {
+                  setShowMobileMenu(false)
+                  navigate('/home')
+                }}
+              >
+                {t('landing.enterApp')}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
