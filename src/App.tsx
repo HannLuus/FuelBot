@@ -16,6 +16,7 @@ import { EarnPage } from '@/pages/Earn/EarnPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
+import { ContactPage } from '@/pages/Contact/ContactPage'
 
 // Lazy-load the map to keep it out of the initial bundle
 const MapPage = lazy(() =>
@@ -34,6 +35,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/landing" element={<LandingPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />

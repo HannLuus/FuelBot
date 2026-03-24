@@ -21,6 +21,12 @@ interface TopReporter {
   rank: number
 }
 
+const HERO_CAROUSEL_IMAGES = [
+  '/landing-carousel/fuelbot-1.png',
+  '/landing-carousel/fuelbot-2.png',
+  '/landing-carousel/fuelbot-3.png',
+]
+
 export function LandingPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -28,21 +34,8 @@ export function LandingPage() {
   const [recognitions, setRecognitions] = useState<RecognitionStation[]>([])
   const [topReporters, setTopReporters] = useState<TopReporter[]>([])
   const [showIOSInstallModal, setShowIOSInstallModal] = useState(false)
-  const [contactForm, setContactForm] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  })
-  const [contactScreenshot, setContactScreenshot] = useState<{
-    base64: string
-    mimeType: string
-    fileName: string
-  } | null>(null)
-  const [contactSending, setContactSending] = useState(false)
-  const [contactResult, setContactResult] = useState<'success' | 'error' | null>(null)
-  const [contactError, setContactError] = useState<string | null>(null)
-  const { showInstallUI, canInstall, isIOS, isPrompting, prompt } = usePWAInstall()
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const { canInstall, isIOS, isPrompting, prompt } = usePWAInstall()
 
   useEffect(() => {
     void loadRecognitions()
@@ -57,6 +50,13 @@ export function LandingPage() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [showIOSInstallModal])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % HERO_CAROUSEL_IMAGES.length)
+    }, 18000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   async function loadRecognitions() {
     const { data } = await supabase
@@ -87,79 +87,8 @@ export function LandingPage() {
   async function handleInstallClick() {
     if (canInstall) {
       await prompt()
-    } else if (isIOS) {
+    } else {
       setShowIOSInstallModal(true)
-    }
-  }
-
-  async function handleContactScreenshotChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) {
-      setContactScreenshot(null)
-      return
-    }
-    if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
-      setContactError(t('landing.contactInvalidImage'))
-      e.target.value = ''
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setContactError(t('landing.contactImageTooLarge'))
-      e.target.value = ''
-      return
-    }
-    try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onerror = () => reject(new Error('READ_FAILED'))
-        reader.onload = () => resolve(String(reader.result ?? ''))
-        reader.readAsDataURL(file)
-      })
-      const m = dataUrl.match(/^data:(.+);base64,(.+)$/)
-      if (!m) throw new Error('INVALID_DATA_URL')
-      setContactScreenshot({
-        mimeType: m[1],
-        base64: m[2],
-        fileName: file.name,
-      })
-      setContactError(null)
-    } catch {
-      setContactError(t('landing.contactInvalidImage'))
-    } finally {
-      e.target.value = ''
-    }
-  }
-
-  async function submitContactForm(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (contactSending) return
-    setContactSending(true)
-    setContactResult(null)
-    setContactError(null)
-    try {
-      const { data, error } = await supabase.functions.invoke('contact-us', {
-        body: {
-          name: contactForm.name.trim(),
-          email: contactForm.email.trim(),
-          subject: contactForm.subject.trim(),
-          message: contactForm.message.trim(),
-          screenshot_base64: contactScreenshot?.base64 ?? null,
-          screenshot_mime_type: contactScreenshot?.mimeType ?? null,
-          screenshot_filename: contactScreenshot?.fileName ?? null,
-          locale: lang,
-          page: 'landing',
-        },
-      })
-      if (error) throw error
-      if (data?.error) throw new Error(String(data.error))
-      setContactResult('success')
-      setContactForm({ name: '', email: '', subject: '', message: '' })
-      setContactScreenshot(null)
-    } catch (err) {
-      setContactResult('error')
-      setContactError(err instanceof Error ? err.message : t('landing.contactError'))
-    } finally {
-      setContactSending(false)
     }
   }
 
@@ -175,18 +104,16 @@ export function LandingPage() {
             <span className="text-base font-bold text-gray-900">{t('app.name')}</span>
           </button>
           <div className="flex items-center gap-2">
-            {showInstallUI && (
-              <button
-                type="button"
-                onClick={handleInstallClick}
-                disabled={isPrompting}
-                className="flex min-h-[44px] min-w-[44px] flex-shrink-0 items-center justify-center rounded-xl active:bg-gray-100 disabled:opacity-60 disabled:pointer-events-none"
-                aria-label={t('landing.installAppAria')}
-                title={t('landing.installApp')}
-              >
-                <img src="/FuelbotLogo.png" alt="" className="h-7 w-7" />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleInstallClick}
+              disabled={isPrompting}
+              className="flex min-h-[44px] min-w-[44px] flex-shrink-0 items-center justify-center rounded-xl active:bg-gray-100 disabled:opacity-60 disabled:pointer-events-none"
+              aria-label={t('landing.installAppAria')}
+              title={t('landing.installApp')}
+            >
+              <img src="/FuelbotLogo.png" alt="" className="h-7 w-7" />
+            </button>
             <button
               onClick={toggleLang}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-sm font-semibold text-gray-700 active:bg-gray-100"
@@ -209,6 +136,30 @@ export function LandingPage() {
       </header>
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+        <section className="relative overflow-hidden rounded-2xl bg-white shadow-sm">
+          <div className="relative aspect-[16/7] w-full bg-gray-100">
+            {HERO_CAROUSEL_IMAGES.map((src, idx) => (
+              <img
+                key={src}
+                src={src}
+                alt={`FuelBot showcase ${idx + 1}`}
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${idx === carouselIndex ? 'opacity-100' : 'opacity-0'}`}
+              />
+            ))}
+          </div>
+          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-2 py-1">
+            {HERO_CAROUSEL_IMAGES.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                aria-label={`Show image ${idx + 1}`}
+                onClick={() => setCarouselIndex(idx)}
+                className={`h-2.5 w-2.5 rounded-full transition-colors ${idx === carouselIndex ? 'bg-white' : 'bg-white/55 hover:bg-white/80'}`}
+              />
+            ))}
+          </div>
+        </section>
+
         <section className="rounded-2xl bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-bold text-gray-900">{t('landing.title')}</h1>
           <p className="mt-2 text-gray-700">{t('landing.subtitle')}</p>
@@ -218,6 +169,14 @@ export function LandingPage() {
             </Button>
             <Button variant="secondary" onClick={() => navigate('/operator')}>
               {t('landing.registerStationCta')}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void handleInstallClick()}
+              disabled={isPrompting}
+            >
+              {t('landing.installApp')}
             </Button>
           </div>
         </section>
@@ -386,77 +345,6 @@ export function LandingPage() {
             </div>
           )}
         </section>
-
-        <section id="contact-us" className="rounded-2xl bg-white p-6 shadow-sm scroll-mt-24">
-          <h2 className="text-lg font-semibold text-gray-900">{t('landing.contactTitle')}</h2>
-          <p className="mt-2 text-sm text-gray-700">{t('landing.contactBody')}</p>
-          <form className="mt-4 space-y-3" onSubmit={submitContactForm}>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-gray-700">{t('landing.contactNameLabel')}</label>
-                <input
-                  type="text"
-                  required
-                  value={contactForm.name}
-                  onChange={(evt) => setContactForm((prev) => ({ ...prev, name: evt.target.value }))}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder={t('landing.contactNamePlaceholder')}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-gray-700">{t('landing.contactEmailLabel')}</label>
-                <input
-                  type="email"
-                  required
-                  value={contactForm.email}
-                  onChange={(evt) => setContactForm((prev) => ({ ...prev, email: evt.target.value }))}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder={t('landing.contactEmailPlaceholder')}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">{t('landing.contactSubjectLabel')}</label>
-              <input
-                type="text"
-                required
-                value={contactForm.subject}
-                onChange={(evt) => setContactForm((prev) => ({ ...prev, subject: evt.target.value }))}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder={t('landing.contactSubjectPlaceholder')}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">{t('landing.contactMessageLabel')}</label>
-              <textarea
-                required
-                rows={4}
-                value={contactForm.message}
-                onChange={(evt) => setContactForm((prev) => ({ ...prev, message: evt.target.value }))}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder={t('landing.contactMessagePlaceholder')}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">{t('landing.contactScreenshotLabel')}</label>
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                onChange={handleContactScreenshotChange}
-                className="block w-full text-sm text-gray-700"
-              />
-              <p className="mt-1 text-xs text-gray-700">{t('landing.contactScreenshotHint')}</p>
-              {contactScreenshot ? (
-                <p className="mt-1 text-xs font-medium text-green-700">{t('landing.contactScreenshotReady', { file: contactScreenshot.fileName })}</p>
-              ) : null}
-            </div>
-            {contactResult === 'success' ? <p className="text-sm text-green-700">{t('landing.contactSuccess')}</p> : null}
-            {contactResult === 'error' ? <p className="text-sm text-red-700">{contactError ?? t('landing.contactError')}</p> : null}
-            <Button type="submit" size="sm" loading={contactSending}>
-              {contactSending ? t('landing.contactSending') : t('landing.contactSubmit')}
-            </Button>
-          </form>
-        </section>
       </main>
 
       {showIOSInstallModal && (
@@ -472,9 +360,9 @@ export function LandingPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="ios-install-title" className="text-lg font-semibold text-gray-900">
-              {t('landing.installIOSTitle')}
+              {isIOS ? t('landing.installIOSTitle') : t('landing.installHelpTitle')}
             </h2>
-            <p className="mt-2 text-sm text-gray-700">{t('landing.installIOSSteps')}</p>
+            <p className="mt-2 text-sm text-gray-700">{isIOS ? t('landing.installIOSSteps') : t('landing.installHelpSteps')}</p>
             <Button className="mt-4 w-full" onClick={() => setShowIOSInstallModal(false)}>
               {t('common.close')}
             </Button>
@@ -499,9 +387,9 @@ export function LandingPage() {
             </Link>
           </div>
           <p className="mt-2 text-center text-sm text-gray-700">
-            <a href="#contact-us" className="text-blue-600 underline hover:text-blue-800">
+            <Link to="/contact" className="text-blue-600 underline hover:text-blue-800">
               {t('landing.footerContact')}
-            </a>
+            </Link>
             <span className="mx-2">·</span>
             <a href={`mailto:${t('landing.contactEmail')}`} className="text-blue-600 underline hover:text-blue-800">
               {t('landing.contactEmail')}
