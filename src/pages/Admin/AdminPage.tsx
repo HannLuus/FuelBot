@@ -146,7 +146,7 @@ function formatAdminActionError(err: unknown, t: TFunction): string {
   if (err instanceof Error && err.message === ADMIN_EDGE_UNAUTHORIZED) {
     return t('errors.adminEdgeUnauthorized')
   }
-  return err instanceof Error ? err.message : t('errors.generic')
+  return t('errors.generic')
 }
 
 /** Refresh session then invoke with an explicit Bearer token so Edge Functions see up-to-date JWT claims

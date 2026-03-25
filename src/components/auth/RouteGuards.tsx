@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useAuthStore } from '@/stores/authStore'
+import { useRoleAccess } from '@/hooks/useRoleAccess'
 
 function GuardMessage({
   title,
@@ -64,6 +65,38 @@ export function RequireAdmin() {
         actionHref="/home"
       />
     )
+  }
+  return <Outlet />
+}
+
+export function RequireStationContext({ allowOnboarding = false }: { allowOnboarding?: boolean }) {
+  const { user, loading } = useAuthStore()
+  const { hasStationAccess, loading: roleLoading } = useRoleAccess()
+
+  if (loading || roleLoading) {
+    return null
+  }
+  if (!user) {
+    return <Navigate to="/auth?redirect=/station" replace />
+  }
+  if (!hasStationAccess && !allowOnboarding) {
+    return <Navigate to="/home" replace />
+  }
+  return <Outlet />
+}
+
+export function RequireFleetContext({ allowOnboarding = false }: { allowOnboarding?: boolean }) {
+  const { user, loading } = useAuthStore()
+  const { hasFleetAccess, loading: roleLoading } = useRoleAccess()
+
+  if (loading || roleLoading) {
+    return null
+  }
+  if (!user) {
+    return <Navigate to="/auth?redirect=/b2b" replace />
+  }
+  if (!hasFleetAccess && !allowOnboarding) {
+    return <Navigate to="/home" replace />
   }
   return <Outlet />
 }

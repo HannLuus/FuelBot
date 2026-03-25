@@ -5,7 +5,7 @@ import { useB2BEntitlements } from '@/hooks/useB2BEntitlements'
 
 const ACTIVE_ROLE_STORAGE_KEY = 'fuelbot_active_role'
 
-export type AppRole = 'general' | 'station' | 'fleet'
+export type AppRole = 'general' | 'station' | 'fleet' | 'admin'
 
 interface RoleAccessResult {
   userId: string | null
@@ -22,12 +22,15 @@ interface RoleAccessResult {
 function getStoredRole(): AppRole | null {
   if (typeof window === 'undefined') return null
   const stored = window.localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY)
-  return stored === 'general' || stored === 'station' || stored === 'fleet' ? stored : null
+  return stored === 'general' || stored === 'station' || stored === 'fleet' || stored === 'admin'
+    ? stored
+    : null
 }
 
 function pickFallbackRole(availableRoles: AppRole[]): AppRole {
   if (availableRoles.includes('station')) return 'station'
   if (availableRoles.includes('fleet')) return 'fleet'
+  if (availableRoles.includes('admin')) return 'admin'
   return 'general'
 }
 
@@ -80,8 +83,9 @@ export function useRoleAccess(): RoleAccessResult {
     const next: AppRole[] = ['general']
     if (hasStationAccess) next.push('station')
     if (hasFleetAccess) next.push('fleet')
+    if (isAdmin) next.push('admin')
     return next
-  }, [hasFleetAccess, hasStationAccess])
+  }, [hasFleetAccess, hasStationAccess, isAdmin])
 
   const activeRole = availableRoles.includes(preferredRole)
     ? preferredRole

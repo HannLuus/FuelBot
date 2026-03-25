@@ -10,7 +10,7 @@ import { useFilterStore } from '@/stores/filterStore'
 
 export function AppLayout() {
   const { t, i18n } = useTranslation()
-  const { user, isAdmin, signOut } = useAuthStore()
+  const { user, signOut } = useAuthStore()
   const { activeRole, setActiveRole, availableRoles } = useRoleAccess()
   const { filters, setMaxDistance, setSelectedRouteId } = useFilterStore()
   const navigate = useNavigate()
@@ -38,7 +38,7 @@ export function AppLayout() {
     ...(activeRole === 'general' ? [{ to: '/earn', label: t('nav.earn'), icon: Gift }] : []),
     ...(activeRole === 'fleet' ? [{ to: '/b2b', label: t('nav.routeAccess'), icon: Truck }] : []),
     ...(activeRole === 'station' ? [{ to: '/station', label: t('nav.station'), icon: Fuel }] : []),
-    ...(isAdmin ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
+    ...(activeRole === 'admin' ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
   ]
 
   function roleLabel(role: AppRole) {
@@ -49,6 +49,8 @@ export function AppLayout() {
         return t('common.stationMode')
       case 'fleet':
         return t('common.fleetMode')
+      case 'admin':
+        return t('common.adminMode')
       default: {
         const exhaustive: never = role
         return exhaustive
@@ -245,6 +247,9 @@ export function AppLayout() {
                               case 'fleet':
                                 navigate('/b2b')
                                 break
+                              case 'admin':
+                                navigate('/admin')
+                                break
                               default: {
                                 const exhaustive: never = role
                                 return exhaustive
@@ -338,7 +343,7 @@ export function AppLayout() {
                 </Link>
               )}
 
-              {isAdmin && (
+              {activeRole === 'admin' && (
                 <Link
                   to="/admin"
                   onClick={() => setSheetOpen(false)}

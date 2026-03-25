@@ -412,7 +412,7 @@ export function StationDetailPage() {
                           },
                         })
                         if (!error) setReportWrongLocationSent(true)
-                        else setReportWrongLocationError(error.message ?? t('errors.generic'))
+                        else setReportWrongLocationError(t('errors.generic'))
                       } catch (err) {
                         const msg =
                           err instanceof Error ? err.message : String(err)

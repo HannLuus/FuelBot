@@ -18,7 +18,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
 import { ContactPage } from '@/pages/Contact/ContactPage'
-import { RequireAdmin } from '@/components/auth/RouteGuards'
+import { RequireAdmin, RequireAuth, RequireFleetContext, RequireStationContext } from '@/components/auth/RouteGuards'
 
 // Lazy-load the map to keep it out of the initial bundle
 const MapPage = lazy(() =>
@@ -71,10 +71,18 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
           {/** More specific /station/claim/* before /station/:id so "claim" is not captured as :id */}
-          <Route path="/station/claim/:stationId" element={<StationOwnerPage />} />
+          <Route element={<RequireStationContext allowOnboarding />}>
+            <Route path="/station/claim/:stationId" element={<StationOwnerPage />} />
+            <Route path="/station" element={<StationOwnerPage />} />
+          </Route>
+          <Route element={<RequireAuth />}>
+            <Route path="/earn" element={<EarnPage />} />
+          </Route>
+          <Route element={<RequireFleetContext allowOnboarding />}>
+            <Route path="/b2b" element={<B2BPage />} />
+          </Route>
           <Route path="/station/claim" element={<RedirectIncompleteStationClaimPath />} />
           <Route path="/station/:id" element={<StationDetailPage />} />
-          <Route path="/station" element={<StationOwnerPage />} />
           <Route path="/report" element={<ReportStationPickerPage />} />
           <Route path="/report/:id" element={<ReportPage />} />
           <Route
@@ -93,8 +101,6 @@ export default function App() {
           />
           <Route path="/operator" element={<RedirectLegacyOperatorToStation />} />
           <Route path="/operator/claim/:stationId" element={<RedirectLegacyStationClaimPath />} />
-          <Route path="/earn" element={<EarnPage />} />
-          <Route path="/b2b" element={<B2BPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="/admin" element={<AdminPage />} />
           </Route>

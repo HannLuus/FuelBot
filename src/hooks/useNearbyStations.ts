@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { haversineDistanceMetres, isStationVisible } from '@/lib/fuelUtils'
@@ -30,6 +31,7 @@ export function useNearbyStations({
   fuelTypes,
   statusFilter,
 }: UseNearbyStationsArgs): UseNearbyStationsResult {
+  const { t } = useTranslation()
   const [stations, setStations] = useState<StationWithStatus[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -109,11 +111,11 @@ export function useNearbyStations({
       setStations(results)
     } catch (err) {
       if (thisFetchId !== fetchIdRef.current) return
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(err instanceof TypeError ? t('errors.network') : t('errors.generic'))
     } finally {
       if (thisFetchId === fetchIdRef.current) setLoading(false)
     }
-  }, [lat, lng, maxDistanceKm, selectedRouteId, fuelTypes, statusFilter])
+  }, [fuelTypes, lat, lng, maxDistanceKm, selectedRouteId, statusFilter, t])
 
   useEffect(() => {
     void fetchStations()
@@ -160,6 +162,7 @@ export function useNearbyStations({
 }
 
 export function useStationDetail(stationId: string) {
+  const { t } = useTranslation()
   const [station, setStation] = useState<StationWithStatus | null>(null)
   const [reports, setReports] = useState<import('@/types').StationStatusReport[]>([])
   const [loading, setLoading] = useState(true)
@@ -187,11 +190,11 @@ export function useStationDetail(stationId: string) {
       setStation(stationRes.data as StationWithStatus)
       setReports(reportsRes.data ?? [])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(err instanceof TypeError ? t('errors.network') : t('errors.generic'))
     } finally {
       setLoading(false)
     }
-  }, [stationId])
+  }, [stationId, t])
 
   useEffect(() => {
     void fetch()

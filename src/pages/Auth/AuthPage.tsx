@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
@@ -19,6 +20,32 @@ function getInitialMode(searchMode: string | null, hashParams: Record<string, st
   if (hashParams.type === 'recovery') return 'reset'
   if (searchMode === 'signup') return 'signup'
   return 'signin'
+}
+
+function formatAuthError(message: string | undefined, t: TFunction): string {
+  const normalized = (message ?? '').toLowerCase()
+
+  if (normalized.includes('invalid login credentials') || normalized.includes('invalid credentials')) {
+    return t('auth.invalidCredentials')
+  }
+  if (normalized.includes('already registered') || normalized.includes('already been registered')) {
+    return t('auth.emailAlreadyRegistered')
+  }
+  if (normalized.includes('invalid email')) {
+    return t('auth.invalidEmail')
+  }
+  if (normalized.includes('too many requests') || normalized.includes('rate limit')) {
+    return t('auth.tooManyRequests')
+  }
+  if (
+    normalized.includes('password should be at least') ||
+    normalized.includes('password must be at least') ||
+    normalized.includes('weak password')
+  ) {
+    return t('auth.passwordTooShort')
+  }
+
+  return t('errors.generic')
 }
 
 export function AuthPage() {
@@ -65,7 +92,7 @@ export function AuthPage() {
     try {
       if (mode === 'signin') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) { setError(error.message); return }
+        if (error) { setError(formatAuthError(error.message, t)); return }
         navigate(redirectPath)
       } else if (mode === 'signup') {
         if (!acceptedTerms) {
@@ -73,7 +100,7 @@ export function AuthPage() {
           return
         }
         const { data, error } = await supabase.auth.signUp({ email, password })
-        if (error) { setError(error.message); return }
+        if (error) { setError(formatAuthError(error.message, t)); return }
         if (data.session) {
           const now = new Date().toISOString()
           await supabase.rpc('ensure_user_legal_acceptance', {
@@ -87,7 +114,7 @@ export function AuthPage() {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth`,
         })
-        if (error) { setError(error.message); return }
+        if (error) { setError(formatAuthError(error.message, t)); return }
         setSuccess(t('auth.checkEmailReset'))
       } else if (mode === 'reset') {
         if (password !== confirmPassword) {
@@ -95,7 +122,7 @@ export function AuthPage() {
           return
         }
         const { error } = await supabase.auth.updateUser({ password })
-        if (error) { setError(error.message); return }
+        if (error) { setError(formatAuthError(error.message, t)); return }
         setSuccess(t('auth.passwordUpdated'))
         setMode('signin')
         setPassword('')

@@ -87,9 +87,9 @@ export function ContactPage() {
       setContactResult('success')
       setContactForm({ name: '', email: '', subject: '', message: '' })
       setContactScreenshot(null)
-    } catch (err) {
+    } catch {
       setContactResult('error')
-      setContactError(err instanceof Error ? err.message : t('landing.contactError'))
+      setContactError(t('landing.contactError'))
     } finally {
       setContactSending(false)
     }

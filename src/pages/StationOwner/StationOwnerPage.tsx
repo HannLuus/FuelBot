@@ -513,7 +513,7 @@ export function StationOwnerPage() {
         setShowOwnerLocationPicker(false)
         void loadMyStation()
       } else {
-        setSetLocationMessage(error.message ?? t('errors.generic'))
+        setSetLocationMessage(t('errors.generic'))
       }
     } catch {
       setSetLocationMessage(t('stationOwner.setCorrectLocationGeolocationError'))
@@ -553,8 +553,8 @@ export function StationOwnerPage() {
         setLocationPhoto(url)
       }
       setSaveMessage(null)
-    } catch (err) {
-      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
+    } catch {
+      setSaveMessage(t('errors.generic'))
     } finally {
       setUploading(false)
     }
@@ -594,7 +594,7 @@ export function StationOwnerPage() {
       } else if (message.toLowerCase().includes('invalid referral')) {
         setSaveMessage(t('stationOwner.invalidReferralCode'))
       } else {
-        setSaveMessage(message)
+        setSaveMessage(t('errors.generic'))
       }
       setSaveState('error')
       return false
@@ -674,8 +674,8 @@ export function StationOwnerPage() {
       if (error) throw error
       const { data: pub } = supabase.storage.from('recognition-photos').getPublicUrl(data.path)
       setRecognitionPhotoUrl(pub.publicUrl)
-    } catch (err) {
-      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
+    } catch {
+      setSaveMessage(t('errors.generic'))
     } finally {
       setUploading(false)
     }
@@ -695,10 +695,10 @@ export function StationOwnerPage() {
       })
       if (error) throw error
       if (data?.error) throw new Error(data.error)
-      setSaveMessage('Recognition photo confirmed for hero section.')
+      setSaveMessage(t('stationOwner.recognitionPhotoConfirmed'))
       await loadMyStation()
-    } catch (err) {
-      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
+    } catch {
+      setSaveMessage(t('errors.generic'))
     } finally {
       setRecognitionConfirming(false)
     }
@@ -977,7 +977,7 @@ export function StationOwnerPage() {
                     value={registerForm.name}
                     onChange={(e) => setRegisterForm((f) => ({ ...f, name: e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="e.g. Myanmar Petroleum Station"
+                    placeholder={t('stationOwner.registerFormNamePlaceholder')}
                   />
                 </div>
                 <div>
@@ -989,7 +989,7 @@ export function StationOwnerPage() {
                     value={registerForm.brand}
                     onChange={(e) => setRegisterForm((f) => ({ ...f, brand: e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="e.g. MPE, PTT (optional)"
+                    placeholder={t('stationOwner.registerFormBrandPlaceholder')}
                   />
                 </div>
                 <div>
@@ -1001,7 +1001,7 @@ export function StationOwnerPage() {
                     value={registerForm.address}
                     onChange={(e) => setRegisterForm((f) => ({ ...f, address: e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="Street, road"
+                    placeholder={t('stationOwner.registerFormAddressPlaceholder')}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -1186,7 +1186,7 @@ export function StationOwnerPage() {
                       value={editableStationName}
                       onChange={(e) => setEditableStationName(e.target.value)}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="Station name"
+                      placeholder={t('stationOwner.verificationNamePlaceholder')}
                     />
                   </div>
                   <div>
@@ -1196,7 +1196,7 @@ export function StationOwnerPage() {
                       value={editableStationBrand}
                       onChange={(e) => setEditableStationBrand(e.target.value)}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="e.g. MPE, PTT (optional)"
+                      placeholder={t('stationOwner.verificationBrandPlaceholder')}
                     />
                   </div>
                 </div>
@@ -1223,7 +1223,7 @@ export function StationOwnerPage() {
                         if (f) void uploadVerificationPhoto(f, 'station')
                       }}
                     />
-                    <p className="mt-2 text-xs text-gray-700">Uploaded: {stationPhotos.length}</p>
+                    <p className="mt-2 text-xs text-gray-700">{t('stationOwner.uploadedCount', { count: stationPhotos.length })}</p>
                   </label>
                   <label className="rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-700">
                     <span className="mb-2 block font-medium text-gray-900">{t('admin.locationPhoto')}</span>
@@ -1235,7 +1235,7 @@ export function StationOwnerPage() {
                         if (f) void uploadVerificationPhoto(f, 'location')
                       }}
                     />
-                    <p className="mt-2 text-xs text-gray-700">{locationPhoto ? 'Uploaded' : 'Missing'}</p>
+                    <p className="mt-2 text-xs text-gray-700">{locationPhoto ? t('stationOwner.uploaded') : t('stationOwner.missing')}</p>
                   </label>
                 </div>
 
@@ -1276,14 +1276,14 @@ export function StationOwnerPage() {
                 )}
                 {paymentQrUrl ? (
                   <div className="mt-3">
-                    <p className="text-xs font-medium text-gray-700 mb-1">QR code</p>
-                    <img src={paymentQrUrl} alt="Payment QR" className="h-40 w-40 rounded border border-gray-200 object-cover" />
+                    <p className="text-xs font-medium text-gray-700 mb-1">{t('b2b.qrCode')}</p>
+                    <img src={paymentQrUrl} alt={t('stationOwner.paymentQrAlt')} className="h-40 w-40 rounded border border-gray-200 object-cover" />
                   </div>
                 ) : null}
                 {paymentPhoneKpay ? (
                   <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
                     <p>
-                      KPay / KBZ Pay:{' '}
+                      {t('b2b.paymentPhoneLabel')}:{' '}
                       <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">
                         {paymentPhoneKpay}
                       </a>
@@ -1308,7 +1308,7 @@ export function StationOwnerPage() {
                       type="text"
                       value={ownerPaymentReference}
                       onChange={(e) => setOwnerPaymentReference(e.target.value)}
-                      placeholder="e.g. Transaction ID or last 4 digits"
+                      placeholder={t('b2b.paymentReferencePlaceholder')}
                       className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
@@ -1469,9 +1469,9 @@ export function StationOwnerPage() {
 
             {myStation.is_verified && (
               <div className="rounded-2xl border border-purple-200 bg-purple-50 p-4">
-                <p className="font-semibold text-purple-900">Hero recognition photo</p>
+                <p className="font-semibold text-purple-900">{t('stationOwner.recognitionPhotoTitle')}</p>
                 <p className="mt-1 text-xs text-purple-800">
-                  Prefer a photo with both referrer and owner (or manager). You can upload now and publish when ready.
+                  {t('stationOwner.recognitionPhotoHint')}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <label className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700">
@@ -1485,7 +1485,7 @@ export function StationOwnerPage() {
                     />
                   </label>
                   {recognitionPhotoUrl ? (
-                    <img src={recognitionPhotoUrl} alt="Recognition" className="h-20 w-20 rounded border border-gray-200 object-cover" />
+                    <img src={recognitionPhotoUrl} alt={t('stationOwner.recognitionPhotoAlt')} className="h-20 w-20 rounded border border-gray-200 object-cover" />
                   ) : null}
                 </div>
                 <div className="mt-3">
@@ -1496,7 +1496,7 @@ export function StationOwnerPage() {
                     onClick={() => void confirmRecognitionPhoto()}
                     disabled={!recognitionPhotoUrl}
                   >
-                    Confirm and show on FuelBot
+                    {t('stationOwner.recognitionPhotoConfirmButton')}
                   </Button>
                 </div>
               </div>

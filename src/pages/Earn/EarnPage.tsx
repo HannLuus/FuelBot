@@ -98,7 +98,7 @@ export function EarnPage() {
         setIsSessionExpired(true)
         setPageError(t('earn.sessionExpired'))
       } else {
-        setPageError(err instanceof Error ? err.message : t('errors.generic'))
+        setPageError(t('errors.generic'))
       }
     } finally {
       loadInFlightRef.current = false

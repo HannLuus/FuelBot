@@ -293,14 +293,14 @@ export function B2BPage() {
           )}
           {paymentQrUrl ? (
             <div className="mt-3">
-              <p className="mb-1 text-xs font-medium text-gray-700">QR code</p>
-              <img src={paymentQrUrl} alt="Payment QR" className="h-40 w-40 rounded border border-gray-200 object-cover" />
+              <p className="mb-1 text-xs font-medium text-gray-700">{t('b2b.qrCode')}</p>
+              <img src={paymentQrUrl} alt={t('b2b.paymentQrAlt')} className="h-40 w-40 rounded border border-gray-200 object-cover" />
             </div>
           ) : null}
           {paymentPhoneKpay ? (
             <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
               <p>
-                KPay / KBZ Pay:{' '}
+                {t('b2b.paymentPhoneLabel')}:{' '}
                 <a href={`tel:${paymentPhoneKpay.replace(/\s/g, '')}`} className="font-semibold text-blue-600 underline">
                   {paymentPhoneKpay}
                 </a>
@@ -329,7 +329,7 @@ export function B2BPage() {
                   required
                   value={paymentReference}
                   onChange={(e) => setPaymentReference(e.target.value)}
-                  placeholder="e.g. Transaction ID or last 4 digits"
+                  placeholder={t('b2b.paymentReferencePlaceholder')}
                   className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
