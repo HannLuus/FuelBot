@@ -135,7 +135,7 @@ export function StationDetailPage() {
           station_id: station.id,
         },
       })
-      setClaimMessage(t('operator.claimPending'))
+      setClaimMessage(t('stationOwner.claimPending'))
     } catch {
       setClaimMessage(t('errors.generic'))
     } finally {
@@ -451,7 +451,7 @@ export function StationDetailPage() {
               loading={claiming}
               onClick={() => void claimStation()}
             >
-              {t('operator.claimButton')}
+              {t('stationOwner.claimButton')}
             </Button>
             {claimMessage ? <p className="mt-2 text-xs text-blue-900">{claimMessage}</p> : null}
           </div>

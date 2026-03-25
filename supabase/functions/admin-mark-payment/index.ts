@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     payment_method: payload.payment_method,
     payment_confirmed_by: admin.user.id,
   }
-  // Keep the operator-submitted reference when admin leaves this blank.
+  // Keep the station-owner-submitted reference when admin leaves this blank.
   if (refTrim) {
     patch.payment_reference = refTrim
   }

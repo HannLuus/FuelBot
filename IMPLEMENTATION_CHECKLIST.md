@@ -43,22 +43,22 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 
 ---
 
-## 3. Operator page
+## 3. Station owner page (`/station`)
 
-- [x] Operator: Fetch `station_current_status` for myStation when myStation is set
-- [x] Operator: Show "Current status (what drivers see)" block — per-fuel status, queue, last updated time
-- [x] Operator: Pre-fill "Post Fuel Update" form from station_current_status (AVAILABLE/LIMITED/OUT or SKIP)
-- [x] Operator: Section title/copy "My fuel status" / "Update fuel availability" and hint text
-- [x] Operator: "Complete verification" card for unverified — tier selector (Small/Medium/Large) with name, description, price MMK/year
-- [x] Operator: Persist subscription_tier_requested when owner selects tier (owner can change until payment confirmed)
-- [x] Operator: Require upload of station photos (one or more) — Supabase Storage; store station_photo_urls
-- [x] Operator: Require upload of location photo — Supabase Storage; store location_photo_url
-- [x] Operator: Referral code optional field in Complete verification; validate (server-side) and store referrer_user_id
-- [x] Operator: Payment instructions text from env (VITE_PAYMENT_INSTRUCTIONS)
-- [x] Operator: QR image(s) from env (VITE_PAYMENT_QR_URL or per-method); fallback "Contact us for payment details"
-- [x] Operator: "I have paid" button (optional) and "We'll verify and activate soon" message
-- [x] Operator: "Verified — your subscription is active" for verified stations; hide Complete verification when verified
-- [x] Operator i18n (en + my): currentStatus, updateFuelStatusDescription, completeVerification, selectTier, small/medium/large, pricePerYearMMK, paymentInstructions, payVia, iHavePaid, weWillVerifySoon, referral code strings
+- [x] Station owner page: Fetch `station_current_status` for myStation when myStation is set
+- [x] Station owner page: Show "Current status (what drivers see)" block — per-fuel status, queue, last updated time
+- [x] Station owner page: Pre-fill "Post Fuel Update" form from station_current_status (AVAILABLE/LIMITED/OUT or SKIP)
+- [x] Station owner page: Section title/copy "My fuel status" / "Update fuel availability" and hint text
+- [x] Station owner page: "Complete verification" card for unverified — tier selector (Small/Medium/Large) with name, description, price MMK/year
+- [x] Station owner page: Persist subscription_tier_requested when owner selects tier (owner can change until payment confirmed)
+- [x] Station owner page: Require upload of station photos (one or more) — Supabase Storage; store station_photo_urls
+- [x] Station owner page: Require upload of location photo — Supabase Storage; store location_photo_url
+- [x] Station owner page: Referral code optional field in Complete verification; validate (server-side) and store referrer_user_id
+- [x] Station owner page: Payment instructions text from env (VITE_PAYMENT_INSTRUCTIONS)
+- [x] Station owner page: QR image(s) from env (VITE_PAYMENT_QR_URL or per-method); fallback "Contact us for payment details"
+- [x] Station owner page: "I have paid" button (optional) and "We'll verify and activate soon" message
+- [x] Station owner page: "Verified — your subscription is active" for verified stations; hide Complete verification when verified
+- [x] Station owner page i18n (en + my): `stationOwner.*` keys — currentStatus, updateFuelStatusDescription, completeVerification, selectTier, small/medium/large, pricePerYearMMK, paymentInstructions, payVia, iHavePaid, weWillVerifySoon, referral code strings
 
 ---
 
@@ -83,7 +83,7 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 
 - [x] Referral codes: Generate and store unique code per signed-in user (table or derived)
 - [x] Referral: In-app "Share your code — earn 15% when a station subscribes" and display/copy code
-- [x] Referral: Shareable link (e.g. /operator?ref=CODE)
+- [x] Referral: Shareable link (e.g. /station?ref=CODE; legacy /operator redirects)
 - [x] Referral: Entry point "Earn with FuelBot" / "Refer a station" (profile or dedicated page)
 - [x] On station approval: Compute 15% of tier price; create referral_rewards record (or minimal state)
 - [x] On station approval: Notify referrer (in-app and/or email) with amount and (Option B) station name/address to collect
@@ -114,7 +114,7 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 ## 8. Landing page
 
 - [x] Route: Landing at `/` for first-time visitors or `/landing`; CTA "Open FuelBot" / "Enter app" to main app
-- [x] Routing: `/` and `/landing` show landing; app routes (/home, /station/*, /operator, /map) show app; logged-in at `/` optionally redirect to /home
+- [x] Routing: `/` and `/landing` show landing; app routes (/home, /station/*, /map) show app; legacy `/operator` redirects to `/station`; logged-in at `/` optionally redirect to /home
 - [x] Section "What we want to achieve": Real-time fuel, trust/quality, help everyone, transparent/fair, Myanmar first; short copy
 - [x] Section "What you can earn": 15% referral, who gets the deal gets the reward, no cap; optional CTA to get referral code
 - [x] Section "What it costs for fuel stations": Small/Medium/Large tiers with MMK/year; payment via KBZ Pay (KPay)
@@ -139,7 +139,7 @@ Recommended order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 
 
 ## 10. Error handling and polish
 
-- [x] Operator: On tier/photo/referral save failure, show clear error and allow retry
+- [x] Station owner page: On tier/photo/referral save failure, show clear error and allow retry
 - [x] Admin: On mark payment or approve/reject failure, show clear error and allow retry
 - [x] Referral: On invalid code, show clear message (invalid or own code)
 

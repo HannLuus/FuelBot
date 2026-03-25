@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams, useSearchParams } from 'react-router-dom'
 import { useEffect, lazy, Suspense } from 'react'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { HomePage } from '@/pages/Home/HomePage'
@@ -6,7 +6,7 @@ import { StationDetailPage } from '@/pages/Station/StationDetailPage'
 import { ReportPage } from '@/pages/Report/ReportPage'
 import { ReportStationPickerPage } from '@/pages/Report/ReportStationPickerPage'
 import { AdminPage } from '@/pages/Admin/AdminPage'
-import { OperatorPage } from '@/pages/Operator/OperatorPage'
+import { StationOwnerPage } from '@/pages/StationOwner/StationOwnerPage'
 import { AuthPage } from '@/pages/Auth/AuthPage'
 import { TermsPage } from '@/pages/Legal/TermsPage'
 import { PrivacyPage } from '@/pages/Legal/PrivacyPage'
@@ -23,6 +23,31 @@ import { ContactPage } from '@/pages/Contact/ContactPage'
 const MapPage = lazy(() =>
   import('@/pages/Map/MapPage').then((m) => ({ default: m.MapPage })),
 )
+
+/** Preserves query string (e.g. ?ref=) when redirecting legacy /operator URLs. */
+function RedirectLegacyOperatorToStation() {
+  const [searchParams] = useSearchParams()
+  const q = searchParams.toString()
+  return <Navigate to={{ pathname: '/station', search: q ? `?${q}` : undefined }} replace />
+}
+
+function RedirectLegacyStationClaimPath() {
+  const { stationId } = useParams<{ stationId: string }>()
+  const [searchParams] = useSearchParams()
+  const q = searchParams.toString()
+  const search = q ? `?${q}` : ''
+  if (!stationId) {
+    return <Navigate to={{ pathname: '/station', search: q ? `?${q}` : undefined }} replace />
+  }
+  return <Navigate to={`/station/claim/${stationId}${search}`} replace />
+}
+
+/** /station/claim without :stationId was matching /station/:id with id "claim". */
+function RedirectIncompleteStationClaimPath() {
+  const [searchParams] = useSearchParams()
+  const q = searchParams.toString()
+  return <Navigate to={{ pathname: '/station', search: q ? `?${q}` : undefined }} replace />
+}
 
 export default function App() {
   const { init } = useAuthStore()
@@ -44,9 +69,11 @@ export default function App() {
         <Route path="/benefits/fleet-owners" element={<BenefitsFleetPage />} />
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
-          <Route path="/station" element={<OperatorPage />} />
+          {/** More specific /station/claim/* before /station/:id so "claim" is not captured as :id */}
+          <Route path="/station/claim/:stationId" element={<StationOwnerPage />} />
+          <Route path="/station/claim" element={<RedirectIncompleteStationClaimPath />} />
           <Route path="/station/:id" element={<StationDetailPage />} />
-          <Route path="/station/claim/:stationId" element={<OperatorPage />} />
+          <Route path="/station" element={<StationOwnerPage />} />
           <Route path="/report" element={<ReportStationPickerPage />} />
           <Route path="/report/:id" element={<ReportPage />} />
           <Route
@@ -63,8 +90,8 @@ export default function App() {
               </Suspense>
             }
           />
-          <Route path="/operator" element={<OperatorPage />} />
-          <Route path="/operator/claim/:stationId" element={<OperatorPage />} />
+          <Route path="/operator" element={<RedirectLegacyOperatorToStation />} />
+          <Route path="/operator/claim/:stationId" element={<RedirectLegacyStationClaimPath />} />
           <Route path="/earn" element={<EarnPage />} />
           <Route path="/b2b" element={<B2BPage />} />
           <Route path="/admin" element={<AdminPage />} />

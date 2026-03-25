@@ -33,7 +33,7 @@ export function AppLayout() {
     { to: '/map', label: t('nav.map'), icon: Map },
     { to: '/earn', label: t('nav.earn'), icon: Gift },
     { to: '/b2b', label: t('nav.routeAccess'), icon: Truck },
-    { to: '/station', label: t('nav.operator'), icon: Fuel },
+    { to: '/station', label: t('nav.station'), icon: Fuel },
     ...(isAdmin ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
   ]
 

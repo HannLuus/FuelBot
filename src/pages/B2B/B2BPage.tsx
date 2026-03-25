@@ -196,7 +196,7 @@ export function B2BPage() {
           </p>
         </section>
 
-        {/* Pay via — QR + phone prominent like Operator */}
+        {/* Pay via — QR + phone prominent like Station page */}
         <section className="rounded-2xl border border-gray-200 bg-white p-4">
           <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.payVia')}</h2>
           {paymentInstructions ? (

@@ -75,8 +75,8 @@ Deno.serve(async (req) => {
             <h3>Registration rejected</h3>
             <p>Station: <strong>${station.name} (${station.township}, ${station.city})</strong></p>
             <p>Reason: ${reason}</p>
-            <p>You can update details and submit again in the operator portal.</p>
-            <p><a href="${appUrl}/operator">${appUrl}/operator</a></p>
+            <p>You can update details and submit again from your station owner page in the app.</p>
+            <p><a href="${appUrl}/station">${appUrl}/station</a></p>
           `,
         })
       }

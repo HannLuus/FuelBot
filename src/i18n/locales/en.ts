@@ -152,7 +152,7 @@ export default {
     customer: 'Customer',
     routeAccess: 'Route access',
     report: 'Report',
-    operator: 'Station',
+    station: 'Station',
     admin: 'Admin',
     dashboardTabs: 'Switch between Customer, Station and Route access',
   },
@@ -367,7 +367,7 @@ export default {
     privacyRightsBody: 'You can request access to or deletion of your data by contacting us at the email below.',
     privacyContactTitle: '5. Contact',
   },
-  operator: {
+  stationOwner: {
     title: 'Station Owner Portal',
     currentStatus: 'Current status (what drivers see)',
     updateFuelStatusDescription: 'Change status below to update what drivers see.',
@@ -504,6 +504,9 @@ export default {
     pendingRegistrations: 'Pending Registrations',
     registrationQueueSummary: '{{registrations}} registrations · {{claims}} claims · {{suggestions}} suggestions pending',
     stationPhotos: 'Station photos',
+    noStationPhotosUploaded: 'No station photos uploaded.',
+    stationPhotoUrlsNotTrusted:
+      'Photo URLs are not from project storage. Ask the owner to re-upload from the Station page.',
     locationPhoto: 'Location photo',
     requestedTier: 'Requested tier',
     expectedAmount: 'Expected amount',
@@ -511,9 +514,11 @@ export default {
     paymentReportedAt: 'Payment reported on',
     paymentMethod: 'Payment method',
     paymentReference: 'Payment reference',
-    paymentReferenceOptionalKeepOperator:
+    paymentReferenceOptionalKeepOwnerSubmitted:
       'Optional. Leave blank to keep the reference the station owner already submitted.',
-    operatorSubmittedRef: 'Station owner-submitted reference',
+    ownerSubmittedRef: 'Station owner-submitted reference',
+    verificationPhotosOwnerOnlyHint:
+      'Verification photos are uploaded by the station owner on the Station page (app tab “Station”, path /station), not here. Ask them to sign in and upload station and location photos under Complete verification.',
     tierUnderDeclaredReject: 'Tier under-declared; please register with the correct tier.',
     rejectReason: 'Reject reason',
     flaggedReports: 'Flagged Reports',
@@ -594,6 +599,8 @@ export default {
     generic: 'Something went wrong. Please try again.',
     network: 'Network error. Check your connection.',
     notFound: 'Not found.',
+    adminEdgeUnauthorized:
+      'This admin action was rejected (unauthorized). Sign out and sign in again. If it keeps happening, admin Edge Functions may need to be deployed with gateway JWT verification disabled — see README (supabase functions deploy … --no-verify-jwt).',
   },
   b2b: {
     title: 'Fleet & Route Access',

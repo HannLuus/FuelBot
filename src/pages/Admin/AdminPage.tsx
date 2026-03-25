@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi, Upload } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -138,6 +140,15 @@ function fromLocalDateTimeInputValue(input: string): string | null {
   return date.toISOString()
 }
 
+const ADMIN_EDGE_UNAUTHORIZED = 'ADMIN_EDGE_UNAUTHORIZED'
+
+function formatAdminActionError(err: unknown, t: TFunction): string {
+  if (err instanceof Error && err.message === ADMIN_EDGE_UNAUTHORIZED) {
+    return t('errors.adminEdgeUnauthorized')
+  }
+  return err instanceof Error ? err.message : t('errors.generic')
+}
+
 /** Refresh session then invoke with an explicit Bearer token so Edge Functions see up-to-date JWT claims
  *  (e.g. after app_metadata role changes). Matches project URL + anon key from env. */
 async function invokeAdminEdgeFunction(name: string, body: Record<string, unknown>) {
@@ -147,10 +158,18 @@ async function invokeAdminEdgeFunction(name: string, body: Record<string, unknow
   if (!session?.access_token) {
     throw new Error('Not signed in')
   }
-  return supabase.functions.invoke(name, {
+  const result = await supabase.functions.invoke(name, {
     body,
     headers: { Authorization: `Bearer ${session.access_token}` },
   })
+  if (result.error instanceof FunctionsHttpError) {
+    const ctx = result.error.context
+    const status = ctx instanceof Response ? ctx.status : undefined
+    if (status === 401) {
+      throw new Error(ADMIN_EDGE_UNAUTHORIZED)
+    }
+  }
+  return result
 }
 
 export function AdminPage() {
@@ -458,7 +477,7 @@ export function AdminPage() {
       if (data?.error) throw new Error(data.error)
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -539,7 +558,7 @@ export function AdminPage() {
       setPaymentReference('')
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -556,7 +575,7 @@ export function AdminPage() {
       if (data?.error) throw new Error(data.error)
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -573,7 +592,7 @@ export function AdminPage() {
       if (data?.error) throw new Error(data.error)
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -594,7 +613,7 @@ export function AdminPage() {
       setReferralPaymentRef('')
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -615,7 +634,7 @@ export function AdminPage() {
       setRejectReasonInput('')
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -632,7 +651,7 @@ export function AdminPage() {
       if (data?.error) throw new Error(data.error)
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -649,7 +668,7 @@ export function AdminPage() {
       if (updateErr) throw updateErr
       await loadAll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'))
+      setError(formatAdminActionError(err, t))
     } finally {
       setWorkingId(null)
     }
@@ -790,6 +809,11 @@ export function AdminPage() {
                     : legacyAnnual
                       ? ` · ${t('admin.expectedAmount')}: ${formatMmk(legacyAnnual)} / year`
                       : ''
+                const stationPhotoUrls = station.station_photo_urls ?? []
+                const hasTrustedStationPhotos = stationPhotoUrls.some(isTrustedStorageUrl)
+                const hasTrustedLocationPhoto =
+                  !!station.location_photo_url && isTrustedStorageUrl(station.location_photo_url)
+                const showVerificationPhotoHint = !hasTrustedStationPhotos || !hasTrustedLocationPhoto
                 return (
                   <div key={station.id} className="rounded-xl border border-gray-200 bg-white p-4">
                     <p className="text-sm font-semibold text-gray-900">{station.name}</p>
@@ -808,7 +832,7 @@ export function AdminPage() {
                     )}
                     {station.payment_reported_at && station.payment_reference ? (
                       <p className="mt-1 text-xs text-gray-700">
-                        {t('admin.operatorSubmittedRef')}:{' '}
+                        {t('admin.ownerSubmittedRef')}:{' '}
                         <span className="font-mono">{station.payment_reference}</span>
                       </p>
                     ) : null}
@@ -816,13 +840,17 @@ export function AdminPage() {
                     <div className="mt-3">
                       <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.stationPhotos')}</p>
                       <div className="flex flex-wrap gap-2">
-                        {(station.station_photo_urls ?? []).filter(isTrustedStorageUrl).map((url) => (
+                        {stationPhotoUrls.filter(isTrustedStorageUrl).map((url) => (
                           <a key={url} href={url} target="_blank" rel="noreferrer noopener">
                             <img src={url} alt="Station" className="h-16 w-16 rounded border border-gray-200 object-cover" />
                           </a>
                         ))}
-                        {(station.station_photo_urls ?? []).length === 0 && (
-                          <p className="text-xs text-amber-700">No station photos uploaded.</p>
+                        {!hasTrustedStationPhotos && (
+                          <p className="text-xs text-amber-700">
+                            {stationPhotoUrls.length === 0
+                              ? t('admin.noStationPhotosUploaded')
+                              : t('admin.stationPhotoUrlsNotTrusted')}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -839,9 +867,14 @@ export function AdminPage() {
                         <p className="text-xs text-amber-700">No location photo uploaded.</p>
                       )}
                     </div>
+                    {showVerificationPhotoHint && (
+                      <p className="mt-2 rounded-lg bg-blue-50 px-2 py-2 text-xs text-gray-800">
+                        {t('admin.verificationPhotosOwnerOnlyHint')}
+                      </p>
+                    )}
 
                     <p className="mt-3 text-xs text-gray-700">{t('admin.markPaymentKpayOnly')}</p>
-                    <p className="mt-1 text-xs text-gray-700">{t('admin.paymentReferenceOptionalKeepOperator')}</p>
+                    <p className="mt-1 text-xs text-gray-700">{t('admin.paymentReferenceOptionalKeepOwnerSubmitted')}</p>
                     <div className="mt-2 grid gap-2 sm:grid-cols-2">
                       <input
                         value={paymentReference}

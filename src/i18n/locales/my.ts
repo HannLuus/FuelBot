@@ -152,7 +152,7 @@ export default {
     customer: 'ဖောက်သည်',
     routeAccess: 'လမ်းကြောင်းအသုံးပြုခွင့်',
     report: 'သတင်းပေးပို့',
-    operator: 'ဆိုင်ရှင်',
+    station: 'ဆိုင်ရှင်',
     admin: 'စီမံခန့်ခွဲမှု',
     dashboardTabs: 'ဖောက်သည်၊ ဆိုင်ရှင် နှင့် လမ်းကြောင်းအသုံးပြုခွင့် ကြားပြောင်းရန်',
   },
@@ -367,7 +367,7 @@ export default {
     privacyRightsBody: 'အောက်ပါ အီးမေးလ်ဖြင့် ဆက်သွယ်၍ သင့်အချက်အလက် ကြည့်ရှုခွင့် သို့မဟုတ် ဖျက်သိမ်းခွင့် တောင်းခံနိုင်သည်။',
     privacyContactTitle: '၅။ ဆက်သွယ်ရန်',
   },
-  operator: {
+  stationOwner: {
     title: 'ဆီဆိုင်ပိုင်ရှင် ပေါ်တယ်',
     currentStatus: 'ယာဉ်မောင်းတွေမြင်ရတဲ့ လက်ရှိအခြေအနေ',
     updateFuelStatusDescription: 'အောက်ကအခြေအနေကိုပြောင်းပြီး ယာဉ်မောင်းတွေမြင်ရတာကို အပ်ဒိတ်လုပ်ပါ။',
@@ -504,6 +504,9 @@ export default {
     pendingRegistrations: 'အတည်ပြုရန်စောင့်ဆိုင်းနေသော မှတ်ပုံတင်ချက်များ',
     registrationQueueSummary: 'မှတ်ပုံတင် {{registrations}} ခု · claim {{claims}} ခု · အကြံပြု {{suggestions}} ခု စောင့်ဆိုင်းနေသည်',
     stationPhotos: 'ဆိုင်ဓာတ်ပုံများ',
+    noStationPhotosUploaded: 'ဆိုင်ဓာတ်ပုံ မတင်ရသေးပါ။',
+    stationPhotoUrlsNotTrusted:
+      'ဓာတ်ပုံ URL များသည် ပရောဂျက် storage မှ မဟုတ်ပါ။ ပိုင်ရှင်ကို Station စာမျက်နှာမှ ပြန်တင်ခိုင်းပါ။',
     locationPhoto: 'တည်နေရာဓာတ်ပုံ',
     requestedTier: 'တင်ပြထားသော tier',
     expectedAmount: 'မျှော်မှန်းပေးချေငွေ',
@@ -511,9 +514,11 @@ export default {
     paymentReportedAt: 'ငွေပေးချေပြီဟု မှတ်တမ်းတင်သည့်ရက်',
     paymentMethod: 'ငွေပေးချေနည်း',
     paymentReference: 'ငွေပေးချေမှု reference',
-    paymentReferenceOptionalKeepOperator:
+    paymentReferenceOptionalKeepOwnerSubmitted:
       'မထည့်လည်း ရပါတယ်။ ဘာမှ မထည့်ရင် ဘက်ရှင်ခံ ပိုင်ရှင်တင်ထားတဲ့ reference ကို ထားပါမယ်။',
-    operatorSubmittedRef: 'ပိုင်ရှင်တင်ထားသော reference',
+    ownerSubmittedRef: 'ပိုင်ရှင်တင်ထားသော reference',
+    verificationPhotosOwnerOnlyHint:
+      'အတည်ပြုဓာတ်ပုံများကို ဤနေရာမှ မဟုတ်ဘဲ ပိုင်ရှင်က အက်ပ်၏ “ဆိုင်ရှင်” တဘ် (/station) မှ တင်ရသည်။ ပိုင်ရှင်ကို ဝင်ပြီး “အတည်ပြုခြင်း ပြီးအောင်” တွင် ဆိုင်ဓာတ်ပုံနှင့် တည်နေရာဓာတ်ပုံ တင်ရန် ပြောပါ။',
     tierUnderDeclaredReject: 'တင်ပြထားသည့် tier သည် အမှန်ထက်နိမ့်နေသည်။ မှန်ကန်သော tier ဖြင့် ပြန်လည်တင်ပြပါ။',
     rejectReason: 'ငြင်းပယ်ရခြင်းအကြောင်းရင်း',
     flaggedReports: 'ထောက်ပြချက်ရသောသတင်းများ',
@@ -594,6 +599,8 @@ export default {
     generic: 'တစ်ခုခုမှားသွားသည်။ ထပ်ကြိုးစားပါ။',
     network: 'ကွန်ရက်ချိတ်ဆက်မှုပြဿနာ။ ချိတ်ဆက်မှုစစ်ဆေးပါ။',
     notFound: 'မတွေ့ပါ။',
+    adminEdgeUnauthorized:
+      'စီမံခန့်ခွဲမှု လုပ်ဆောင်ချက်ကို ငြင်းပယ်ခဲ့သည် (ခွင့်ပြုချက်မရှိ)။ ထွက်ဝင်ပြန်ဝင်ပါ။ ဆက်ဖြစ်နေပါက admin Edge Functions များကို gateway JWT စစ်ဆေးမှုပိတ်ထားပြီး deploy လုပ်ရန် လိုအပ်နိုင်သည် — README ကို ကြည့်ပါ (supabase functions deploy … --no-verify-jwt)။',
   },
   b2b: {
     title: 'ယာဉ်ပိုင်ရှင်များ နှင့် လမ်းကြောင်းဝင်ရောက်ခွင့်',

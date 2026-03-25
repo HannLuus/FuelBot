@@ -66,7 +66,7 @@ export interface Station {
   /** CamelCase alias from some API responses; use verification_source ?? verificationSource. */
   verificationSource?: 'distributor' | 'crowd' | 'owner' | null
   subscription_tier_requested?: SubscriptionTierRequested | null
-  /** Snapshot when operator reported payment (aligned with b2b_pricing_config). */
+  /** Snapshot when the station owner reported payment (aligned with b2b_pricing_config). */
   subscription_duration_months?: number | null
   subscription_price_list_mmk?: number | null
   subscription_price_promo_mmk?: number | null
@@ -192,6 +192,6 @@ export interface StationFilters {
   maxDistanceKm: number
   /** When set, B2B route view is active and stations are filtered to this route. */
   selectedRouteId: string | null
-  /** When true, show only operator-verified stations (trusted locations). */
+  /** When true, show only owner-verified stations (trusted locations). */
   verifiedOnly: boolean
 }

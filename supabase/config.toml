@@ -406,3 +406,39 @@ entrypoint = "./functions/b2b-subscribe/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/b2b-subscribe/*.html" ]
+
+# Admin panel: gateway JWT off; each function validates Bearer via requireAdminUser (see README).
+[functions.admin-mark-payment]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-mark-payment/index.ts"
+
+[functions.admin-approve-registration]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-approve-registration/index.ts"
+
+[functions.admin-reject-registration]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-reject-registration/index.ts"
+
+[functions.admin-create-station-from-suggestion]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-create-station-from-suggestion/index.ts"
+
+[functions.admin-confirm-b2b]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-confirm-b2b/index.ts"
+
+[functions.admin-mark-referral-collected]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-mark-referral-collected/index.ts"
+
+[functions.admin-mark-referral-paid]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-mark-referral-paid/index.ts"

@@ -59,7 +59,7 @@ function makePickerMarkerIcon(): L.DivIcon {
   })
 }
 
-export function OperatorPage() {
+export function StationOwnerPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
   const { user, session } = useAuthStore()
@@ -114,8 +114,8 @@ export function OperatorPage() {
   const [editableStationBrand, setEditableStationBrand] = useState('')
   const [setLocationLoading, setSetLocationLoading] = useState(false)
   const [setLocationMessage, setSetLocationMessage] = useState<string | null>(null)
-  const [operatorPaymentReference, setOperatorPaymentReference] = useState('')
-  const [operatorScreenshotPath, setOperatorScreenshotPath] = useState<string | null>(null)
+  const [ownerPaymentReference, setOwnerPaymentReference] = useState('')
+  const [ownerScreenshotPath, setOwnerScreenshotPath] = useState<string | null>(null)
   const [uploadingPaymentScreenshot, setUploadingPaymentScreenshot] = useState(false)
   const paymentScreenshotInputRef = useRef<HTMLInputElement>(null)
 
@@ -308,7 +308,7 @@ export function OperatorPage() {
     if (!user || registering) return
     if (!session?.access_token) {
       setRegisterResult('error')
-      setRegisterErrorMessage(t('operator.registerSessionRequired'))
+      setRegisterErrorMessage(t('stationOwner.registerSessionRequired'))
       return
     }
     setRegistering(true)
@@ -368,7 +368,7 @@ export function OperatorPage() {
 
   function handleUseMyLocationForRegistration() {
     if (!navigator.geolocation) {
-      setRegisterLocationError(t('operator.registerLocationError'))
+      setRegisterLocationError(t('stationOwner.registerLocationError'))
       return
     }
     setRegisterLocationLoading(true)
@@ -383,7 +383,7 @@ export function OperatorPage() {
         setRegisterLocationLoading(false)
       },
       () => {
-        setRegisterLocationError(t('operator.registerLocationError'))
+        setRegisterLocationError(t('stationOwner.registerLocationError'))
         setRegisterLocationLoading(false)
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
@@ -452,17 +452,17 @@ export function OperatorPage() {
       setSaveState('success')
       setSaveMessage(
         data?.referral_matched
-          ? t('operator.referralSavedWithCode', { code: data.referral_matched })
-          : t('operator.referralSaved')
+          ? t('stationOwner.referralSavedWithCode', { code: data.referral_matched })
+          : t('stationOwner.referralSaved')
       )
       await loadMyStation()
       return true
     } catch (err) {
       const message = err instanceof Error ? err.message : t('errors.generic')
       if (message.toLowerCase().includes('own referral')) {
-        setSaveMessage(t('operator.ownReferralCode'))
+        setSaveMessage(t('stationOwner.ownReferralCode'))
       } else if (message.toLowerCase().includes('invalid referral')) {
-        setSaveMessage(t('operator.invalidReferralCode'))
+        setSaveMessage(t('stationOwner.invalidReferralCode'))
       } else {
         setSaveMessage(message)
       }
@@ -472,7 +472,7 @@ export function OperatorPage() {
   }
 
   async function markIHavePaid() {
-    if (!myStation || submittingPaid || !operatorPaymentReference.trim()) return
+    if (!myStation || submittingPaid || !ownerPaymentReference.trim()) return
     setSubmittingPaid(true)
     setSaveMessage(null)
     try {
@@ -485,14 +485,14 @@ export function OperatorPage() {
         body: {
           station_id: myStation.id,
           payment_method: 'KBZ_PAY',
-          payment_reference: operatorPaymentReference.trim(),
+          payment_reference: ownerPaymentReference.trim(),
           duration_months: durationMonths,
-          screenshot_path: operatorScreenshotPath || undefined,
+          screenshot_path: ownerScreenshotPath || undefined,
         },
       })
       if (error) throw error
       if (data?.error) throw new Error(data.error)
-      setSaveMessage(t('operator.weWillVerifySoon'))
+      setSaveMessage(t('stationOwner.weWillVerifySoon'))
       await loadMyStation()
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
@@ -501,7 +501,7 @@ export function OperatorPage() {
     }
   }
 
-  async function handleOperatorPaymentScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleOwnerPaymentScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !user || !myStation) return
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
@@ -512,13 +512,13 @@ export function OperatorPage() {
     setUploadingPaymentScreenshot(true)
     setSaveMessage(null)
     try {
-      const path = `${user.id}/operator-${myStation.id}-${crypto.randomUUID()}.${ext}`
+      const path = `${user.id}/station-${myStation.id}-${crypto.randomUUID()}.${ext}`
       const { error: uploadErr } = await supabase.storage.from(PAYMENT_SCREENSHOT_BUCKET).upload(path, file, {
         contentType: file.type,
         upsert: false,
       })
       if (uploadErr) throw uploadErr
-      setOperatorScreenshotPath(path)
+      setOwnerScreenshotPath(path)
     } catch {
       setSaveMessage(t('errors.generic'))
     } finally {
@@ -664,9 +664,9 @@ export function OperatorPage() {
             >
               <X className="h-5 w-5" />
             </button>
-            <span className="text-sm font-medium text-gray-900">{t('operator.registerLocationLabel')}</span>
+            <span className="text-sm font-medium text-gray-900">{t('stationOwner.registerLocationLabel')}</span>
             <Button size="sm" variant="primary" onClick={handleConfirmMapPickerLocation}>
-              {t('operator.registerUseThisLocation')}
+              {t('stationOwner.registerUseThisLocation')}
             </Button>
           </div>
           <div ref={mapPickerContainerRef} className="min-h-[50vh] flex-1" />
@@ -674,13 +674,13 @@ export function OperatorPage() {
       )}
 
       <div className="border-b border-gray-100 bg-white px-4 py-3">
-        <h1 className="text-lg font-bold text-gray-900">{t('operator.title')}</h1>
+        <h1 className="text-lg font-bold text-gray-900">{t('stationOwner.title')}</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Tiers */}
         <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <h2 className="text-sm font-bold text-gray-900 mb-3">{t('operator.selectTier')}</h2>
+          <h2 className="text-sm font-bold text-gray-900 mb-3">{t('stationOwner.selectTier')}</h2>
           <div className="grid gap-2 sm:grid-cols-3">
             {(['small', 'medium', 'large'] as const).map((tierOption) => {
               const selected = tier === tierOption
@@ -691,7 +691,7 @@ export function OperatorPage() {
                   onClick={() => setTier(tierOption)}
                   className={`rounded-xl border p-3 text-left ${selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}`}
                 >
-                  <p className="font-semibold text-gray-900">{t(`operator.${tierOption}`)}</p>
+                  <p className="font-semibold text-gray-900">{t(`stationOwner.${tierOption}`)}</p>
                 </button>
               )
             })}
@@ -734,15 +734,15 @@ export function OperatorPage() {
           <p className="mt-3 text-xs text-gray-700">
             {t('b2b.selectedDurationSummary', { months: durationMonths })} · {formatMmk(selectedDurationQuote.paid)}
           </p>
-          <p className="mt-4 text-sm font-medium text-gray-800">{t('operator.whatYouGetTitle')}</p>
+          <p className="mt-4 text-sm font-medium text-gray-800">{t('stationOwner.whatYouGetTitle')}</p>
           <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-gray-700">
-            <li>{t('operator.whatYouGetReliability')}</li>
-            <li>{t('operator.whatYouGetUptime')}</li>
-            <li>{t('operator.whatYouGetCompare')}</li>
+            <li>{t('stationOwner.whatYouGetReliability')}</li>
+            <li>{t('stationOwner.whatYouGetUptime')}</li>
+            <li>{t('stationOwner.whatYouGetCompare')}</li>
           </ul>
           <p className="mt-2">
             <Link to="/benefits/station-owners" className="text-xs font-medium text-blue-600 underline active:text-blue-800">
-              {t('operator.seeFullBenefits')}
+              {t('stationOwner.seeFullBenefits')}
             </Link>
           </p>
         </section>
@@ -752,12 +752,12 @@ export function OperatorPage() {
           <>
             <div className="rounded-2xl bg-white border border-gray-200 p-5">
               <Store className="mb-2 h-8 w-8 text-blue-500" />
-              <h2 className="font-semibold text-gray-900">{t('operator.registerTitle')}</h2>
-              <p className="mt-1 text-sm text-gray-700">{t('operator.registerIntro')}</p>
+              <h2 className="font-semibold text-gray-900">{t('stationOwner.registerTitle')}</h2>
+              <p className="mt-1 text-sm text-gray-700">{t('stationOwner.registerIntro')}</p>
               <form onSubmit={submitRegistration} className="mt-4 space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    {t('operator.registerFormName')} *
+                    {t('stationOwner.registerFormName')} *
                   </label>
                   <input
                     type="text"
@@ -771,7 +771,7 @@ export function OperatorPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    {t('operator.registerFormBrand')}
+                    {t('stationOwner.registerFormBrand')}
                   </label>
                   <input
                     type="text"
@@ -783,7 +783,7 @@ export function OperatorPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    {t('operator.registerFormAddress')}
+                    {t('stationOwner.registerFormAddress')}
                   </label>
                   <input
                     type="text"
@@ -796,7 +796,7 @@ export function OperatorPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      {t('operator.registerFormTownship')}
+                      {t('stationOwner.registerFormTownship')}
                     </label>
                     <input
                       type="text"
@@ -807,7 +807,7 @@ export function OperatorPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      {t('operator.registerFormCity')}
+                      {t('stationOwner.registerFormCity')}
                     </label>
                     <input
                       type="text"
@@ -820,35 +820,35 @@ export function OperatorPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    {t('operator.referralCode')}
+                    {t('stationOwner.referralCode')}
                   </label>
                   <input
                     type="text"
                     value={referralCodeInput}
                     onChange={(e) => setReferralCodeInput(e.target.value.toUpperCase())}
-                    placeholder={t('operator.referralCodePlaceholder')}
+                    placeholder={t('stationOwner.referralCodePlaceholder')}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
-                  <p className="mt-1 text-[11px] text-gray-700">{t('operator.referralCodeOptionalNote')}</p>
+                  <p className="mt-1 text-[11px] text-gray-700">{t('stationOwner.referralCodeOptionalNote')}</p>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    {t('operator.registerLocationLabel')}
+                    {t('stationOwner.registerLocationLabel')}
                   </label>
                   {registerForm.lat != null &&
                   registerForm.lng != null &&
                   Number.isFinite(registerForm.lat) &&
                   Number.isFinite(registerForm.lng) ? (
                     <p className="mb-2 text-xs text-gray-700">
-                      {t('operator.registerLocationSet', {
+                      {t('stationOwner.registerLocationSet', {
                         lat: Number(registerForm.lat).toFixed(5),
                         lng: Number(registerForm.lng).toFixed(5),
                       })}
                     </p>
                   ) : (
                     <p className="mb-2 text-xs text-gray-700">
-                      {t('operator.registerLocationNotSet')}
+                      {t('stationOwner.registerLocationNotSet')}
                     </p>
                   )}
                   <div className="flex flex-wrap gap-2">
@@ -865,7 +865,7 @@ export function OperatorPage() {
                       ) : (
                         <Crosshair className="h-4 w-4" />
                       )}
-                      {t('operator.registerUseMyLocation')}
+                      {t('stationOwner.registerUseMyLocation')}
                     </Button>
                     <Button
                       ref={pickOnMapButtonRef}
@@ -881,7 +881,7 @@ export function OperatorPage() {
                       }}
                     >
                       <MapPin className="h-4 w-4" />
-                      {t('operator.registerPickOnMap')}
+                      {t('stationOwner.registerPickOnMap')}
                     </Button>
                     {registerForm.lat != null &&
                       registerForm.lng != null &&
@@ -897,7 +897,7 @@ export function OperatorPage() {
                           setRegisterLocationError(null)
                         }}
                       >
-                        {t('operator.registerLocationClear')}
+                        {t('stationOwner.registerLocationClear')}
                       </Button>
                     )}
                   </div>
@@ -907,11 +907,11 @@ export function OperatorPage() {
                 </div>
 
                 {registerResult === 'success' && (
-                  <p className="text-sm text-green-600">{t('operator.registerSuccess')}</p>
+                  <p className="text-sm text-green-600">{t('stationOwner.registerSuccess')}</p>
                 )}
                 {registerResult === 'error' && (
                   <p className="text-sm text-red-600">
-                    {registerErrorMessage ?? t('operator.registerError')}
+                    {registerErrorMessage ?? t('stationOwner.registerError')}
                   </p>
                 )}
                 <Button
@@ -921,13 +921,13 @@ export function OperatorPage() {
                   loading={registering}
                   disabled={!session?.access_token}
                 >
-                  {t('operator.registerSubmit')}
+                  {t('stationOwner.registerSubmit')}
                 </Button>
               </form>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-              <p className="text-sm font-semibold text-gray-800">{t('operator.claimExistingTitle')}</p>
-              <p className="mt-0.5 text-xs text-gray-700">{t('operator.claimExistingDesc')}</p>
+              <p className="text-sm font-semibold text-gray-800">{t('stationOwner.claimExistingTitle')}</p>
+              <p className="mt-0.5 text-xs text-gray-700">{t('stationOwner.claimExistingDesc')}</p>
               <Button
                 variant="secondary"
                 size="md"
@@ -935,7 +935,7 @@ export function OperatorPage() {
                 onClick={() => navigate('/home')}
               >
                 <MapPin className="h-4 w-4" />
-                {t('operator.claimButton')}
+                {t('stationOwner.claimButton')}
               </Button>
             </div>
           </>
@@ -953,23 +953,23 @@ export function OperatorPage() {
               </div>
               <p className={`mt-1 text-xs ${myStation.is_verified ? 'text-green-700' : 'text-amber-700'}`}>
                 {myStation.township}
-                {myStation.is_verified ? ` · ${t('station.verified')}` : ` · ${t('operator.pendingVerification')}`}
+                {myStation.is_verified ? ` · ${t('station.verified')}` : ` · ${t('stationOwner.pendingVerification')}`}
               </p>
                 {myStation.registration_reject_reason ? (
                 <p className="mt-2 rounded-lg bg-red-50 p-2 text-xs text-red-700">
-                  {t('operator.registrationRejectedReason')}: {myStation.registration_reject_reason}
+                  {t('stationOwner.registrationRejectedReason')}: {myStation.registration_reject_reason}
                 </p>
               ) : null}
             </div>
 
             {!myStation.is_verified && (
               <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-                <h3 className="font-semibold text-blue-900">{t('operator.completeVerification')}</h3>
-                <p className="mt-1 text-xs text-blue-800">{t('operator.paymentInstructions')}</p>
+                <h3 className="font-semibold text-blue-900">{t('stationOwner.completeVerification')}</h3>
+                <p className="mt-1 text-xs text-blue-800">{t('stationOwner.paymentInstructions')}</p>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-gray-700">{t('operator.registerFormName')}</label>
+                    <label className="mb-1 block text-xs font-semibold text-gray-700">{t('stationOwner.registerFormName')}</label>
                     <input
                       type="text"
                       value={editableStationName}
@@ -979,7 +979,7 @@ export function OperatorPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-gray-700">{t('operator.registerFormBrand')}</label>
+                    <label className="mb-1 block text-xs font-semibold text-gray-700">{t('stationOwner.registerFormBrand')}</label>
                     <input
                       type="text"
                       value={editableStationBrand}
@@ -991,14 +991,14 @@ export function OperatorPage() {
                 </div>
 
                 <div className="mt-3">
-                  <label className="mb-1 block text-xs font-semibold text-gray-700">{t('operator.referralCode')}</label>
+                  <label className="mb-1 block text-xs font-semibold text-gray-700">{t('stationOwner.referralCode')}</label>
                   <input
                     value={referralCodeInput === 'ASSIGNED' ? '' : referralCodeInput}
                     onChange={(e) => setReferralCodeInput(e.target.value)}
-                    placeholder={t('operator.referralCodePlaceholder')}
+                    placeholder={t('stationOwner.referralCodePlaceholder')}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
-                  <p className="mt-1 text-[11px] text-gray-700">{t('operator.referralCodeOptionalNote')}</p>
+                  <p className="mt-1 text-[11px] text-gray-700">{t('stationOwner.referralCodeOptionalNote')}</p>
                 </div>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -1037,7 +1037,7 @@ export function OperatorPage() {
                     disabled={uploading}
                   >
                     <Upload className="h-4 w-4" />
-                    {t('operator.completeVerification')}
+                    {t('stationOwner.completeVerification')}
                   </Button>
                 </div>
 
@@ -1082,14 +1082,14 @@ export function OperatorPage() {
                 <div className="space-y-3">
                   <p className="text-xs text-gray-700">{t('b2b.kpayOnlyNotice')}</p>
                   <div>
-                    <label htmlFor="operator-payment-ref" className="mb-1.5 block text-xs font-medium text-gray-700">
+                    <label htmlFor="owner-payment-ref" className="mb-1.5 block text-xs font-medium text-gray-700">
                       {t('admin.paymentReference')} *
                     </label>
                     <input
-                      id="operator-payment-ref"
+                      id="owner-payment-ref"
                       type="text"
-                      value={operatorPaymentReference}
-                      onChange={(e) => setOperatorPaymentReference(e.target.value)}
+                      value={ownerPaymentReference}
+                      onChange={(e) => setOwnerPaymentReference(e.target.value)}
                       placeholder="e.g. Transaction ID or last 4 digits"
                       className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
@@ -1102,15 +1102,15 @@ export function OperatorPage() {
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
                       className="sr-only"
-                      onChange={handleOperatorPaymentScreenshot}
+                      onChange={handleOwnerPaymentScreenshot}
                       aria-label={t('b2b.uploadScreenshot')}
                     />
-                    {operatorScreenshotPath ? (
+                    {ownerScreenshotPath ? (
                       <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
                         <span className="text-sm text-gray-700 truncate flex-1">{t('b2b.screenshotUploaded')}</span>
                         <button
                           type="button"
-                          onClick={() => setOperatorScreenshotPath(null)}
+                          onClick={() => setOwnerScreenshotPath(null)}
                           className="shrink-0 rounded p-1 text-gray-700 hover:bg-gray-200"
                           aria-label={t('b2b.removeScreenshot')}
                         >
@@ -1136,23 +1136,23 @@ export function OperatorPage() {
                   className="w-full mt-4"
                   loading={submittingPaid}
                   onClick={() => void markIHavePaid()}
-                  disabled={stationPhotos.length === 0 || !locationPhoto || !operatorPaymentReference.trim()}
+                  disabled={stationPhotos.length === 0 || !locationPhoto || !ownerPaymentReference.trim()}
                 >
-                  {t('operator.iHavePaid')}
+                  {t('stationOwner.iHavePaid')}
                 </Button>
               </section>
             )}
 
             {!myStation.is_verified && myStation.payment_reported_at && (
               <p className="text-sm text-gray-700">
-                {t('operator.paymentReportedAt')}: {new Date(myStation.payment_reported_at).toLocaleString()}
+                {t('stationOwner.paymentReportedAt')}: {new Date(myStation.payment_reported_at).toLocaleString()}
               </p>
             )}
 
             {currentStatus && (
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                <p className="font-semibold text-gray-900">{t('operator.currentStatus')}</p>
-                <p className="mt-1 text-xs text-gray-700">{t('operator.updateFuelStatusDescription')}</p>
+                <p className="font-semibold text-gray-900">{t('stationOwner.currentStatus')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('stationOwner.updateFuelStatusDescription')}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {FUEL_CODES.map((code) => {
                     const v = currentStatus.fuel_statuses_computed?.[code] ?? 'UNKNOWN'
@@ -1172,8 +1172,8 @@ export function OperatorPage() {
 
             {myStation.payment_received_at && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                <p className="font-semibold text-emerald-900">{t('operator.setCorrectLocationTitle')}</p>
-                <p className="mt-1 text-xs text-emerald-800">{t('operator.setCorrectLocationHint')}</p>
+                <p className="font-semibold text-emerald-900">{t('stationOwner.setCorrectLocationTitle')}</p>
+                <p className="mt-1 text-xs text-emerald-800">{t('stationOwner.setCorrectLocationHint')}</p>
                 <div className="mt-3">
                   <Button
                     size="sm"
@@ -1205,19 +1205,19 @@ export function OperatorPage() {
                           },
                         })
                         if (!error) {
-                          setSetLocationMessage(t('operator.setCorrectLocationUpdated'))
+                          setSetLocationMessage(t('stationOwner.setCorrectLocationUpdated'))
                           void loadMyStation()
                         } else {
                           setSetLocationMessage(error.message ?? t('errors.generic'))
                         }
                       } catch {
-                        setSetLocationMessage(t('operator.setCorrectLocationGeolocationError'))
+                        setSetLocationMessage(t('stationOwner.setCorrectLocationGeolocationError'))
                       } finally {
                         setSetLocationLoading(false)
                       }
                     }}
                   >
-                    {t('operator.setCorrectLocationUseMyLocation')}
+                    {t('stationOwner.setCorrectLocationUseMyLocation')}
                   </Button>
                 </div>
                 {setLocationMessage && (
@@ -1228,28 +1228,28 @@ export function OperatorPage() {
 
             {myStation.is_verified && (
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                <p className="font-semibold text-gray-900">{t('operator.yourStationReliability')}</p>
-                <p className="mt-1 text-xs text-gray-700">{t('operator.reliabilityDescription')}</p>
+                <p className="font-semibold text-gray-900">{t('stationOwner.yourStationReliability')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('stationOwner.reliabilityDescription')}</p>
                 {reliability ? (
                   <div className="mt-3 space-y-2 text-sm">
                     <p className="text-gray-700">
-                      {t('operator.reportsLast7d')}: <strong>{reliability.reports_last_7d}</strong>
+                      {t('stationOwner.reportsLast7d')}: <strong>{reliability.reports_last_7d}</strong>
                       {reliability.verified_last_7d > 0 && (
-                        <span className="ml-2 text-gray-700">({t('operator.verifiedUpdates')}: {reliability.verified_last_7d})</span>
+                        <span className="ml-2 text-gray-700">({t('stationOwner.verifiedUpdates')}: {reliability.verified_last_7d})</span>
                       )}
                     </p>
                     <p className="text-gray-700">
-                      {t('operator.reportsLast30d')}: <strong>{reliability.reports_last_30d}</strong>
+                      {t('stationOwner.reportsLast30d')}: <strong>{reliability.reports_last_30d}</strong>
                       {reliability.verified_last_30d > 0 && (
-                        <span className="ml-2 text-gray-700">({t('operator.verifiedUpdates')}: {reliability.verified_last_30d})</span>
+                        <span className="ml-2 text-gray-700">({t('stationOwner.verifiedUpdates')}: {reliability.verified_last_30d})</span>
                       )}
                     </p>
                     {reliability.last_updated_at && (
-                      <p className="text-xs text-gray-700">{t('operator.lastUpdated')}: {formatRelativeTime(reliability.last_updated_at)}</p>
+                      <p className="text-xs text-gray-700">{t('stationOwner.lastUpdated')}: {formatRelativeTime(reliability.last_updated_at)}</p>
                     )}
                     {reliability.city_name != null && reliability.city_stations_count != null && reliability.city_avg_reports_7d != null && (
                       <p className="text-xs text-gray-700 mt-2">
-                        {t('operator.vsCity', {
+                        {t('stationOwner.vsCity', {
                           city: reliability.city_name,
                           count: reliability.city_stations_count,
                           avg7: reliability.city_avg_reports_7d,
@@ -1259,21 +1259,21 @@ export function OperatorPage() {
                     )}
                   </div>
                 ) : (
-                  <p className="mt-2 text-sm text-gray-700">{t('operator.reliabilityNoData')}</p>
+                  <p className="mt-2 text-sm text-gray-700">{t('stationOwner.reliabilityNoData')}</p>
                 )}
               </div>
             )}
 
             {myStation.is_verified && (
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                <p className="font-semibold text-gray-900">{t('operator.uptime30d')}</p>
-                <p className="mt-1 text-xs text-gray-700">{t('operator.uptimeDescription')}</p>
+                <p className="font-semibold text-gray-900">{t('stationOwner.uptime30d')}</p>
+                <p className="mt-1 text-xs text-gray-700">{t('stationOwner.uptimeDescription')}</p>
                 {uptime?.has_sufficient_data && uptime.uptime_pct != null ? (
                   <p className="mt-3 text-sm text-gray-700">
-                    {t('operator.uptimeValue', { pct: uptime.uptime_pct })}
+                    {t('stationOwner.uptimeValue', { pct: uptime.uptime_pct })}
                   </p>
                 ) : (
-                  <p className="mt-3 text-sm text-gray-700">{t('operator.uptimeCollectingData')}</p>
+                  <p className="mt-3 text-sm text-gray-700">{t('stationOwner.uptimeCollectingData')}</p>
                 )}
               </div>
             )}
@@ -1317,26 +1317,26 @@ export function OperatorPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-white border border-gray-100 p-3 text-center">
                 <Users className="mx-auto h-5 w-5 text-gray-700 mb-1" />
-                <p className="text-xs text-gray-700">{t('operator.followers')}</p>
+                <p className="text-xs text-gray-700">{t('stationOwner.followers')}</p>
                 <p className="text-lg font-bold text-gray-800">—</p>
               </div>
               <div className="rounded-xl bg-white border border-gray-100 p-3 text-center">
                 <Send className="mx-auto h-5 w-5 text-gray-700 mb-1" />
-                <p className="text-xs text-gray-700">{t('operator.confirmations')}</p>
+                <p className="text-xs text-gray-700">{t('stationOwner.confirmations')}</p>
                 <p className="text-lg font-bold text-gray-800">—</p>
               </div>
             </div>
 
             {/* Post update — only when verified */}
             <div className="rounded-2xl bg-white border border-gray-200 p-4">
-              <p className="font-semibold text-gray-800 mb-1">{t('operator.postUpdate')}</p>
+              <p className="font-semibold text-gray-800 mb-1">{t('stationOwner.postUpdate')}</p>
               {!myStation.is_verified ? (
-                <p className="text-sm text-amber-700 mb-3">{t('operator.postAfterApproval')}</p>
+                <p className="text-sm text-amber-700 mb-3">{t('stationOwner.postAfterApproval')}</p>
               ) : (
                 <>
-                  <p className="text-xs text-gray-700 mb-3">{t('operator.postUpdateHint')}</p>
+                  <p className="text-xs text-gray-700 mb-3">{t('stationOwner.postUpdateHint')}</p>
                   {!canPostFuelUpdate && (
-                    <p className="mb-2 text-xs text-gray-600">{t('operator.postUpdateSelectFuelHint')}</p>
+                    <p className="mb-2 text-xs text-gray-600">{t('stationOwner.postUpdateSelectFuelHint')}</p>
                   )}
 
                   <div className="space-y-3">
@@ -1372,7 +1372,7 @@ export function OperatorPage() {
                 <p className="mt-3 text-sm text-green-600">{t('report.success')}</p>
               )}
               {postResult === 'needFuel' && (
-                <p className="mt-3 text-sm text-amber-800">{t('operator.postUpdateNeedFuel')}</p>
+                <p className="mt-3 text-sm text-amber-800">{t('stationOwner.postUpdateNeedFuel')}</p>
               )}
               {postResult === 'error' && (
                 <p className="mt-3 text-sm text-red-600">{t('report.error')}</p>
@@ -1387,7 +1387,7 @@ export function OperatorPage() {
                 onClick={() => void postUpdate()}
               >
                 <Send className="h-4 w-4" />
-                {t('operator.postUpdate')}
+                {t('stationOwner.postUpdate')}
               </Button>
                 </>
               )}

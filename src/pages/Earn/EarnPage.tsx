@@ -214,7 +214,7 @@ export function EarnPage() {
             </section>
 
             <section className="mt-4 rounded-2xl border border-gray-200 bg-white p-4">
-              <h2 className="text-sm font-semibold text-gray-900">{t('operator.myReferralRewards')}</h2>
+              <h2 className="text-sm font-semibold text-gray-900">{t('stationOwner.myReferralRewards')}</h2>
               {rewards.length === 0 ? (
                 <p className="mt-2 text-sm text-gray-700">{t('earn.noReferralRewardsYet')}</p>
               ) : (

@@ -13,7 +13,7 @@
 
 So the code is created the first time the function is successfully called for that user. Nothing else has to “happen” first.
 
-**Share link:** The Earn page shows a link like `https://yoursite.com/operator?ref=FB-XXXXXXXX`. When a station owner opens that link and registers their station, the `ref` query param pre-fills the referral code field on the Operator page, so the referrer gets credit when the station subscribes.
+**Share link:** The Earn page shows a link like `https://yoursite.com/station?ref=FB-XXXXXXXX`. When a station owner opens that link and registers their station, the `ref` query param pre-fills the referral code field on the **Station** page (`/station`), so the referrer gets credit when the station subscribes. (Legacy URLs `/operator` redirect to `/station`.)
 
 ## Why “Code unavailable” or 401?
 
@@ -26,10 +26,10 @@ If the Earn page shows “Code unavailable” and the console shows **401 (Unaut
 ## Testing the referral flow
 
 1. **Get your referral code (as a driver/subscriber)**  
-   Sign in with an account that is **not** a station owner. Open **Earn** (`/earn`). You should see a code like `FB-XXXXXXXX` and a share link. Copy the link (e.g. `https://yoursite.com/operator?ref=FB-XXXXXXXX`).
+   Sign in with an account that is **not** a station owner. Open **Earn** (`/earn`). You should see a code like `FB-XXXXXXXX` and a share link. Copy the link (e.g. `https://yoursite.com/station?ref=FB-XXXXXXXX`).
 
 2. **Open the share link as the station owner**  
-   In another browser or incognito window (or a different device), open that link. You should land on **Operator** (`/operator`) with the referral code field **pre-filled** with the code from the URL.
+   In another browser or incognito window (or a different device), open that link. You should land on the **Station** page (`/station`) with the referral code field **pre-filled** with the code from the URL.
 
 3. **Register the station with the referral**  
    Complete station registration and payment flow. On success, the backend should associate the station with the referrer (e.g. `stations.referrer_user_id` and/or `referral_rewards` once the station subscribes).

@@ -218,7 +218,7 @@ Deno.serve(async (req) => {
               <h2 style="color:#0f172a">Station verified</h2>
               <p>We received your payment. Your station <strong>${safeStationLabel}</strong> is now verified.</p>
               <p>Tier: ${esc(tier || '—')}</p>
-              <p><a href="${escapeHtml(appUrl + '/operator')}" style="color:#1d4ed8">Open operator dashboard</a></p>
+              <p><a href="${escapeHtml(appUrl + '/station')}" style="color:#1d4ed8">Open your station dashboard</a></p>
             </div>` +
               payoutBlock
           }
@@ -247,7 +247,7 @@ Deno.serve(async (req) => {
               <p>Station: <strong>${escapeHtml(stationLabel)}</strong></p>
               <p>Amount: <strong>${amountMmk.toLocaleString('en-US')} MMK</strong> (15%)</p>
               <p>Option B: collect this from the station owner as instructed by FuelBot.</p>
-              <p>Open app: <a href="${escapeHtml(appUrl + '/operator')}">${escapeHtml(appUrl + '/operator')}</a></p>
+              <p>Open app: <a href="${escapeHtml(appUrl + '/station')}">${escapeHtml(appUrl + '/station')}</a></p>
             `,
           })
         }

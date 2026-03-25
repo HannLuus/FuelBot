@@ -57,6 +57,7 @@ supabase functions deploy operator-report-payment
 supabase functions deploy contact-us
 supabase functions deploy get-referral-code --no-verify-jwt   # auth done in function; see docs/REFERRAL_CODE_FLOW.md
 # Admin panel invokeables: disable gateway JWT so preflight/post hit the function; each uses requireAdminUser()
+# (Same flags are set in supabase/config.toml under [functions.admin-*] for CLI deploys from this repo.)
 supabase functions deploy admin-approve-registration --no-verify-jwt
 supabase functions deploy admin-reject-registration --no-verify-jwt
 supabase functions deploy admin-create-station-from-suggestion --no-verify-jwt
@@ -112,9 +113,9 @@ All migrations are applied to the remote Supabase project. Key tables:
 | `status_votes` | Confirm / Disagree votes per report |
 | `station_current_status` | Computed best status per station (auto-updated by trigger) |
 | `station_status_snapshots` | Hourly snapshots for uptime calculation (filled by cron) |
-| `station_claims` | Operator claim requests (admin approval) |
+| `station_claims` | Station owner claim requests (admin approval) |
 | `station_followers` | Users following a station for alerts |
-| `subscriptions` | Operator subscription tiers |
+| `subscriptions` | Station subscription tiers |
 | `alerts_log` | Dispatched alert records |
 | `b2b_subscriptions` | Paid B2B entitlements (national view, route view) |
 | `routes` | Predefined routes for transport companies (corridor view) |
@@ -182,7 +183,7 @@ You can run the script in stages (e.g. one region per run) and concatenate or re
 - Follow a station for fuel-back alerts
 - Full Burmese + English UI
 
-### Operator
+### Station owners
 - Owner-first station registration and verification workflow
 - Tier selection (small / medium / large) with annual MMK pricing
 - Payment instructions + QR visibility
