@@ -19,6 +19,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
 import { ContactPage } from '@/pages/Contact/ContactPage'
 import { RequireAdmin, RequireAuth, RequireFleetContext, RequireStationContext } from '@/components/auth/RouteGuards'
+import { InboxPage } from '@/pages/Inbox/InboxPage'
 
 // Lazy-load the map to keep it out of the initial bundle
 const MapPage = lazy(() =>
@@ -40,7 +41,7 @@ function RedirectLegacyStationClaimPath() {
   if (!stationId) {
     return <Navigate to={{ pathname: '/station', search: q ? `?${q}` : undefined }} replace />
   }
-  return <Navigate to={`/station/claim/${stationId}${search}`} replace />
+  return <Navigate to={`/station/${stationId}${search}`} replace />
 }
 
 /** /station/claim without :stationId was matching /station/:id with id "claim". */
@@ -71,12 +72,13 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
           {/** More specific /station/claim/* before /station/:id so "claim" is not captured as :id */}
+          <Route path="/station/claim/:stationId" element={<RedirectLegacyStationClaimPath />} />
           <Route element={<RequireStationContext allowOnboarding />}>
-            <Route path="/station/claim/:stationId" element={<StationOwnerPage />} />
             <Route path="/station" element={<StationOwnerPage />} />
           </Route>
           <Route element={<RequireAuth />}>
             <Route path="/earn" element={<EarnPage />} />
+            <Route path="/inbox" element={<InboxPage />} />
           </Route>
           <Route element={<RequireFleetContext allowOnboarding />}>
             <Route path="/b2b" element={<B2BPage />} />

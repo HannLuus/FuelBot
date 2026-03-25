@@ -1,9 +1,10 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift } from 'lucide-react'
+import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift, Mail } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
+import { useInboxUnreadCount } from '@/hooks/useInboxUnreadCount'
 import { useState, useEffect } from 'react'
 import { useRoleAccess, type AppRole } from '@/hooks/useRoleAccess'
 import { useFilterStore } from '@/stores/filterStore'
@@ -16,6 +17,7 @@ export function AppLayout() {
   const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
   const adminCounts = useAdminPendingCount()
+  const inboxUnread = useInboxUnreadCount()
 
   useEffect(() => {
     if (!sheetOpen) return
@@ -35,6 +37,7 @@ export function AppLayout() {
   const navItems = [
     { to: '/home', label: t('nav.nearby'), icon: List, end: true },
     { to: '/map', label: t('nav.map'), icon: Map },
+    ...(user ? [{ to: '/inbox', label: t('nav.inbox'), icon: Mail }] : []),
     ...(activeRole === 'general' ? [{ to: '/earn', label: t('nav.earn'), icon: Gift }] : []),
     ...(activeRole === 'fleet' ? [{ to: '/b2b', label: t('nav.routeAccess'), icon: Truck }] : []),
     ...(activeRole === 'station' ? [{ to: '/station', label: t('nav.station'), icon: Fuel }] : []),
@@ -122,6 +125,11 @@ export function AppLayout() {
                     {to === '/admin' && adminCounts.total > 0 && (
                       <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
                         {adminCounts.total > 9 ? '9+' : adminCounts.total}
+                      </span>
+                    )}
+                    {to === '/inbox' && inboxUnread > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                        {inboxUnread > 9 ? '9+' : inboxUnread}
                       </span>
                     )}
                   </span>
@@ -215,6 +223,24 @@ export function AppLayout() {
                 <img src="/FuelbotLogo.png" alt="" className="h-5 w-5 shrink-0 object-contain" />
                 <span>{t('common.homePage')}</span>
               </Link>
+
+              {user && (
+                <Link
+                  to="/inbox"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <Mail className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span className="flex flex-1 items-center justify-between gap-2">
+                    {t('nav.inbox')}
+                    {inboxUnread > 0 && (
+                      <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-bold text-white">
+                        {inboxUnread > 99 ? '99+' : inboxUnread}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              )}
 
               {user && availableRoles.length > 1 && (
                 <div className="px-3 py-4">

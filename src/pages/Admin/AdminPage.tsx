@@ -1,18 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { FunctionsHttpError } from '@supabase/supabase-js'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi, Upload } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi, Upload, Menu, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
+import { AdminInboxPanel } from '@/pages/Admin/AdminInboxPanel'
+import { useAdminInboxUnreadCount } from '@/hooks/useInboxUnreadCount'
 
 const PAYMENT_CONFIG_BUCKET = 'payment-config'
 /** Single object key; content type comes from upload (PNG/JPEG/WebP/GIF). */
 const PAYMENT_QR_OBJECT_KEY = 'payment-qr'
+const PAYMENT_SCREENSHOT_BUCKET = 'b2b-payment-screenshots'
 
 /** Returns true only for HTTPS URLs hosted on our Supabase project's storage domain.
  *  Prevents user-supplied arbitrary URLs (javascript:, data:, phishing links) from
@@ -68,7 +71,7 @@ function StorageFileButton({ bucket, path, label }: { bucket: string; path: stri
   )
 }
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards' | 'suggestions' | 'b2b'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards' | 'suggestions' | 'b2b' | 'inbox'
 
 interface StationSuggestion {
   id: string
@@ -114,6 +117,13 @@ interface PendingB2BRow {
   promo_applied: boolean | null
   promo_percent: number | null
   created_at: string
+}
+
+interface AdminClaimRow extends StationClaim {
+  stations: Pick<
+    Station,
+    'id' | 'name' | 'township' | 'city' | 'is_verified' | 'payment_reported_at' | 'payment_received_at' | 'verified_owner_id'
+  > | null
 }
 
 function fairShuffle<T>(arr: T[]): T[] {
@@ -175,9 +185,10 @@ async function invokeAdminEdgeFunction(name: string, body: Record<string, unknow
 export function AdminPage() {
   const { t } = useTranslation()
   const { isAdmin } = useAuthStore()
+  const inboxUnreadAdmin = useAdminInboxUnreadCount()
   const [tab, setTab] = useState<Tab>('registrations')
   const [flagged, setFlagged] = useState<StationStatusReport[]>([])
-  const [claims, setClaims] = useState<StationClaim[]>([])
+  const [claims, setClaims] = useState<AdminClaimRow[]>([])
   const [registrations, setRegistrations] = useState<Station[]>([])
   const [pendingReferrals, setPendingReferrals] = useState<PendingReferralRewardRow[]>([])
   const [suggestions, setSuggestions] = useState<StationSuggestion[]>([])
@@ -186,7 +197,6 @@ export function AdminPage() {
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [rejectingStation, setRejectingStation] = useState<Station | null>(null)
   const [rejectReasonInput, setRejectReasonInput] = useState('')
-  const [paymentReference, setPaymentReference] = useState('')
   const [referralPaymentRef, setReferralPaymentRef] = useState('')
   const [referralPayStationId, setReferralPayStationId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -228,12 +238,54 @@ export function AdminPage() {
   const [drawResult, setDrawResult] = useState<ReporterRow[] | null>(null)
   const [rewardsRecorded, setRewardsRecorded] = useState(false)
   const [rewardsRecording, setRewardsRecording] = useState(false)
+  const [tabMenuOpen, setTabMenuOpen] = useState(false)
+  const tabMenuRef = useRef<HTMLDivElement>(null)
+  const claimDuplicateCounts = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const claim of claims) {
+      const key = `${claim.user_id}:${claim.station_id}`
+      map.set(key, (map.get(key) ?? 0) + 1)
+    }
+    return map
+  }, [claims])
+
+  const tabItems = [
+    { key: 'registrations' as Tab, label: t('admin.pendingRegistrations'), icon: CreditCard, badge: registrations.length, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
+    { key: 'flagged' as Tab, label: t('admin.flaggedReports'), icon: Flag, badge: flagged.length, badgeClass: 'bg-red-500', activeClass: 'text-blue-600' },
+    { key: 'claims' as Tab, label: t('admin.stationClaims'), icon: Store, badge: claims.length, badgeClass: 'bg-orange-500', activeClass: 'text-blue-600' },
+    { key: 'referrals' as Tab, label: t('admin.referralPayouts'), icon: CreditCard, badge: pendingReferrals.length, badgeClass: 'bg-green-600', activeClass: 'text-blue-600' },
+    { key: 'suggestions' as Tab, label: t('admin.suggestionsTab'), icon: Lightbulb, badge: suggestions.length, badgeClass: 'bg-amber-500', activeClass: 'text-amber-600' },
+    { key: 'payment' as Tab, label: t('admin.paymentSettings'), icon: Settings, badge: 0, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
+    { key: 'rewards' as Tab, label: t('admin.rewardsTab'), icon: Trophy, badge: 0, badgeClass: 'bg-amber-500', activeClass: 'text-amber-600' },
+    { key: 'b2b' as Tab, label: 'B2B', icon: Wifi, badge: pendingB2B.length, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
+    {
+      key: 'inbox' as Tab,
+      label: t('admin.inboxTab'),
+      icon: Mail,
+      badge: inboxUnreadAdmin,
+      badgeClass: 'bg-indigo-600',
+      activeClass: 'text-blue-600',
+    },
+  ]
+
+  const activeTab = tabItems.find((item) => item.key === tab) ?? tabItems[0]
 
   useEffect(() => {
     if (!isAdmin) return
     void loadAll()
   // eslint-disable-next-line react-hooks/exhaustive-deps -- loadAll is intentionally triggered only when admin access flips on
   }, [isAdmin])
+
+  useEffect(() => {
+    if (!tabMenuOpen) return
+    const onMouseDown = (event: MouseEvent) => {
+      if (!tabMenuRef.current?.contains(event.target as Node)) {
+        setTabMenuOpen(false)
+      }
+    }
+    window.addEventListener('mousedown', onMouseDown)
+    return () => window.removeEventListener('mousedown', onMouseDown)
+  }, [tabMenuOpen])
 
   useEffect(() => {
     if (tab !== 'payment') return
@@ -433,7 +485,7 @@ export function AdminPage() {
         .order('reported_at', { ascending: false }),
       supabase
         .from('station_claims')
-        .select('*')
+        .select('id, station_id, user_id, payment_screenshot_path, status, submitted_at, reviewed_at, reviewer_id, stations(id, name, township, city, is_verified, payment_reported_at, payment_received_at, verified_owner_id)')
         .eq('status', 'PENDING')
         .order('submitted_at', { ascending: false }),
       supabase
@@ -460,7 +512,12 @@ export function AdminPage() {
         .order('created_at', { ascending: false }),
     ])
     setFlagged(flaggedRes.data ?? [])
-    setClaims(claimsRes.data ?? [])
+    const claimsData = ((claimsRes.data ?? []) as unknown as Array<AdminClaimRow & { stations?: AdminClaimRow['stations'] | AdminClaimRow['stations'][] }>)
+      .map((row) => ({
+        ...row,
+        stations: Array.isArray(row.stations) ? (row.stations[0] ?? null) : (row.stations ?? null),
+      }))
+    setClaims(claimsData)
     setRegistrations((registrationsRes.data ?? []) as Station[])
     setPendingReferrals((pendingRefRes.data ?? []) as unknown as PendingReferralRewardRow[])
     setSuggestions((suggestionsRes.data ?? []) as StationSuggestion[])
@@ -554,11 +611,9 @@ export function AdminPage() {
       const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-mark-payment', {
         station_id: stationId,
         payment_method: 'KBZ_PAY',
-        payment_reference: paymentReference.trim() || null,
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
-      setPaymentReference('')
       await loadAll()
     } catch (err) {
       setError(formatAdminActionError(err, t))
@@ -697,94 +752,61 @@ export function AdminPage() {
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-100 bg-white">
-        <button
-          onClick={() => setTab('registrations')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'registrations' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
-        >
-          <CreditCard className="h-4 w-4" />
-          {t('admin.pendingRegistrations')}
-          {registrations.length > 0 && (
-            <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
-              {registrations.length}
+      {/* Admin section picker (hamburger dropdown) */}
+      <div className="border-b border-gray-100 bg-white px-4 py-2">
+        <div className="relative" ref={tabMenuRef}>
+          <button
+            type="button"
+            onClick={() => setTabMenuOpen((open) => !open)}
+            className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-left"
+            aria-expanded={tabMenuOpen}
+            aria-haspopup="menu"
+          >
+            <span className="flex items-center gap-2">
+              <Menu className="h-4 w-4 text-gray-700" />
+              <activeTab.icon className={`h-4 w-4 ${activeTab.activeClass}`} />
+              <span className={`text-sm font-medium ${activeTab.activeClass}`}>{activeTab.label}</span>
+              {activeTab.badge > 0 && (
+                <span className={`rounded-full px-1.5 py-0.5 text-xs text-white ${activeTab.badgeClass}`}>
+                  {activeTab.badge}
+                </span>
+              )}
             </span>
+            <span className="text-xs text-gray-700">{tabMenuOpen ? '▲' : '▼'}</span>
+          </button>
+
+          {tabMenuOpen && (
+            <div
+              role="menu"
+              className="absolute z-20 mt-2 w-full rounded-xl border border-gray-200 bg-white p-1 shadow-lg"
+            >
+              {tabItems.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setTab(item.key)
+                    setTabMenuOpen(false)
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm ${
+                    tab === item.key ? `${item.activeClass} bg-gray-50` : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </span>
+                  {item.badge > 0 && (
+                    <span className={`rounded-full px-1.5 py-0.5 text-xs text-white ${item.badgeClass}`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           )}
-        </button>
-        <button
-          onClick={() => setTab('flagged')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'flagged' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
-        >
-          <Flag className="h-4 w-4" />
-          {t('admin.flaggedReports')}
-          {flagged.length > 0 && (
-            <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white">
-              {flagged.length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setTab('claims')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'claims' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
-        >
-          <Store className="h-4 w-4" />
-          {t('admin.stationClaims')}
-          {claims.length > 0 && (
-            <span className="rounded-full bg-orange-500 px-1.5 py-0.5 text-xs text-white">
-              {claims.length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setTab('referrals')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'referrals' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
-        >
-          <CreditCard className="h-4 w-4" />
-          {t('admin.referralPayouts')}
-          {pendingReferrals.length > 0 && (
-            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-xs text-white">
-              {pendingReferrals.length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setTab('suggestions')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'suggestions' ? 'border-b-2 border-amber-500 text-amber-600' : 'text-gray-700'}`}
-        >
-          <Lightbulb className="h-4 w-4" />
-          {t('admin.suggestionsTab')}
-          {suggestions.length > 0 && (
-            <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-xs text-white">
-              {suggestions.length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setTab('payment')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'payment' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
-        >
-          <Settings className="h-4 w-4" />
-          {t('admin.paymentSettings')}
-        </button>
-        <button
-          onClick={() => setTab('rewards')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'rewards' ? 'border-b-2 border-amber-500 text-amber-600' : 'text-gray-700'}`}
-        >
-          <Trophy className="h-4 w-4" />
-          {t('admin.rewardsTab')}
-        </button>
-        <button
-          onClick={() => setTab('b2b')}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium transition-all ${tab === 'b2b' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-700'}`}
-        >
-          <Wifi className="h-4 w-4" />
-          B2B
-          {pendingB2B.length > 0 && (
-            <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
-              {pendingB2B.length}
-            </span>
-          )}
-        </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -862,12 +884,24 @@ export function AdminPage() {
                       {station.location_photo_url && isTrustedStorageUrl(station.location_photo_url) ? (
                         <a href={station.location_photo_url} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-xs text-blue-600 underline">
                           <Camera className="h-3.5 w-3.5" />
-                          View location photo
+                          {t('admin.viewLocationPhoto')}
                         </a>
                       ) : station.location_photo_url ? (
-                        <p className="text-xs text-red-700">Invalid photo URL.</p>
+                        <p className="text-xs text-red-700">{t('admin.invalidPhotoUrl')}</p>
                       ) : (
-                        <p className="text-xs text-amber-700">No location photo uploaded.</p>
+                        <p className="text-xs text-amber-700">{t('admin.noLocationPhotoUploaded')}</p>
+                      )}
+                    </div>
+                    <div className="mt-2">
+                      <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.paymentScreenshot')}</p>
+                      {station.payment_screenshot_path ? (
+                        <StorageFileButton
+                          bucket={PAYMENT_SCREENSHOT_BUCKET}
+                          path={station.payment_screenshot_path}
+                          label={t('admin.viewPaymentScreenshot')}
+                        />
+                      ) : (
+                        <p className="text-xs text-amber-700">{t('admin.noPaymentScreenshotUploaded')}</p>
                       )}
                     </div>
                     {showVerificationPhotoHint && (
@@ -878,13 +912,8 @@ export function AdminPage() {
 
                     <p className="mt-3 text-xs text-gray-700">{t('admin.markPaymentKpayOnly')}</p>
                     <p className="mt-1 text-xs text-gray-700">{t('admin.paymentReferenceOptionalKeepOwnerSubmitted')}</p>
-                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                      <input
-                        value={paymentReference}
-                        onChange={(e) => setPaymentReference(e.target.value)}
-                        placeholder={t('admin.paymentReference')}
-                        className="rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-900"
-                      />
+                    <p className="mt-1 text-xs text-gray-700">{t('admin.paymentVerificationHint')}</p>
+                    <div className="mt-2">
                       <Button
                         size="sm"
                         variant="secondary"
@@ -1316,6 +1345,8 @@ export function AdminPage() {
               })}
             </div>
           )
+        ) : tab === 'inbox' ? (
+          <AdminInboxPanel />
         ) : tab === 'b2b' ? (
           <div className="space-y-4">
             {b2bPricingLoading ? (
@@ -1437,13 +1468,50 @@ export function AdminPage() {
           <p className="py-12 text-center text-gray-700">{t('admin.noClaims')}</p>
         ) : (
           <div className="space-y-3">
-            {claims.map((claim) => (
+            {claims.map((claim) => {
+              const stationName = claim.stations?.name ?? 'Unknown station'
+              const stationLocation = claim.stations
+                ? `${claim.stations.township}, ${claim.stations.city}`
+                : 'Unknown location'
+              const duplicateCount = claimDuplicateCounts.get(`${claim.user_id}:${claim.station_id}`) ?? 1
+              return (
               <div key={claim.id} className="rounded-xl border border-gray-200 bg-white p-4">
-                <p className="text-xs text-gray-700 mb-1">Station: {claim.station_id.slice(0, 8)}…</p>
-                <p className="text-xs text-gray-700">User: {claim.user_id.slice(0, 8)}…</p>
-                <p className="text-xs text-gray-700 mt-1">
-                  Submitted: {new Date(claim.submitted_at).toLocaleDateString()}
+                <p className="text-sm font-semibold text-gray-900">{stationName}</p>
+                <p className="text-xs text-gray-700">{stationLocation}</p>
+                <p className="mt-1 text-xs text-gray-700">
+                  Station ID: <span className="font-mono">{claim.station_id}</span>
                 </p>
+                <p className="text-xs text-gray-700">
+                  Claim user: <span className="font-mono">{claim.user_id}</span>
+                </p>
+                <p className="text-xs text-gray-700 mt-1">
+                  Submitted: {new Date(claim.submitted_at).toLocaleString()}
+                </p>
+                <div className="mt-2">
+                  <p className="mb-1 text-xs font-medium text-gray-700">{t('admin.paymentScreenshot')}</p>
+                  {claim.payment_screenshot_path ? (
+                    <StorageFileButton
+                      bucket={PAYMENT_SCREENSHOT_BUCKET}
+                      path={claim.payment_screenshot_path}
+                      label={t('admin.viewPaymentScreenshot')}
+                    />
+                  ) : (
+                    <p className="text-xs text-amber-700">{t('admin.noPaymentScreenshotUploaded')}</p>
+                  )}
+                </div>
+                {claim.stations && (
+                  <p className="mt-1 text-xs text-gray-700">
+                    Current owner: {claim.stations.verified_owner_id ? claim.stations.verified_owner_id.slice(0, 8) : 'none'} ·
+                    {' '}Verified: {claim.stations.is_verified ? 'yes' : 'no'} ·
+                    {' '}Payment reported: {claim.stations.payment_reported_at ? 'yes' : 'no'} ·
+                    {' '}Payment received: {claim.stations.payment_received_at ? 'yes' : 'no'}
+                  </p>
+                )}
+                {duplicateCount > 1 && (
+                  <p className="mt-2 text-xs font-medium text-amber-700">
+                    Duplicate pending claims from same user for this station: {duplicateCount}
+                  </p>
+                )}
                 <div className="mt-3 flex gap-2">
                   <Button size="sm" variant="primary" onClick={() => void approveClaim(claim.id)}>
                     {t('admin.approve')}
@@ -1453,7 +1521,7 @@ export function AdminPage() {
                   </Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, MapPin, Navigation, Clock, CheckCircle, Bell, BellOff, TrendingUp } from 'lucide-react'
+import { ArrowLeft, MapPin, Navigation, Clock, CheckCircle, Bell, BellOff, TrendingUp, Upload } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useStationDetail } from '@/hooks/useNearbyStations'
 import { supabase } from '@/lib/supabase'
@@ -38,6 +38,7 @@ interface UptimeRow {
 }
 
 export function StationDetailPage() {
+  const PAYMENT_SCREENSHOT_BUCKET = 'b2b-payment-screenshots'
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
@@ -46,11 +47,14 @@ export function StationDetailPage() {
   const [isFollowing, setIsFollowing] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [claimMessage, setClaimMessage] = useState<string | null>(null)
+  const [claimScreenshotPath, setClaimScreenshotPath] = useState<string | null>(null)
+  const [claimUploadingScreenshot, setClaimUploadingScreenshot] = useState(false)
   const [reportWrongLocationSent, setReportWrongLocationSent] = useState(false)
   const [reportWrongLocationLoading, setReportWrongLocationLoading] = useState(false)
   const [reportWrongLocationError, setReportWrongLocationError] = useState<string | null>(null)
   const [reliability, setReliability] = useState<ReliabilityRow | null>(null)
   const [uptime, setUptime] = useState<UptimeRow | null>(null)
+  const [claimScreenshotInputKey, setClaimScreenshotInputKey] = useState(0)
 
   const { station, reports, loading, error, refresh } = useStationDetail(id!)
 
@@ -117,17 +121,57 @@ export function StationDetailPage() {
 
   async function claimStation() {
     if (!user || !station) return
+    if (!claimScreenshotPath) {
+      setClaimMessage(t('stationOwner.claimScreenshotRequired'))
+      return
+    }
     setClaiming(true)
     setClaimMessage(null)
     try {
+      const { data: existingPending } = await supabase
+        .from('station_claims')
+        .select('id')
+        .eq('station_id', station.id)
+        .eq('user_id', user.id)
+        .eq('status', 'PENDING')
+        .limit(1)
+        .maybeSingle()
+
+      if (existingPending) {
+        await supabase.functions.invoke('notify-admin', {
+          body: {
+            kind: 'PENDING_CLAIM',
+            station_id: station.id,
+          },
+        })
+        setClaimMessage(t('stationOwner.claimAlreadyPending'))
+        return
+      }
+
       const { error } = await supabase
         .from('station_claims')
         .insert({
           station_id: station.id,
           user_id: user.id,
+          payment_screenshot_path: claimScreenshotPath,
           status: 'PENDING',
         })
-      if (error) throw error
+      if (error) {
+        if (
+          typeof (error as { code?: unknown }).code === 'string' &&
+          (error as { code: string }).code === '23505'
+        ) {
+          setClaimMessage(t('stationOwner.claimAlreadyPending'))
+          await supabase.functions.invoke('notify-admin', {
+            body: {
+              kind: 'PENDING_CLAIM',
+              station_id: station.id,
+            },
+          })
+          return
+        }
+        throw error
+      }
 
       await supabase.functions.invoke('notify-admin', {
         body: {
@@ -136,10 +180,37 @@ export function StationDetailPage() {
         },
       })
       setClaimMessage(t('stationOwner.claimPending'))
+      setClaimScreenshotPath(null)
+      setClaimScreenshotInputKey((prev) => prev + 1)
     } catch {
       setClaimMessage(t('errors.generic'))
     } finally {
       setClaiming(false)
+    }
+  }
+
+  async function uploadClaimScreenshot(file: File) {
+    if (!user || !station) return
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    if (!['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+      setClaimMessage(t('b2b.invalidImageType'))
+      return
+    }
+    setClaimUploadingScreenshot(true)
+    setClaimMessage(null)
+    try {
+      const path = `${user.id}/claim-${station.id}-${crypto.randomUUID()}.${ext}`
+      const { error } = await supabase.storage.from(PAYMENT_SCREENSHOT_BUCKET).upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      })
+      if (error) throw error
+      setClaimScreenshotPath(path)
+      setClaimMessage(t('stationOwner.claimScreenshotUploaded'))
+    } catch {
+      setClaimMessage(t('errors.generic'))
+    } finally {
+      setClaimUploadingScreenshot(false)
     }
   }
 
@@ -444,11 +515,32 @@ export function StationDetailPage() {
             <p className="text-sm font-medium text-blue-900">
               {t('station.claimStation')}
             </p>
+            <p className="mt-1 text-xs text-blue-900">{t('stationOwner.claimPaymentRequired')}</p>
+            <div className="mt-3 flex flex-col items-center gap-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm text-blue-700">
+                <Upload className="h-4 w-4" />
+                <span>{claimUploadingScreenshot ? t('b2b.uploadingScreenshot') : t('stationOwner.claimUploadPaymentScreenshot')}</span>
+                <input
+                  key={claimScreenshotInputKey}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) void uploadClaimScreenshot(file)
+                  }}
+                />
+              </label>
+              <p className="text-xs text-blue-900">
+                {claimScreenshotPath ? t('stationOwner.claimScreenshotUploaded') : t('stationOwner.claimScreenshotMissing')}
+              </p>
+            </div>
             <Button
               size="sm"
               variant="primary"
               className="mt-2"
               loading={claiming}
+              disabled={!claimScreenshotPath || claimUploadingScreenshot}
               onClick={() => void claimStation()}
             >
               {t('stationOwner.claimButton')}

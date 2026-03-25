@@ -87,9 +87,16 @@ export function useRoleAccess(): RoleAccessResult {
     return next
   }, [hasFleetAccess, hasStationAccess, isAdmin])
 
-  const activeRole = availableRoles.includes(preferredRole)
-    ? preferredRole
-    : pickFallbackRole(availableRoles)
+  const activeRole = useMemo<AppRole>(() => {
+    if (availableRoles.includes(preferredRole)) {
+      // Admin-only users should land in admin mode by default.
+      if (preferredRole === 'general' && availableRoles.length === 2 && availableRoles.includes('admin')) {
+        return 'admin'
+      }
+      return preferredRole
+    }
+    return pickFallbackRole(availableRoles)
+  }, [availableRoles, preferredRole])
 
   useEffect(() => {
     if (typeof window === 'undefined') return

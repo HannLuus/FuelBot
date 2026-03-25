@@ -13,6 +13,29 @@ interface AuthState {
   signOut: () => Promise<void>
 }
 
+function hasAdminClaim(user: User | null): boolean {
+  if (!user) return false
+  const metadata = user.app_metadata as Record<string, unknown> | undefined
+  const role = metadata?.role
+  if (role === 'admin') return true
+  const roles = metadata?.roles
+  if (Array.isArray(roles) && roles.includes('admin')) return true
+  if (metadata?.is_admin === true) return true
+  return false
+}
+
+async function resolveIsAdmin(user: User | null): Promise<boolean> {
+  if (!user) return false
+  if (hasAdminClaim(user)) return true
+  const { data, error } = await supabase
+    .from('admin_users')
+    .select('user_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (error) return false
+  return Boolean(data)
+}
+
 let idleSignOutTimer: ReturnType<typeof setTimeout> | null = null
 let activityHandler: (() => void) | null = null
 const ACTIVITY_EVENTS = ['click', 'keydown', 'touchstart', 'pointermove'] as const
@@ -56,13 +79,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAdmin: false,
 
   init: () => {
+    let authSeq = 0
     supabase.auth.getSession().then(({ data }) => {
       const user = data.session?.user ?? null
+      const seq = ++authSeq
       set({
         session: data.session,
         user,
         loading: false,
-        isAdmin: user?.app_metadata?.role === 'admin',
+        isAdmin: hasAdminClaim(user),
+      })
+      void resolveIsAdmin(user).then((isAdmin) => {
+        if (seq !== authSeq) return
+        set({ isAdmin })
       })
       if (data.session) {
         scheduleIdleSignOut(get().signOut)
@@ -75,11 +104,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null
+      const seq = ++authSeq
       set({
         session,
         user,
         loading: false,
-        isAdmin: user?.app_metadata?.role === 'admin',
+        isAdmin: hasAdminClaim(user),
+      })
+      void resolveIsAdmin(user).then((isAdmin) => {
+        if (seq !== authSeq) return
+        set({ isAdmin })
       })
       if (session) {
         scheduleIdleSignOut(get().signOut)

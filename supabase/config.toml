@@ -442,3 +442,8 @@ entrypoint = "./functions/admin-mark-referral-collected/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/admin-mark-referral-paid/index.ts"
+
+[functions.admin-inbox-bulk]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admin-inbox-bulk/index.ts"

@@ -133,6 +133,7 @@ export interface StationClaim {
   id: string
   station_id: string
   user_id: string
+  payment_screenshot_path?: string | null
   status: ClaimStatus
   submitted_at: string
   reviewed_at: string | null
@@ -172,6 +173,31 @@ export interface ReferralReward {
   status: ReferralRewardStatus
   payment_reference: string | null
   paid_at: string | null
+  created_at: string
+}
+
+export type InboxThreadStatus = 'open' | 'closed'
+
+export interface InboxThread {
+  id: string
+  user_id: string
+  subject: string
+  status: InboxThreadStatus
+  last_message_at: string | null
+  user_last_read_at: string
+  admin_last_read_at: string
+  bulk_batch_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface InboxMessage {
+  id: string
+  thread_id: string
+  sender_id: string
+  is_from_admin: boolean
+  body: string
+  attachment_path: string | null
   created_at: string
 }
 
