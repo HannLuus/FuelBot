@@ -75,11 +75,9 @@ export function AdminInboxPanel() {
   const [sending, setSending] = useState(false)
   const [replyBody, setReplyBody] = useState('')
 
-  const [newUserId, setNewUserId] = useState('')
-  const [newSubject, setNewSubject] = useState('')
-  const [newBody, setNewBody] = useState('')
-
-  const [bulkSegment, setBulkSegment] = useState<'active_b2b' | 'all_users' | 'paid_station_owners'>('active_b2b')
+  const [bulkSegment, setBulkSegment] = useState<
+    'everyone' | 'all_station_owners' | 'paid_station_owners' | 'all_b2b' | 'active_b2b' | 'normal_users_only'
+  >('all_b2b')
   const [bulkSubject, setBulkSubject] = useState('')
   const [bulkBody, setBulkBody] = useState('')
   const [bulkMax, setBulkMax] = useState(500)
@@ -182,63 +180,6 @@ export function AdminInboxPanel() {
     const { data, error: err } = await supabase.storage.from(INBOX_BUCKET).createSignedUrl(path, 300)
     if (err || !data?.signedUrl) return
     window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
-  }
-
-  async function startThreadForUser(file: File | null) {
-    if (!user) return
-    const uid = newUserId.trim()
-    const subject = newSubject.trim() || 'Support'
-    const body = newBody.trim()
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uid)) {
-      setError(t('admin.invalidUserUuid'))
-      return
-    }
-    if (!body && !file) {
-      setError(t('inbox.sendError'))
-      return
-    }
-    if (file && !/^image\/(jpeg|jpg|png|webp|gif)$/i.test(file.type)) {
-      setError(t('inbox.invalidImage'))
-      return
-    }
-    setSending(true)
-    setError(null)
-    try {
-      const { data: threadRow, error: tErr } = await supabase
-        .from('inbox_threads')
-        .insert({ user_id: uid, subject })
-        .select('id')
-        .single()
-      if (tErr || !threadRow) throw tErr ?? new Error('thread')
-
-      let attachmentPath: string | null = null
-      if (file) {
-        attachmentPath = await uploadInboxAttachment(uid, threadRow.id, file)
-        if (!attachmentPath) {
-          setError(t('inbox.invalidImage'))
-          setSending(false)
-          return
-        }
-      }
-      const messageBody = body || (attachmentPath ? ATTACHMENT_ONLY_BODY : '')
-      const { error: mErr } = await supabase.from('inbox_messages').insert({
-        thread_id: threadRow.id,
-        sender_id: user.id,
-        is_from_admin: true,
-        body: messageBody,
-        attachment_path: attachmentPath,
-      })
-      if (mErr) throw mErr
-      setNewUserId('')
-      setNewSubject('')
-      setNewBody('')
-      await loadThreads()
-      openThread(threadRow.id)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t('inbox.sendError'))
-    } finally {
-      setSending(false)
-    }
   }
 
   async function sendReply(file: File | null) {
@@ -346,6 +287,7 @@ export function AdminInboxPanel() {
 
       <div className="rounded-xl border border-gray-200 bg-white p-4">
         <p className="text-sm font-semibold text-gray-900">{t('admin.inboxBulkTitle')}</p>
+        <p className="mt-1 text-xs text-gray-700">{t('admin.inboxReplyOnlyNote')}</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           <label className="text-xs text-gray-700">
             {t('admin.inboxBulkSegment')}
@@ -354,8 +296,11 @@ export function AdminInboxPanel() {
               onChange={(e) => setBulkSegment(e.target.value as typeof bulkSegment)}
               className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
             >
+              <option value="everyone">{t('admin.inboxSegmentEveryone')}</option>
+              <option value="all_station_owners">{t('admin.inboxSegmentAllOwners')}</option>
               <option value="active_b2b">{t('admin.inboxSegmentActiveB2b')}</option>
-              <option value="all_users">{t('admin.inboxSegmentAllUsers')}</option>
+              <option value="all_b2b">{t('admin.inboxSegmentAllB2b')}</option>
+              <option value="normal_users_only">{t('admin.inboxSegmentNormalUsersOnly')}</option>
               <option value="paid_station_owners">{t('admin.inboxSegmentPaidOwners')}</option>
             </select>
           </label>
@@ -390,54 +335,6 @@ export function AdminInboxPanel() {
         </label>
         <Button className="mt-3" variant="primary" loading={bulkSending} onClick={() => void runBulkSend()}>
           {t('admin.inboxBulkSend')}
-        </Button>
-      </div>
-
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
-        <p className="text-sm font-semibold text-gray-900">{t('admin.inboxNewForUser')}</p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          <label className="text-xs text-gray-700">
-            {t('admin.inboxUserIdLabel')}
-            <input
-              value={newUserId}
-              onChange={(e) => setNewUserId(e.target.value)}
-              placeholder="uuid"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 font-mono text-sm text-gray-900"
-            />
-          </label>
-          <label className="text-xs text-gray-700">
-            {t('admin.inboxSubjectLabel')}
-            <input
-              value={newSubject}
-              onChange={(e) => setNewSubject(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
-            />
-          </label>
-        </div>
-        <label className="mt-2 block text-xs text-gray-700">
-          {t('admin.inboxMessageLabel')}
-          <textarea
-            value={newBody}
-            onChange={(e) => setNewBody(e.target.value)}
-            rows={2}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
-          />
-        </label>
-        <label className="mt-1 block text-xs text-gray-700">
-          {t('inbox.attachImage')}
-          <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" id="admin-inbox-new-file" />
-        </label>
-        <Button
-          className="mt-2"
-          size="sm"
-          variant="secondary"
-          loading={sending}
-          onClick={() => {
-            const input = document.getElementById('admin-inbox-new-file') as HTMLInputElement | null
-            void startThreadForUser(input?.files?.[0] ?? null)
-          }}
-        >
-          {t('admin.inboxStartThread')}
         </Button>
       </div>
 

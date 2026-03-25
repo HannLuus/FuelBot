@@ -1,7 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
 
-type Segment = 'active_b2b' | 'all_users' | 'paid_station_owners'
+type Segment =
+  | 'everyone'
+  | 'all_station_owners'
+  | 'paid_station_owners'
+  | 'all_b2b'
+  | 'active_b2b'
+  | 'normal_users_only'
 
 interface Payload {
   segment: Segment
@@ -10,7 +16,32 @@ interface Payload {
   max_users?: number
 }
 
-const SEGMENTS: Segment[] = ['active_b2b', 'all_users', 'paid_station_owners']
+const SEGMENTS: Segment[] = [
+  'everyone',
+  'all_station_owners',
+  'paid_station_owners',
+  'all_b2b',
+  'active_b2b',
+  'normal_users_only',
+]
+
+async function listAllUserIds(service: ReturnType<typeof createClient>, maxUsers: number): Promise<string[]> {
+  const collected: string[] = []
+  let page = 1
+  const perPage = 200
+  while (collected.length < maxUsers) {
+    const { data: pageData, error } = await service.auth.admin.listUsers({ page, perPage })
+    if (error) throw error
+    const users = pageData?.users ?? []
+    for (const u of users) {
+      collected.push(u.id)
+      if (collected.length >= maxUsers) break
+    }
+    if (users.length < perPage) break
+    page++
+  }
+  return collected
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -73,25 +104,65 @@ Deno.serve(async (req) => {
           .filter((id): id is string => Boolean(id)),
       ),
     ]
-  } else {
-    const collected: string[] = []
-    let page = 1
-    const perPage = 200
-    while (collected.length < maxUsers) {
-      const { data: pageData, error } = await service.auth.admin.listUsers({ page, perPage })
-      if (error) {
-        console.error('admin-inbox-bulk listUsers:', error)
-        return json({ error: error.message }, 500)
-      }
-      const users = pageData?.users ?? []
-      for (const u of users) {
-        collected.push(u.id)
-        if (collected.length >= maxUsers) break
-      }
-      if (users.length < perPage) break
-      page++
+  } else if (payload.segment === 'all_station_owners') {
+    const { data, error } = await service
+      .from('stations')
+      .select('verified_owner_id')
+      .not('verified_owner_id', 'is', null)
+    if (error) {
+      console.error('admin-inbox-bulk all_station_owners:', error)
+      return json({ error: error.message }, 500)
     }
-    userIds = collected
+    userIds = [
+      ...new Set(
+        (data ?? [])
+          .map((r: { verified_owner_id: string | null }) => r.verified_owner_id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ]
+  } else if (payload.segment === 'all_b2b') {
+    const [{ data: subs, error: subErr }, { data: owners, error: ownErr }] = await Promise.all([
+      service.from('b2b_subscriptions').select('user_id'),
+      service.from('stations').select('verified_owner_id').not('verified_owner_id', 'is', null),
+    ])
+    if (subErr || ownErr) {
+      console.error('admin-inbox-bulk all_b2b:', subErr ?? ownErr)
+      return json({ error: (subErr ?? ownErr)?.message ?? 'Failed to build audience' }, 500)
+    }
+    const ids = [
+      ...(subs ?? []).map((r: { user_id: string }) => r.user_id),
+      ...(owners ?? [])
+        .map((r: { verified_owner_id: string | null }) => r.verified_owner_id)
+        .filter((id): id is string => Boolean(id)),
+    ]
+    userIds = [...new Set(ids)]
+  } else if (payload.segment === 'normal_users_only') {
+    try {
+      const allUsers = await listAllUserIds(service, maxUsers)
+      const [{ data: subs }, { data: owners }] = await Promise.all([
+        service.from('b2b_subscriptions').select('user_id'),
+        service.from('stations').select('verified_owner_id').not('verified_owner_id', 'is', null),
+      ])
+      const b2bIds = new Set<string>([
+        ...((subs ?? []).map((r: { user_id: string }) => r.user_id)),
+        ...((owners ?? [])
+          .map((r: { verified_owner_id: string | null }) => r.verified_owner_id)
+          .filter((id): id is string => Boolean(id))),
+      ])
+      userIds = allUsers.filter((id) => !b2bIds.has(id))
+    } catch (error) {
+      const err = error as { message?: string }
+      console.error('admin-inbox-bulk normal_users_only:', error)
+      return json({ error: err.message ?? 'Failed to build audience' }, 500)
+    }
+  } else {
+    try {
+      userIds = await listAllUserIds(service, maxUsers)
+    } catch (error) {
+      const err = error as { message?: string }
+      console.error('admin-inbox-bulk everyone:', error)
+      return json({ error: err.message ?? 'Failed to build audience' }, 500)
+    }
   }
 
   userIds = userIds.slice(0, maxUsers)

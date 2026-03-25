@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { FunctionsHttpError } from '@supabase/supabase-js'
@@ -186,6 +187,7 @@ export function AdminPage() {
   const { t } = useTranslation()
   const { isAdmin } = useAuthStore()
   const inboxUnreadAdmin = useAdminInboxUnreadCount()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [tab, setTab] = useState<Tab>('registrations')
   const [flagged, setFlagged] = useState<StationStatusReport[]>([])
   const [claims, setClaims] = useState<AdminClaimRow[]>([])
@@ -269,6 +271,20 @@ export function AdminPage() {
   ]
 
   const activeTab = tabItems.find((item) => item.key === tab) ?? tabItems[0]
+
+  useEffect(() => {
+    if (!isAdmin) return
+    if (searchParams.get('tab') !== 'inbox') return
+    setTab('inbox')
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.delete('tab')
+        return next
+      },
+      { replace: true },
+    )
+  }, [isAdmin, searchParams, setSearchParams])
 
   useEffect(() => {
     if (!isAdmin) return

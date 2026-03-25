@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -41,6 +42,7 @@ async function uploadInboxAttachment(userId: string, threadId: string, file: Fil
 export function InboxPage() {
   const { t } = useTranslation()
   const user = useAuthStore((s) => s.user)
+  const isAdmin = useAuthStore((s) => s.isAdmin)
   const [threads, setThreads] = useState<InboxThread[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [messages, setMessages] = useState<InboxMessage[]>([])
@@ -276,8 +278,23 @@ export function InboxPage() {
     <div className="flex h-full flex-col overflow-hidden bg-gray-50">
       <div className="shrink-0 border-b border-gray-100 bg-white px-4 py-3">
         <h1 className="text-lg font-bold text-gray-900">{t('inbox.title')}</h1>
-        <p className="mt-1 text-xs text-gray-700">{t('inbox.subtitle')}</p>
+        <p className="mt-1 text-xs text-gray-700">
+          {isAdmin ? t('inbox.subtitleAsAdmin') : t('inbox.subtitle')}
+        </p>
       </div>
+
+      {isAdmin && (
+        <div className="mx-4 mt-3 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-3">
+          <p className="text-sm font-semibold text-gray-900">{t('inbox.adminMessagingBannerTitle')}</p>
+          <p className="mt-1 text-xs text-gray-700">{t('inbox.adminMessagingBannerBody')}</p>
+          <Link
+            to="/admin?tab=inbox"
+            className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-indigo-700 px-4 text-sm font-semibold text-white active:bg-indigo-800"
+          >
+            {t('inbox.adminMessagingOpenPanel')}
+          </Link>
+        </div>
+      )}
 
       {pageError && <p className="mx-4 mt-2 text-sm text-red-700">{pageError}</p>}
 
