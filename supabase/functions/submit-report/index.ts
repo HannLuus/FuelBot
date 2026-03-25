@@ -4,6 +4,8 @@ const RATE_LIMIT_REPORTS_PER_HOUR = 3
 const ANON_DAILY_CAP = 3
 const MAX_DISTANCE_METRES = 1000
 const NOTE_MAX_LENGTH = 280
+/** Must match DB `role_decay_seconds`: how long a report counts as “current” (staleness + expires_at). */
+const STATUS_DISPLAY_TTL_SECONDS = 48 * 60 * 60
 // Myanmar is UTC+6:30
 const MYANMAR_OFFSET_MS = (6 * 60 + 30) * 60 * 1000
 
@@ -192,7 +194,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 8. Compute expires_at based on role
+  // 8. Compute expires_at (same 48h horizon as DB role_decay_seconds)
   const decaySecs = roleDecaySeconds(role)
   const expiresAt = new Date(Date.now() + decaySecs * 1000).toISOString()
 
@@ -265,13 +267,8 @@ function getMyanmarDayStartUtc(): string {
   return new Date(myanmarMidnight.getTime() - MYANMAR_OFFSET_MS).toISOString()
 }
 
-function roleDecaySeconds(role: string): number {
-  switch (role) {
-    case 'VERIFIED_STATION': return 14400
-    case 'TRUSTED': return 7200
-    case 'CROWD': return 3600
-    default: return 1800
-  }
+function roleDecaySeconds(_role: string): number {
+  return STATUS_DISPLAY_TTL_SECONDS
 }
 
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {

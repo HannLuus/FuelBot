@@ -492,14 +492,19 @@ export function MapPage() {
             )
           })}
         </div>
-        <div className="mt-2 flex flex-col gap-2 border-t border-gray-100 pt-2 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-gray-700 sm:justify-start sm:text-xs dark:text-gray-300">
-            {(['AVAILABLE', 'LIMITED', 'OUT', 'UNKNOWN'] as const).map((s) => (
-              <span key={s} className="inline-flex items-center gap-1.5">
-                <span className={`h-2.5 w-2.5 rounded-full shrink-0 sm:h-3 sm:w-3 ${STATUS_DOT_COLORS[s]}`} />
-                <span>{t(`fuelStatus.${s}`)}</span>
-              </span>
-            ))}
+        <div className="mt-2 flex flex-col gap-2 border-t border-gray-100 pt-2 dark:border-gray-700 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-gray-700 sm:justify-start sm:text-xs dark:text-gray-300">
+              {(['AVAILABLE', 'LIMITED', 'OUT', 'UNKNOWN'] as const).map((s) => (
+                <span key={s} className="inline-flex items-center gap-1.5">
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 sm:h-3 sm:w-3 ${STATUS_DOT_COLORS[s]}`} />
+                  <span>{t(`fuelStatus.${s}`)}</span>
+                </span>
+              ))}
+            </div>
+            <p className="text-center text-[10px] leading-snug text-gray-700 sm:text-left dark:text-gray-300">
+              {t('map.legendFromReports')}
+            </p>
           </div>
           <button
             type="button"
@@ -577,6 +582,11 @@ export function MapPage() {
             </div>
           ) : (
             <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">{t('station.noData')}</p>
+          )}
+          {previewFuelChips.length > 0 && (
+            <p className="mt-2 text-[10px] leading-snug text-gray-700 dark:text-gray-300">
+              {t('station.statusFromReportsShort')}
+            </p>
           )}
 
           {previewStatus && (

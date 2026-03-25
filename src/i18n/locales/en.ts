@@ -125,6 +125,7 @@ export default {
     },
   },
   map: {
+    legendFromReports: 'Dot colors = latest reports (within 48h), not a guarantee.',
     youAreHere: 'You are here',
     centerOnMyLocation: 'Center on my location',
     lightMap: 'Light map',
@@ -202,6 +203,10 @@ export default {
     referrerRewarded: 'Referred; referrer rewarded',
     referrerRewardPending: 'Referred; reward pending',
     stale: 'Stale data',
+    statusFromReportsShort:
+      'Based on recent reports — not a live guarantee. Check before you travel.',
+    statusFromReportsDetail:
+      'Fuel colours show the latest community and station-owner reports (up to 48 hours). They are not a promise that fuel is still available. As more people report, accuracy improves.',
     lastUpdated: 'Updated {{time}}',
     noData: 'No recent data',
     openInMaps: 'Open in Maps',

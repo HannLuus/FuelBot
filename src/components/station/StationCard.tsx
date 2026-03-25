@@ -90,6 +90,9 @@ export function StationCard({ station }: StationCardProps) {
       ) : (
         <p className="mt-3 text-sm text-gray-700">{t('station.noData')}</p>
       )}
+      {fuelEntries.length > 0 && (
+        <p className="mt-2 text-[10px] leading-snug text-gray-700">{t('station.statusFromReportsShort')}</p>
+      )}
 
       {/* Footer metadata */}
       {status && (

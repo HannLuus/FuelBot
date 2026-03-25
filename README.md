@@ -125,14 +125,9 @@ All migrations are applied to the remote Supabase project. Key tables:
 
 Reports are weighted by role (VERIFIED_STATION → TRUSTED → CROWD → ANON) and decay by freshness. Votes add a bonus. The trigger `on_report_insert` recomputes `station_current_status` automatically on every new report or vote.
 
-### Freshness / decay windows
+### Freshness / display TTL
 
-| Role | Window |
-|---|---|
-| VERIFIED_STATION | 4 hours |
-| TRUSTED | 2 hours |
-| CROWD | 1 hour |
-| ANON | 30 minutes |
+All roles use a **single 48-hour** window: each report’s `expires_at` is `reported_at + 48h`, and `compute_station_status` uses the same horizon for staleness and confidence decay (`role_decay_seconds`). After 48 hours with no valid report, aggregated status clears to empty / stale. Adjust in `role_decay_seconds` and `submit-report` (`STATUS_DISPLAY_TTL_SECONDS`) together.
 
 ### Uptime: how it’s calculated and sabotage resistance
 
