@@ -43,7 +43,7 @@ export function HomePage() {
   const [suggestOpen, setSuggestOpen] = useState(false)
 
   useEffect(() => {
-    if (!user) { setMyStats(null); return }
+    if (!user) return
     void (async () => {
       const { data } = await supabase.rpc('get_my_reporter_stats', { period_days: 30 })
       const row = (data as MyStats[] | null)?.[0]

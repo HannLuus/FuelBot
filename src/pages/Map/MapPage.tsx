@@ -26,35 +26,12 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { FuelChip } from '@/components/ui/FuelChip'
 import type { FuelCode, StationWithStatus } from '@/types'
-
-const CARTO_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-const OSM_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-
-function makeCartoTileLayer(style: MapStyle): L.TileLayer {
-  const url =
-    style === 'dark'
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-  return L.tileLayer(url, {
-    subdomains: 'abcd',
-    maxZoom: 20,
-    attribution: CARTO_ATTRIBUTION,
-  })
-}
-
-function makeOsmFallbackTileLayer(): L.TileLayer {
-  return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    subdomains: 'abc',
-    maxZoom: 20,
-    attribution: OSM_ATTRIBUTION,
-  })
-}
-
-// Default to central Yangon when location is unavailable
-const YANGON_LAT = 16.8661
-const YANGON_LNG = 96.1561
+import {
+  YANGON_LAT,
+  YANGON_LNG,
+  makeCartoTileLayer,
+  makeOsmFallbackTileLayer,
+} from '@/lib/map'
 
 const STATUS_HEX: Record<string, string> = {
   AVAILABLE: '#22c55e',
@@ -256,6 +233,7 @@ export function MapPage() {
       return
     }
     addCartoLayerWithFallback(mapStyle)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- helper is intentionally stable for this component lifecycle
   }, [mapStyle])
 
   // When user location updates (e.g. after tapping "My location"), center map and update pin

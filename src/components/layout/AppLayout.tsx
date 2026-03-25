@@ -5,10 +5,14 @@ import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
 import { useState, useEffect } from 'react'
+import { useRoleAccess, type AppRole } from '@/hooks/useRoleAccess'
+import { useFilterStore } from '@/stores/filterStore'
 
 export function AppLayout() {
   const { t, i18n } = useTranslation()
   const { user, isAdmin, signOut } = useAuthStore()
+  const { activeRole, setActiveRole, availableRoles } = useRoleAccess()
+  const { filters, setMaxDistance, setSelectedRouteId } = useFilterStore()
   const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
   const adminCounts = useAdminPendingCount()
@@ -31,11 +35,26 @@ export function AppLayout() {
   const navItems = [
     { to: '/home', label: t('nav.nearby'), icon: List, end: true },
     { to: '/map', label: t('nav.map'), icon: Map },
-    { to: '/earn', label: t('nav.earn'), icon: Gift },
-    { to: '/b2b', label: t('nav.routeAccess'), icon: Truck },
-    { to: '/station', label: t('nav.station'), icon: Fuel },
+    ...(activeRole === 'general' ? [{ to: '/earn', label: t('nav.earn'), icon: Gift }] : []),
+    ...(activeRole === 'fleet' ? [{ to: '/b2b', label: t('nav.routeAccess'), icon: Truck }] : []),
+    ...(activeRole === 'station' ? [{ to: '/station', label: t('nav.station'), icon: Fuel }] : []),
     ...(isAdmin ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
   ]
+
+  function roleLabel(role: AppRole) {
+    switch (role) {
+      case 'general':
+        return t('common.generalMode')
+      case 'station':
+        return t('common.stationMode')
+      case 'fleet':
+        return t('common.fleetMode')
+      default: {
+        const exhaustive: never = role
+        return exhaustive
+      }
+    }
+  }
 
   return (
     <div className="flex h-full max-h-screen flex-col bg-gray-50" style={{ height: '100dvh' }}>
@@ -112,29 +131,26 @@ export function AppLayout() {
             </NavLink>
           ))}
 
-          {/* Report button — prominent FAB lifted above nav */}
-          <NavLink
-            to="/report"
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 px-1 pb-1.5 pt-1 text-xs text-blue-600 active:opacity-80"
-            style={{ minHeight: '52px' }}
-          >
-            <div className="-mt-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 shadow-md shadow-blue-200 active:scale-95 transition-transform">
-              <PlusCircle className="h-6 w-6 text-white" />
-            </div>
-            <span className="mt-0.5 font-bold">{t('nav.report')}</span>
-          </NavLink>
+          {activeRole === 'general' && (
+            <NavLink
+              to="/report"
+              className="flex flex-1 flex-col items-center justify-center gap-0.5 px-1 pb-1.5 pt-1 text-xs text-blue-600 active:opacity-80"
+              style={{ minHeight: '52px' }}
+            >
+              <div className="-mt-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 shadow-md shadow-blue-200 transition-transform active:scale-95">
+                <PlusCircle className="h-6 w-6 text-white" />
+              </div>
+              <span className="mt-0.5 font-bold">{t('nav.report')}</span>
+            </NavLink>
+          )}
         </div>
       </nav>
 
-      {/* Footer — link back to landing so users can sign up and see promotions */}
+      {/* Footer */}
       <footer className="shrink-0 border-t border-gray-100 bg-white px-4 py-2">
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-700">
           <Link to="/" className="font-medium text-blue-600 underline active:text-blue-700">
             {t('common.landingPage')}
-          </Link>
-          <span aria-hidden="true">·</span>
-          <Link to="/b2b" className="font-medium text-blue-600 underline active:text-blue-700">
-            {t('nav.routeAccess')}
           </Link>
           <span aria-hidden="true">·</span>
           <Link to="/terms" className="hover:underline active:text-gray-900">
@@ -181,6 +197,9 @@ export function AppLayout() {
               <div className="border-b border-gray-100 px-6 py-3">
                 <p className="text-xs text-gray-700">{t('auth.signedInAs')}</p>
                 <p className="truncate text-sm font-medium text-gray-800">{user.email ?? ''}</p>
+                <p className="mt-1 text-xs text-gray-700">
+                  {t('common.currentMode')}: {roleLabel(activeRole)}
+                </p>
               </div>
             )}
 
@@ -194,6 +213,58 @@ export function AppLayout() {
                 <img src="/FuelbotLogo.png" alt="" className="h-5 w-5 shrink-0 object-contain" />
                 <span>{t('common.homePage')}</span>
               </Link>
+
+              {user && availableRoles.length > 1 && (
+                <div className="px-3 py-4">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                    {t('common.roleMode')}
+                  </p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {availableRoles.map((role) => {
+                      const selected = role === activeRole
+                      return (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => {
+                            if (role !== 'fleet') {
+                              setSelectedRouteId(null)
+                              if (filters.maxDistanceKm > 100) {
+                                setMaxDistance(25)
+                              }
+                            }
+                            setActiveRole(role)
+                            setSheetOpen(false)
+                            switch (role) {
+                              case 'general':
+                                navigate('/home')
+                                break
+                              case 'station':
+                                navigate('/station')
+                                break
+                              case 'fleet':
+                                navigate('/b2b')
+                                break
+                              default: {
+                                const exhaustive: never = role
+                                return exhaustive
+                              }
+                            }
+                          }}
+                          className={clsx(
+                            'rounded-xl border px-3 py-3 text-left text-sm font-medium transition-colors',
+                            selected
+                              ? 'border-blue-300 bg-blue-50 text-blue-900'
+                              : 'border-gray-200 bg-white text-gray-800 active:bg-gray-100',
+                          )}
+                        >
+                          {roleLabel(role)}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               <button
                 type="button"
@@ -212,22 +283,71 @@ export function AppLayout() {
                 <span>{t('legal.termsAndPrivacy')}</span>
               </Link>
 
-              <Link
-                to="/earn"
-                onClick={() => setSheetOpen(false)}
-                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
-              >
-                <Gift className="h-5 w-5 text-gray-700 shrink-0" />
-                <span>{t('nav.earn')}</span>
-              </Link>
+              {activeRole === 'general' && (
+                <Link
+                  to="/earn"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <Gift className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span>{t('nav.earn')}</span>
+                </Link>
+              )}
 
-              <Link
-                to="/b2b"
-                onClick={() => setSheetOpen(false)}
-                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
-              >
-                <span>{t('b2b.title')}</span>
-              </Link>
+              {activeRole === 'fleet' && (
+                <Link
+                  to="/b2b"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <Truck className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span>{t('b2b.title')}</span>
+                </Link>
+              )}
+
+              {activeRole === 'station' && (
+                <Link
+                  to="/station"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <Fuel className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span>{t('stationOwner.title')}</span>
+                </Link>
+              )}
+
+              {user && !availableRoles.includes('station') && (
+                <Link
+                  to="/station"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <Fuel className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span>{t('stationOwner.title')}</span>
+                </Link>
+              )}
+
+              {user && !availableRoles.includes('fleet') && (
+                <Link
+                  to="/b2b"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <Truck className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span>{t('b2b.title')}</span>
+                </Link>
+              )}
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <ShieldCheck className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span>{t('nav.admin')}</span>
+                </Link>
+              )}
 
               {user ? (
                 <button

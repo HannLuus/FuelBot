@@ -18,6 +18,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
 import { ContactPage } from '@/pages/Contact/ContactPage'
+import { RequireAdmin } from '@/components/auth/RouteGuards'
 
 // Lazy-load the map to keep it out of the initial bundle
 const MapPage = lazy(() =>
@@ -94,7 +95,9 @@ export default function App() {
           <Route path="/operator/claim/:stationId" element={<RedirectLegacyStationClaimPath />} />
           <Route path="/earn" element={<EarnPage />} />
           <Route path="/b2b" element={<B2BPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route element={<RequireAdmin />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

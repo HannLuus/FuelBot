@@ -9,16 +9,16 @@ import { SuggestStationSheet } from '@/components/station/SuggestStationSheet'
 import { Spinner } from '@/components/ui/Spinner'
 import { Button } from '@/components/ui/Button'
 import { formatDistance } from '@/lib/fuelUtils'
+import {
+  YANGON_LAT,
+  YANGON_LNG,
+  makeCartoTileLayer,
+  makeOsmFallbackTileLayer,
+} from '@/lib/map'
 
-const YANGON_LAT = 16.8661
-const YANGON_LNG = 96.1561
 const REPORT_PICKER_RADIUS_KM = 1
 const REPORT_PICKER_MAX_STATIONS = 4
 const EMPTY_FUEL_TYPES: [] = []
-const CARTO_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-const OSM_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
 function track(event: string, payload?: Record<string, unknown>) {
   console.info(`[analytics] ${event}`, payload ?? {})
@@ -46,11 +46,7 @@ export function ReportStationPickerPage() {
     if (!mapRef.current || tileFallbackActiveRef.current) return
     tileFallbackActiveRef.current = true
     tileLayerRef.current?.remove()
-    tileLayerRef.current = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      subdomains: 'abc',
-      maxZoom: 20,
-      attribution: OSM_ATTRIBUTION,
-    }).addTo(mapRef.current)
+    tileLayerRef.current = makeOsmFallbackTileLayer().addTo(mapRef.current)
   }
 
   function focusMapAt(nextLat: number, nextLng: number, zoom = 16) {
@@ -91,11 +87,7 @@ export function ReportStationPickerPage() {
     mapRef.current = map
     window.setTimeout(() => map.invalidateSize(), 0)
 
-    const tile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-      subdomains: 'abcd',
-      maxZoom: 20,
-      attribution: CARTO_ATTRIBUTION,
-    })
+    const tile = makeCartoTileLayer('light')
     tile.on('tileerror', () => {
       activateTileFallback()
     })
@@ -127,6 +119,7 @@ export function ReportStationPickerPage() {
       gpsMarkerRef.current = null
       pickedMarkerRef.current = null
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- initialize Leaflet map once; picked coords are updated by later effects
   }, [])
 
   useEffect(() => {

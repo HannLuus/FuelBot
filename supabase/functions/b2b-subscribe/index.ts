@@ -41,10 +41,9 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
 
-  // Check if user already has an active b2b_subscription
   const { data: existing, error: existingErr } = await service
     .from('b2b_subscriptions')
-    .select('id')
+    .select('id, status, valid_until')
     .eq('user_id', authed.user.id)
     .or(`status.eq.PENDING,and(status.eq.CONFIRMED,valid_until.gt.${new Date().toISOString()})`)
     .limit(1)
@@ -55,7 +54,11 @@ Deno.serve(async (req) => {
   }
 
   if (existing && existing.length > 0) {
-    return json({ error: 'User already has an active B2B subscription' }, 400)
+    const row = existing[0]
+    if (row.status === 'PENDING') {
+      return json({ error: 'PENDING_REVIEW' }, 409)
+    }
+    return json({ error: 'ACTIVE_SUBSCRIPTION' }, 409)
   }
 
   const { data: pricing } = await service

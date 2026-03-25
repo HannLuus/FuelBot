@@ -49,6 +49,19 @@ export function FilterBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [filterMenuOpen])
 
+  useEffect(() => {
+    if (filters.selectedRouteId != null && !routes.some((route) => route.id === filters.selectedRouteId)) {
+      setSelectedRouteId(null)
+    }
+  }, [filters.selectedRouteId, routes, setSelectedRouteId])
+
+  useEffect(() => {
+    const usingWholeCountry = filters.maxDistanceKm >= WHOLE_COUNTRY_KM && !filters.selectedRouteId
+    if (!hasNationalView && usingWholeCountry) {
+      setMaxDistance(25)
+    }
+  }, [filters.maxDistanceKm, filters.selectedRouteId, hasNationalView, setMaxDistance])
+
   /** One fuel at a time (typical driver has one vehicle). Tap active pill again to show all types. */
   function toggleFuelType(code: FuelCode) {
     if (filters.fuelTypes.length === 1 && filters.fuelTypes[0] === code) {

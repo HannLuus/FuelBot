@@ -230,8 +230,10 @@ export function AdminPage() {
   const [rewardsRecording, setRewardsRecording] = useState(false)
 
   useEffect(() => {
+    if (!isAdmin) return
     void loadAll()
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- loadAll is intentionally triggered only when admin access flips on
+  }, [isAdmin])
 
   useEffect(() => {
     if (tab !== 'payment') return
@@ -420,6 +422,7 @@ export function AdminPage() {
   }
 
   async function loadAll() {
+    if (!isAdmin) return
     setLoading(true)
     setError(null)
     const [flaggedRes, claimsRes, registrationsRes, pendingRefRes, suggestionsRes, b2bRes] = await Promise.all([

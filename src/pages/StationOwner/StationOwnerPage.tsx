@@ -13,6 +13,7 @@ import type { Station, FuelCode, FuelStatus, QueueBucket, FuelStatuses, StationC
 import { formatMmk } from '@/lib/subscriptionTiers'
 import { usePaymentConfig } from '@/hooks/usePaymentConfig'
 import { useB2BPricing, type B2BDurationMonths, quoteB2BPrice } from '@/hooks/useB2BPricing'
+import { YANGON_LAT, YANGON_LNG, makeCartoTileLayer } from '@/lib/map'
 
 const PAYMENT_SCREENSHOT_BUCKET = 'b2b-payment-screenshots'
 const DURATION_OPTIONS: B2BDurationMonths[] = [3, 6, 12]
@@ -36,17 +37,9 @@ interface UptimeRow {
   expected_samples: number
   uptime_pct: number | null
 }
-const YANGON_LAT = 16.8661
-const YANGON_LNG = 96.1561
-const CARTO_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
 
 function makePickerTileLayer(): L.TileLayer {
-  return L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    subdomains: 'abcd',
-    maxZoom: 20,
-    attribution: CARTO_ATTRIBUTION,
-  })
+  return makeCartoTileLayer('light')
 }
 
 /** Draggable marker icon for the registration map picker (avoids relying on Leaflet default icon assets which can break in Vite). */
@@ -118,49 +111,69 @@ export function StationOwnerPage() {
   const [ownerScreenshotPath, setOwnerScreenshotPath] = useState<string | null>(null)
   const [uploadingPaymentScreenshot, setUploadingPaymentScreenshot] = useState(false)
   const paymentScreenshotInputRef = useRef<HTMLInputElement>(null)
+  const [showOwnerLocationPicker, setShowOwnerLocationPicker] = useState(false)
+  const [ownerLocationDraft, setOwnerLocationDraft] = useState<{ lat: number, lng: number } | null>(null)
+  const [ownerLocationPickerError, setOwnerLocationPickerError] = useState<string | null>(null)
+  const ownerLocationMapRef = useRef<L.Map | null>(null)
+  const ownerLocationMarkerRef = useRef<L.Marker | null>(null)
+  const ownerLocationContainerRef = useRef<HTMLDivElement>(null)
 
   const { config: pricingConfig, loading: pricingLoading } = useB2BPricing()
   const selectedDurationQuote = useMemo(
     () => quoteB2BPrice(pricingConfig, durationMonths),
     [pricingConfig, durationMonths],
   )
-  const paymentConfig = usePaymentConfig()
+  const {
+    config: paymentConfig,
+    loading: paymentConfigLoading,
+    error: paymentConfigError,
+  } = usePaymentConfig()
   const paymentInstructions = paymentConfig.payment_instructions
   const paymentQrUrl = paymentConfig.payment_qr_url
   const paymentPhoneKpay = paymentConfig.payment_phone_kpay || ''
   const authRedirectPath = `/auth?mode=signup&redirect=${encodeURIComponent(`/station${window.location.search}`)}`
+  const ownerPortalState = useMemo(() => {
+    if (!myStation) return 'registration'
+    if (myStation.is_verified) return 'verified'
+    if (myStation.payment_received_at) return 'payment_confirmed'
+    if (myStation.payment_reported_at) return 'payment_submitted'
+    return 'draft'
+  }, [myStation])
+  const showPlanSelection = !myStation || ownerPortalState === 'draft'
 
   useEffect(() => {
     if (!user) return
     void loadMyStation()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- loadMyStation should rerun only when authenticated user identity changes
   }, [user?.id])
 
   // Lock body scroll when map picker overlay is open (prevents background scroll on mobile)
   useEffect(() => {
-    if (!showMapPicker) return
+    if (!showMapPicker && !showOwnerLocationPicker) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prev
     }
-  }, [showMapPicker])
+  }, [showMapPicker, showOwnerLocationPicker])
 
   // Focus close button when map picker opens; Escape key closes picker
   useEffect(() => {
-    if (!showMapPicker) return
+    if (!showMapPicker && !showOwnerLocationPicker) return
     mapPickerCloseButtonRef.current?.focus()
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
         e.stopPropagation()
         setShowMapPicker(false)
+        setShowOwnerLocationPicker(false)
         setRegisterLocationError(null)
         setTimeout(() => pickOnMapButtonRef.current?.focus(), 0)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [showMapPicker])
+  }, [showMapPicker, showOwnerLocationPicker])
 
   // Map picker overlay: init Leaflet when open, cleanup when closed. Intentionally depend only on showMapPicker; initial center uses registerForm at open time.
   useEffect(() => {
@@ -200,6 +213,55 @@ export function StationOwnerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- init once when picker opens; initial center uses registerForm at open time only
   }, [showMapPicker])
 
+  useEffect(() => {
+    if (!showOwnerLocationPicker) return
+    const container = ownerLocationContainerRef.current
+    if (!container || ownerLocationMapRef.current || !myStation) return
+
+    const initLat = ownerLocationDraft?.lat ?? myStation.lat
+    const initLng = ownerLocationDraft?.lng ?? myStation.lng
+    const map = L.map(container, {
+      center: [initLat, initLng],
+      zoom: 16,
+      zoomControl: true,
+    })
+    makePickerTileLayer().addTo(map)
+
+    const marker = L.marker([initLat, initLng], {
+      draggable: true,
+      icon: makePickerMarkerIcon(),
+    }).addTo(map)
+    const currentMarker = L.circleMarker([myStation.lat, myStation.lng], {
+      radius: 8,
+      fillColor: '#10b981',
+      color: '#ffffff',
+      weight: 2,
+      fillOpacity: 1,
+    }).addTo(map)
+    marker.on('dragend', () => {
+      const latLng = marker.getLatLng()
+      setOwnerLocationDraft({ lat: latLng.lat, lng: latLng.lng })
+    })
+
+    ownerLocationMapRef.current = map
+    ownerLocationMarkerRef.current = marker
+    map.invalidateSize()
+
+    const raf = requestAnimationFrame(() => {
+      if (ownerLocationMapRef.current === map) map.invalidateSize()
+    })
+
+    return () => {
+      cancelAnimationFrame(raf)
+      currentMarker.remove()
+      marker.remove()
+      map.remove()
+      ownerLocationMapRef.current = null
+      ownerLocationMarkerRef.current = null
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- initialize once per open; marker interactions manage draft updates
+  }, [myStation, showOwnerLocationPicker])
+
   async function loadReliability() {
     if (!myStation?.id) return
     const { data, error } = await supabase.rpc('get_station_reliability', { p_station_id: myStation.id })
@@ -217,6 +279,7 @@ export function StationOwnerPage() {
       return
     }
     void loadReliability()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch reliability only when station identity changes
   }, [myStation?.id])
 
   async function loadUptime() {
@@ -239,6 +302,7 @@ export function StationOwnerPage() {
       return
     }
     void loadUptime()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch uptime only when station identity changes
   }, [myStation?.id])
 
   useEffect(() => {
@@ -400,6 +464,72 @@ export function StationOwnerPage() {
     setTimeout(() => pickOnMapButtonRef.current?.focus(), 0)
   }
 
+  function openOwnerLocationPicker() {
+    if (!myStation) return
+    setOwnerLocationDraft({ lat: myStation.lat, lng: myStation.lng })
+    setOwnerLocationPickerError(null)
+    setSetLocationMessage(null)
+    setShowOwnerLocationPicker(true)
+  }
+
+  function useCurrentLocationForOwnerPin() {
+    if (!navigator.geolocation) {
+      setOwnerLocationPickerError(t('stationOwner.setCorrectLocationGeolocationError'))
+      return
+    }
+    setOwnerLocationPickerError(null)
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const next = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        }
+        setOwnerLocationDraft(next)
+        ownerLocationMarkerRef.current?.setLatLng([next.lat, next.lng])
+        ownerLocationMapRef.current?.setView([next.lat, next.lng], 16, { animate: true })
+      },
+      () => {
+        setOwnerLocationPickerError(t('stationOwner.setCorrectLocationGeolocationError'))
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    )
+  }
+
+  async function submitOwnerLocation(lat: number, lng: number) {
+    if (!myStation?.id || !session?.access_token) return
+    setSetLocationMessage(null)
+    setSetLocationLoading(true)
+    try {
+      const { error } = await supabase.functions.invoke('owner-update-station-location', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: {
+          station_id: myStation.id,
+          lat,
+          lng,
+        },
+      })
+      if (!error) {
+        setSetLocationMessage(t('stationOwner.setCorrectLocationUpdated'))
+        setShowOwnerLocationPicker(false)
+        void loadMyStation()
+      } else {
+        setSetLocationMessage(error.message ?? t('errors.generic'))
+      }
+    } catch {
+      setSetLocationMessage(t('stationOwner.setCorrectLocationGeolocationError'))
+    } finally {
+      setSetLocationLoading(false)
+    }
+  }
+
+  async function confirmOwnerLocationFromMap() {
+    const marker = ownerLocationMarkerRef.current
+    if (!marker) return
+    const latLng = marker.getLatLng()
+    setOwnerLocationDraft({ lat: latLng.lat, lng: latLng.lng })
+    await submitOwnerLocation(latLng.lat, latLng.lng)
+  }
+
   async function uploadVerificationPhoto(file: File, kind: 'station' | 'location') {
     if (!myStation || !user) return
     setUploading(true)
@@ -492,10 +622,14 @@ export function StationOwnerPage() {
       })
       if (error) throw error
       if (data?.error) throw new Error(data.error)
-      setSaveMessage(t('stationOwner.weWillVerifySoon'))
+      setSaveMessage(
+        data?.already_reported
+          ? t('stationOwner.paymentAlreadyReported')
+          : t('stationOwner.weWillVerifySoon'),
+      )
       await loadMyStation()
-    } catch (err) {
-      setSaveMessage(err instanceof Error ? err.message : t('errors.generic'))
+    } catch {
+      setSaveMessage(t('errors.generic'))
     } finally {
       setSubmittingPaid(false)
     }
@@ -673,79 +807,156 @@ export function StationOwnerPage() {
         </div>
       )}
 
+      {showOwnerLocationPicker && myStation && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-white">
+          <div className="flex shrink-0 items-center justify-between gap-2 border-b border-gray-200 bg-gray-50 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => {
+                setShowOwnerLocationPicker(false)
+                setOwnerLocationPickerError(null)
+              }}
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label={t('common.close')}
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <span className="text-sm font-medium text-gray-900">{t('stationOwner.setCorrectLocationTitle')}</span>
+            <Button size="sm" variant="primary" loading={setLocationLoading} onClick={() => void confirmOwnerLocationFromMap()}>
+              {t('stationOwner.setCorrectLocationSaveFromMap')}
+            </Button>
+          </div>
+          <div className="border-b border-gray-200 bg-white px-4 py-3">
+            <p className="text-sm font-medium text-gray-900">{myStation.name}</p>
+            <p className="mt-1 text-xs text-gray-700">
+              {t('stationOwner.setCorrectLocationCurrentPin', {
+                lat: myStation.lat.toFixed(5),
+                lng: myStation.lng.toFixed(5),
+              })}
+            </p>
+            {ownerLocationDraft && (
+              <p className="mt-1 text-xs text-gray-700">
+                {t('stationOwner.setCorrectLocationSelectedPin', {
+                  lat: ownerLocationDraft.lat.toFixed(5),
+                  lng: ownerLocationDraft.lng.toFixed(5),
+                })}
+              </p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={setLocationLoading}
+                onClick={useCurrentLocationForOwnerPin}
+              >
+                <Crosshair className="h-4 w-4" />
+                {t('stationOwner.setCorrectLocationUseGps')}
+              </Button>
+            </div>
+            {ownerLocationPickerError && (
+              <p className="mt-2 text-xs text-red-600">{ownerLocationPickerError}</p>
+            )}
+            {setLocationMessage && (
+              <p className="mt-2 text-xs text-gray-700">{setLocationMessage}</p>
+            )}
+          </div>
+          <div ref={ownerLocationContainerRef} className="min-h-[50vh] flex-1" />
+        </div>
+      )}
+
       <div className="border-b border-gray-100 bg-white px-4 py-3">
         <h1 className="text-lg font-bold text-gray-900">{t('stationOwner.title')}</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Tiers */}
-        <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <h2 className="text-sm font-bold text-gray-900 mb-3">{t('stationOwner.selectTier')}</h2>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {(['small', 'medium', 'large'] as const).map((tierOption) => {
-              const selected = tier === tierOption
-              return (
-                <button
-                  key={tierOption}
-                  type="button"
-                  onClick={() => setTier(tierOption)}
-                  className={`rounded-xl border p-3 text-left ${selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}`}
-                >
-                  <p className="font-semibold text-gray-900">{t(`stationOwner.${tierOption}`)}</p>
-                </button>
-              )
-            })}
-          </div>
-
-          <h2 className="mt-4 text-sm font-bold text-gray-900 mb-3">{t('b2b.choosePlanDuration')}</h2>
-          {pricingLoading ? (
-            <div className="flex justify-center py-4">
-              <Spinner />
-            </div>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-3">
-              {DURATION_OPTIONS.map((m) => {
-                const quote = quoteB2BPrice(pricingConfig, m)
-                const selected = durationMonths === m
+        {showPlanSelection && (
+          <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <h2 className="mb-3 text-sm font-bold text-gray-900">{t('stationOwner.selectTier')}</h2>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {(['small', 'medium', 'large'] as const).map((tierOption) => {
+                const selected = tier === tierOption
                 return (
                   <button
-                    key={m}
+                    key={tierOption}
                     type="button"
-                    onClick={() => setDurationMonths(m)}
+                    onClick={() => setTier(tierOption)}
                     className={`rounded-xl border p-3 text-left ${selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}`}
                   >
-                    <p className="font-semibold text-gray-900">{t('b2b.durationLabel', { months: m })}</p>
-                    <p className="mt-2 text-sm font-bold text-gray-900">{formatMmk(quote.paid)}</p>
-                    {quote.promoOn && quote.savings > 0 ? (
-                      <>
-                        <p className="text-xs text-gray-700 line-through">{formatMmk(quote.list)}</p>
-                        <p className="text-xs font-semibold text-green-700">
-                          {t('b2b.promoSavingsLine', { percent: quote.promoPercent, savings: formatMmk(quote.savings) })}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-xs text-gray-700">{t('b2b.listPriceOnly')}</p>
-                    )}
+                    <p className="font-semibold text-gray-900">{t(`stationOwner.${tierOption}`)}</p>
                   </button>
                 )
               })}
             </div>
-          )}
-          <p className="mt-3 text-xs text-gray-700">
-            {t('b2b.selectedDurationSummary', { months: durationMonths })} · {formatMmk(selectedDurationQuote.paid)}
-          </p>
-          <p className="mt-4 text-sm font-medium text-gray-800">{t('stationOwner.whatYouGetTitle')}</p>
-          <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-gray-700">
-            <li>{t('stationOwner.whatYouGetReliability')}</li>
-            <li>{t('stationOwner.whatYouGetUptime')}</li>
-            <li>{t('stationOwner.whatYouGetCompare')}</li>
-          </ul>
-          <p className="mt-2">
-            <Link to="/benefits/station-owners" className="text-xs font-medium text-blue-600 underline active:text-blue-800">
-              {t('stationOwner.seeFullBenefits')}
-            </Link>
-          </p>
-        </section>
+
+            <h2 className="mb-3 mt-4 text-sm font-bold text-gray-900">{t('b2b.choosePlanDuration')}</h2>
+            {pricingLoading ? (
+              <div className="flex justify-center py-4">
+                <Spinner />
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-3">
+                {DURATION_OPTIONS.map((m) => {
+                  const quote = quoteB2BPrice(pricingConfig, m)
+                  const selected = durationMonths === m
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setDurationMonths(m)}
+                      className={`rounded-xl border p-3 text-left ${selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}`}
+                    >
+                      <p className="font-semibold text-gray-900">{t('b2b.durationLabel', { months: m })}</p>
+                      <p className="mt-2 text-sm font-bold text-gray-900">{formatMmk(quote.paid)}</p>
+                      {quote.promoOn && quote.savings > 0 ? (
+                        <>
+                          <p className="text-xs text-gray-700 line-through">{formatMmk(quote.list)}</p>
+                          <p className="text-xs font-semibold text-green-700">
+                            {t('b2b.promoSavingsLine', { percent: quote.promoPercent, savings: formatMmk(quote.savings) })}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-xs text-gray-700">{t('b2b.listPriceOnly')}</p>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+            <p className="mt-3 text-xs text-gray-700">
+              {t('b2b.selectedDurationSummary', { months: durationMonths })} · {formatMmk(selectedDurationQuote.paid)}
+            </p>
+            <p className="mt-4 text-sm font-medium text-gray-800">{t('stationOwner.whatYouGetTitle')}</p>
+            <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-gray-700">
+              <li>{t('stationOwner.whatYouGetReliability')}</li>
+              <li>{t('stationOwner.whatYouGetUptime')}</li>
+              <li>{t('stationOwner.whatYouGetCompare')}</li>
+            </ul>
+            <p className="mt-2">
+              <Link to="/benefits/station-owners" className="text-xs font-medium text-blue-600 underline active:text-blue-800">
+                {t('stationOwner.seeFullBenefits')}
+              </Link>
+            </p>
+          </section>
+        )}
+
+        {myStation && ownerPortalState !== 'draft' && (
+          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+            <p className="text-sm font-semibold text-blue-900">{t('stationOwner.portalStatusTitle')}</p>
+            <p className="mt-1 text-sm text-blue-900">
+              {ownerPortalState === 'payment_submitted'
+                ? t('stationOwner.portalStatusPaymentSubmitted')
+                : ownerPortalState === 'payment_confirmed'
+                  ? t('stationOwner.portalStatusPaymentConfirmed')
+                  : t('stationOwner.portalStatusVerified')}
+            </p>
+            {myStation.subscription_duration_months != null && (
+              <p className="mt-2 text-xs text-blue-900">
+                {t('b2b.selectedDurationSummary', { months: myStation.subscription_duration_months })}
+              </p>
+            )}
+          </section>
+        )}
 
         {/* No station yet: Register (owner-first) or Claim existing */}
         {!myStation && (
@@ -1049,12 +1260,19 @@ export function StationOwnerPage() {
             {!myStation.is_verified && !myStation.payment_reported_at && (
               <section className="rounded-2xl border border-gray-200 bg-white p-4">
                 <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.payVia')}</h2>
-                {paymentInstructions ? (
+                {paymentConfigLoading ? (
+                  <div className="flex justify-center py-4">
+                    <Spinner />
+                  </div>
+                ) : paymentInstructions ? (
                   <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
                     {paymentInstructions}
                   </div>
                 ) : (
                   <p className="text-xs text-gray-700">{t('b2b.contactForPayment')}</p>
+                )}
+                {paymentConfigError && (
+                  <p className="mt-3 text-xs text-amber-800">{t('b2b.paymentConfigUnavailable')}</p>
                 )}
                 {paymentQrUrl ? (
                   <div className="mt-3">
@@ -1174,50 +1392,21 @@ export function StationOwnerPage() {
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
                 <p className="font-semibold text-emerald-900">{t('stationOwner.setCorrectLocationTitle')}</p>
                 <p className="mt-1 text-xs text-emerald-800">{t('stationOwner.setCorrectLocationHint')}</p>
-                <div className="mt-3">
+                <p className="mt-2 text-xs text-emerald-800">
+                  {t('stationOwner.setCorrectLocationCurrentPin', {
+                    lat: myStation.lat.toFixed(5),
+                    lng: myStation.lng.toFixed(5),
+                  })}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
                   <Button
                     size="sm"
                     variant="secondary"
                     loading={setLocationLoading}
                     disabled={!session?.access_token}
-                    onClick={async () => {
-                      if (!myStation?.id || !session?.access_token) return
-                      setSetLocationMessage(null)
-                      setSetLocationLoading(true)
-                      try {
-                        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                          if (!navigator.geolocation) {
-                            reject(new Error('UNSUPPORTED'))
-                            return
-                          }
-                          navigator.geolocation.getCurrentPosition(resolve, reject, {
-                            enableHighAccuracy: true,
-                            timeout: 10000,
-                            maximumAge: 0,
-                          })
-                        })
-                        const { error } = await supabase.functions.invoke('owner-update-station-location', {
-                          headers: { Authorization: `Bearer ${session.access_token}` },
-                          body: {
-                            station_id: myStation.id,
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                          },
-                        })
-                        if (!error) {
-                          setSetLocationMessage(t('stationOwner.setCorrectLocationUpdated'))
-                          void loadMyStation()
-                        } else {
-                          setSetLocationMessage(error.message ?? t('errors.generic'))
-                        }
-                      } catch {
-                        setSetLocationMessage(t('stationOwner.setCorrectLocationGeolocationError'))
-                      } finally {
-                        setSetLocationLoading(false)
-                      }
-                    }}
+                    onClick={openOwnerLocationPicker}
                   >
-                    {t('stationOwner.setCorrectLocationUseMyLocation')}
+                    {t('stationOwner.setCorrectLocationReviewOnMap')}
                   </Button>
                 </div>
                 {setLocationMessage && (

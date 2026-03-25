@@ -45,11 +45,6 @@ export function LandingPage() {
   const { canInstall, isIOS, isPrompting, prompt, showInstallUI } = usePWAInstall()
 
   useEffect(() => {
-    void loadRecognitions()
-    void loadTopReporters()
-  }, [])
-
-  useEffect(() => {
     if (!showIOSInstallModal) return
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') setShowIOSInstallModal(false)
@@ -95,6 +90,14 @@ export function LandingPage() {
     })
     setTopReporters((data ?? []) as TopReporter[])
   }
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadRecognitions()
+      void loadTopReporters()
+    }, 0)
+    return () => window.clearTimeout(timeoutId)
+  }, [])
 
   function toggleLang() {
     const next = lang === 'en' ? 'my' : 'en'
