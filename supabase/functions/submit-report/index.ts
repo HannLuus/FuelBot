@@ -126,7 +126,8 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 7a. Daily cap: authenticated CROWD reporters may submit at most once per Myanmar calendar day
+  // 7a. Daily cap: authenticated CROWD only (once per Myanmar day). VERIFIED_STATION owners may post
+  //    multiple times per day when deliveries or stock change; they are not subject to this cap.
   if (verifiedUserId && role !== 'VERIFIED_STATION') {
     const dayStartUtc = getMyanmarDayStartUtc()
 
@@ -157,17 +158,20 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 7c. Hourly rate limit: max RATE_LIMIT_REPORTS_PER_HOUR reports per device per station per hour
+  // 7c. Hourly rate limit per device per station (crowd/anon). VERIFIED_STATION excluded so owners
+  //    can update often as stock changes; abuse is bounded by auth + station verification.
   const oneHourAgo = new Date(Date.now() - 3600000).toISOString()
-  const { count } = await supabase
-    .from('station_status_reports')
-    .select('id', { count: 'exact', head: true })
-    .eq('station_id', station_id)
-    .eq('device_hash', device_hash)
-    .gte('reported_at', oneHourAgo)
+  if (role !== 'VERIFIED_STATION') {
+    const { count } = await supabase
+      .from('station_status_reports')
+      .select('id', { count: 'exact', head: true })
+      .eq('station_id', station_id)
+      .eq('device_hash', device_hash)
+      .gte('reported_at', oneHourAgo)
 
-  if ((count ?? 0) >= RATE_LIMIT_REPORTS_PER_HOUR) {
-    return jsonError('RATE_LIMIT: Too many reports. Please wait before reporting again', 429)
+    if ((count ?? 0) >= RATE_LIMIT_REPORTS_PER_HOUR) {
+      return jsonError('RATE_LIMIT: Too many reports. Please wait before reporting again', 429)
+    }
   }
 
   // 7d. Server-side IP rate limit: secondary gate for anonymous reporters that cannot be forged
@@ -195,7 +199,7 @@ Deno.serve(async (req) => {
   }
 
   // 8. Compute expires_at (same 48h horizon as DB role_decay_seconds)
-  const decaySecs = roleDecaySeconds(role)
+  const decaySecs = roleDecaySeconds()
   const expiresAt = new Date(Date.now() + decaySecs * 1000).toISOString()
 
   // 9. Insert report (use sanitizedStatuses, not the raw client payload)
@@ -267,7 +271,8 @@ function getMyanmarDayStartUtc(): string {
   return new Date(myanmarMidnight.getTime() - MYANMAR_OFFSET_MS).toISOString()
 }
 
-function roleDecaySeconds(_role: string): number {
+/** Single TTL for all roles; keep in sync with DB `role_decay_seconds`. */
+function roleDecaySeconds(): number {
   return STATUS_DISPLAY_TTL_SECONDS
 }
 

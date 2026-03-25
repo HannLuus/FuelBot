@@ -69,7 +69,7 @@ export function OperatorPage() {
   const [currentStatus, setCurrentStatus] = useState<StationCurrentStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [posting, setPosting] = useState(false)
-  const [postResult, setPostResult] = useState<'success' | 'error' | null>(null)
+  const [postResult, setPostResult] = useState<'success' | 'error' | 'needFuel' | null>(null)
   const [registering, setRegistering] = useState(false)
   const [registerResult, setRegisterResult] = useState<'success' | 'error' | null>(null)
   const [registerErrorMessage, setRegisterErrorMessage] = useState<string | null>(null)
@@ -570,8 +570,18 @@ export function OperatorPage() {
     }
   }
 
+  const canPostFuelUpdate = useMemo(
+    () => FUEL_CODES.some((code) => fuelStatuses[code] !== 'SKIP'),
+    [fuelStatuses],
+  )
+
+  useEffect(() => {
+    setPostResult(null)
+  }, [fuelStatuses])
+
   async function postUpdate() {
     if (!myStation || !user) return
+    setPostResult(null)
     setPosting(true)
     try {
       const fs: FuelStatuses = {}
@@ -580,8 +590,16 @@ export function OperatorPage() {
         if (v !== 'SKIP') fs[code] = v
       }
 
+      if (Object.keys(fs).length === 0) {
+        setPostResult('needFuel')
+        return
+      }
+
       const deviceHash = await getDeviceHash()
-      const { error } = await supabase.functions.invoke('submit-report', {
+      const { data, error } = await supabase.functions.invoke('submit-report', {
+        headers: session?.access_token
+          ? { Authorization: `Bearer ${session.access_token}` }
+          : undefined,
         body: {
           station_id: myStation.id,
           device_hash: deviceHash,
@@ -591,7 +609,16 @@ export function OperatorPage() {
         },
       })
 
-      setPostResult(error ? 'error' : 'success')
+      if (error) {
+        setPostResult('error')
+        return
+      }
+      if (data && typeof data === 'object' && typeof (data as { error?: unknown }).error === 'string') {
+        setPostResult('error')
+        return
+      }
+
+      setPostResult('success')
     } catch {
       setPostResult('error')
     } finally {
@@ -1308,6 +1335,9 @@ export function OperatorPage() {
               ) : (
                 <>
                   <p className="text-xs text-gray-700 mb-3">{t('operator.postUpdateHint')}</p>
+                  {!canPostFuelUpdate && (
+                    <p className="mb-2 text-xs text-gray-600">{t('operator.postUpdateSelectFuelHint')}</p>
+                  )}
 
                   <div className="space-y-3">
                 {FUEL_CODES.map((code) => (
@@ -1341,6 +1371,9 @@ export function OperatorPage() {
               {postResult === 'success' && (
                 <p className="mt-3 text-sm text-green-600">{t('report.success')}</p>
               )}
+              {postResult === 'needFuel' && (
+                <p className="mt-3 text-sm text-amber-800">{t('operator.postUpdateNeedFuel')}</p>
+              )}
               {postResult === 'error' && (
                 <p className="mt-3 text-sm text-red-600">{t('report.error')}</p>
               )}
@@ -1350,7 +1383,7 @@ export function OperatorPage() {
                 size="lg"
                 className="mt-4 w-full"
                 loading={posting}
-                disabled={!myStation.is_verified}
+                disabled={!myStation.is_verified || !canPostFuelUpdate}
                 onClick={() => void postUpdate()}
               >
                 <Send className="h-4 w-4" />

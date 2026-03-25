@@ -25,7 +25,13 @@ const HERO_CAROUSEL_IMAGES = [
   '/landing-carousel/fuelbot-1.png',
   '/landing-carousel/fuelbot-2.png',
   '/landing-carousel/fuelbot-3.png',
-]
+] as const
+
+const HERO_CAROUSEL_CAPTION_KEYS = [
+  'landing.heroCarousel1',
+  'landing.heroCarousel2',
+  'landing.heroCarousel3',
+] as const
 
 export function LandingPage() {
   const { t, i18n } = useTranslation()
@@ -62,6 +68,8 @@ export function LandingPage() {
   }, [showMobileMenu])
 
   useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (reduceMotion.matches) return
     const timer = window.setInterval(() => {
       setCarouselIndex((prev) => (prev + 1) % HERO_CAROUSEL_IMAGES.length)
     }, 18000)
@@ -212,27 +220,52 @@ export function LandingPage() {
       </header>
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
-        <section className="relative overflow-hidden rounded-2xl bg-white shadow-sm">
+        <section
+          className="relative overflow-hidden rounded-2xl bg-white shadow-sm"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label={t('landing.heroCarouselAriaLabel')}
+        >
           <div className="relative aspect-[16/7] w-full bg-gray-100">
             {HERO_CAROUSEL_IMAGES.map((src, idx) => (
               <img
                 key={src}
                 src={src}
-                alt={`FuelBot showcase ${idx + 1}`}
+                alt=""
+                aria-hidden={idx !== carouselIndex}
                 className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${idx === carouselIndex ? 'opacity-100' : 'opacity-0'}`}
               />
             ))}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-3 pb-12 pt-14 sm:px-6 sm:pb-14 sm:pt-16">
+              <p
+                id="landing-hero-carousel-caption"
+                aria-live="polite"
+                aria-atomic="true"
+                className="mx-auto max-w-3xl text-center text-sm font-medium leading-snug text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] sm:text-base"
+              >
+                {t(HERO_CAROUSEL_CAPTION_KEYS[carouselIndex])}
+              </p>
+            </div>
           </div>
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-2 py-1">
-            {HERO_CAROUSEL_IMAGES.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                aria-label={`Show image ${idx + 1}`}
-                onClick={() => setCarouselIndex(idx)}
-                className={`h-2.5 w-2.5 rounded-full transition-colors ${idx === carouselIndex ? 'bg-white' : 'bg-white/55 hover:bg-white/80'}`}
-              />
-            ))}
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-2 py-1">
+            {HERO_CAROUSEL_IMAGES.map((_, idx) => {
+              const total = HERO_CAROUSEL_IMAGES.length
+              const isCurrent = idx === carouselIndex
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  aria-label={
+                    isCurrent
+                      ? t('landing.heroCarouselGoToSlideCurrent', { n: idx + 1, total })
+                      : t('landing.heroCarouselGoToSlide', { n: idx + 1, total })
+                  }
+                  aria-current={isCurrent ? 'true' : undefined}
+                  onClick={() => setCarouselIndex(idx)}
+                  className={`h-2.5 w-2.5 rounded-full transition-colors ${isCurrent ? 'bg-white' : 'bg-white/55 hover:bg-white/80'}`}
+                />
+              )
+            })}
           </div>
         </section>
 

@@ -109,7 +109,7 @@ export function ReportPage() {
         if (val !== 'SKIP') fuelStatusesPayload[code] = val as FuelStatus
       }
 
-      const { error } = await supabase.functions.invoke('submit-report', {
+      const { data, error } = await supabase.functions.invoke('submit-report', {
         body: {
           station_id: stationId,
           device_hash: deviceHash,
@@ -122,13 +122,20 @@ export function ReportPage() {
         },
       })
 
-      if (error) {
-        const msg = error.message ?? ''
+      function applySubmitErrorMessage(msg: string) {
         if (msg.includes('TOO_FAR')) { setResult('toofar'); return }
         if (msg.includes('RATE_LIMIT')) { setResult('ratelimit'); return }
         if (msg.includes('DAILY_LIMIT')) { setResult('dailylimit'); return }
         if (msg.includes('LOCATION_REQUIRED')) { setResult('locationrequired'); return }
         setResult('error')
+      }
+
+      if (error) {
+        applySubmitErrorMessage(error.message ?? '')
+        return
+      }
+      if (data && typeof data === 'object' && typeof (data as { error?: unknown }).error === 'string') {
+        applySubmitErrorMessage((data as { error: string }).error)
         return
       }
 

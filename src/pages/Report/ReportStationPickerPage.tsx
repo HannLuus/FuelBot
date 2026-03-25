@@ -133,8 +133,9 @@ export function ReportStationPickerPage() {
     if (!mapRef.current) return
     if (!pickedMarkerRef.current) return
     pickedMarkerRef.current.setLatLng([pickedLat, pickedLng])
-    focusMapAt(pickedLat, pickedLng, 15)
-  }, [pickedLat, pickedLng])
+    // Only re-center when following GPS sync; manual map taps should not trigger flyTo (jarring).
+    if (!hasManualPick) focusMapAt(pickedLat, pickedLng, 15)
+  }, [pickedLat, pickedLng, hasManualPick])
 
   useEffect(() => {
     if (!mapRef.current) return

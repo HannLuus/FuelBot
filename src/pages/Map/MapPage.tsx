@@ -462,7 +462,7 @@ export function MapPage() {
       {/* Bottom bar: fuel filter + compact legend + suggest — one panel */}
       <div
         className={clsx(
-          'absolute z-[1000] max-w-[calc(100%-1rem)] rounded-2xl border border-gray-100 bg-white/95 px-2.5 py-2 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95',
+          'absolute z-[1000] max-w-[calc(100%-1rem)] rounded-2xl border border-gray-100 bg-white/95 px-2.5 py-2 pb-safe shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95',
           'left-1/2 -translate-x-1/2 sm:left-3 sm:translate-x-0 sm:max-w-none',
           'w-[calc(100%-1rem)] sm:w-auto sm:min-w-0 sm:max-w-[min(36rem,calc(100%-1.5rem))]',
           // Keep bar above the preview card (max-h ~42vh, anchored bottom-3)
@@ -519,7 +519,7 @@ export function MapPage() {
 
       {/* Station preview — tap marker; same signals as Nearby cards */}
       {selectedStation && (
-        <div className="absolute bottom-3 left-3 right-3 z-[1001] max-h-[42vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-xl dark:border-gray-700 dark:bg-gray-900">
+        <div className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom,0px))] left-3 right-3 z-[1001] max-h-[42vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 pb-safe text-left shadow-xl dark:border-gray-700 dark:bg-gray-900">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">

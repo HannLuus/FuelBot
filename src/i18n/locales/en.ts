@@ -22,8 +22,9 @@ export default {
     installHelpTitle: 'Install FuelBot app',
     installHelpSteps: 'On Android/Chrome: tap the 3-dot menu at the top right -> tap "Add to Home screen" (or "Install app") -> confirm. On desktop: open browser menu and choose "Install FuelBot" / "Install app" / "Add to dock".',
     enterApp: 'Enter app',
-    title: 'Fuel transparency for everyone',
-    subtitle: 'FuelBot helps people see where fuel is available in real time, and rewards people who bring stations onboard.',
+    title: 'Fuel transparency for Myanmar',
+    subtitle:
+      'Before you leave, open the app: which stations have fuel, how long the queue is, and which types — updated live. When we all report what we see, we waste less fuel and time across the country.',
     openFuelBot: 'Open FuelBot',
     registerStationCta: 'Register a station',
     whatWeAchieveTitle: 'What we want to achieve',
@@ -46,7 +47,16 @@ export default {
     heroSubtitle: 'Recognition for referrers and station owners who joined the platform.',
     heroEmpty: 'Recognition photos will appear here after final confirmation.',
     photoPending: 'Photo pending',
-    heroCardCaption: 'This station joined to improve fuel transparency.',
+    heroCarousel1:
+      'Before you set out, check FuelBot — see which stations have fuel, how long you may wait, and which types are available.',
+    heroCarousel2:
+      'Fewer wrong turns and empty queues: save fuel and time by going where the map shows it is worth it.',
+    heroCarousel3:
+      'When we report together as a community, everyone benefits — and our country uses fuel more wisely.',
+    heroCarouselAriaLabel: 'FuelBot highlights',
+    heroCarouselGoToSlide: 'Show highlight {{n}} of {{total}}',
+    heroCarouselGoToSlideCurrent: 'Show highlight {{n}} of {{total}} (current)',
+    heroCardCaption: 'This station is helping people in Myanmar find fuel without wasted trips.',
     footerContact: 'Contact us',
     contactEmail: 'support@fuelbotmm.com',
     contactTitle: 'Contact us',
@@ -416,7 +426,10 @@ export default {
     claimButton: 'Claim existing listing',
     claimPending: 'Claim pending review',
     postUpdate: 'Post Fuel Update',
-    postUpdateHint: 'Your update will be marked as Verified Station.',
+    postUpdateHint:
+      'Your update is shown as Verified Station. Post whenever stock or queues change. Signed-in drivers may submit one fuel report per Myanmar day (across the whole app); anonymous reporters have a separate daily cap.',
+    postUpdateNeedFuel: 'Choose at least one fuel type (not “Don’t know”) before posting.',
+    postUpdateSelectFuelHint: 'Select at least one fuel type above to post an update.',
     followers: 'Followers',
     views: 'Views today',
     confirmations: 'Confirmations today',
