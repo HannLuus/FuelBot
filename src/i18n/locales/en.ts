@@ -130,6 +130,9 @@ export default {
     lightMap: 'Light map',
     darkMap: 'Dark map',
     mapStyle: 'Map style',
+    fuelFilterHint: 'Your fuel — tap one type; tap again to show all stations.',
+    viewStationDetails: 'Full details',
+    closePreview: 'Close',
   },
   nav: {
     nearby: 'Nearby',

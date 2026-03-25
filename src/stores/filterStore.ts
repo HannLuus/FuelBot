@@ -21,7 +21,13 @@ const DEFAULT_FILTERS: StationFilters = {
 
 export const useFilterStore = create<FilterState>((set) => ({
   filters: DEFAULT_FILTERS,
-  setFuelTypes: (fuelTypes) => set((s) => ({ filters: { ...s.filters, fuelTypes } })),
+  setFuelTypes: (fuelTypes) =>
+    set((s) => ({
+      filters: {
+        ...s.filters,
+        fuelTypes: fuelTypes.length <= 1 ? fuelTypes : [fuelTypes[0]],
+      },
+    })),
   setStatusFilter: (statusFilter) => set((s) => ({ filters: { ...s.filters, statusFilter } })),
   setMaxDistance: (km) =>
     set((s) => ({ filters: { ...s.filters, maxDistanceKm: km, selectedRouteId: null } })),

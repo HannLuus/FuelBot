@@ -130,6 +130,9 @@ export default {
     lightMap: 'အလင်းမြေပုံ',
     darkMap: 'အမှောင်မြေပုံ',
     mapStyle: 'မြေပုံအပြင်အဆင်',
+    fuelFilterHint: 'သင့်ဆီအမျိုးအစား — တစ်ခုနှိပ်ပါ။ ထပ်နှိပ်ပါက ဆိုင်အားလုံး ပြပါမည်။',
+    viewStationDetails: 'အသေးစိတ်',
+    closePreview: 'ပိတ်မည်',
   },
   nav: {
     nearby: 'အနီးနားရှိ',

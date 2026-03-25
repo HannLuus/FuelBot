@@ -389,6 +389,13 @@ s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
 
+# Public reporting: gateway JWT check rejects some clients (e.g. new publishable keys) before the
+# function runs. Auth is optional — verified user is resolved from Authorization inside the function.
+[functions.submit-report]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/submit-report/index.ts"
+
 [functions.b2b-subscribe]
 enabled = true
 verify_jwt = true

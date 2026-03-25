@@ -2,16 +2,30 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
-import { Crosshair, Sun, Moon, Lightbulb } from 'lucide-react'
+import { clsx } from 'clsx'
+import { Crosshair, Sun, Moon, Lightbulb, MapPin, Clock, CheckCircle, X } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useMapStyleStore, type MapStyle } from '@/stores/mapStyleStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
-import { STATUS_DOT_COLORS, worstStatusForFuels, isStationVerified } from '@/lib/fuelUtils'
+import {
+  STATUS_DOT_COLORS,
+  worstStatusForFuels,
+  isStationVerified,
+  FUEL_CODES,
+  FUEL_DISPLAY,
+  formatDistance,
+  formatRelativeTime,
+  QUEUE_LABEL,
+  REPORTER_ROLE_LABEL,
+} from '@/lib/fuelUtils'
 import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { getBrandInitial, getBrandLogoUrl } from '@/lib/brandLogos'
 import { SuggestStationSheet } from '@/components/station/SuggestStationSheet'
-import type { StationWithStatus } from '@/types'
+import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import { FuelChip } from '@/components/ui/FuelChip'
+import type { FuelCode, StationWithStatus } from '@/types'
 
 const CARTO_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -51,28 +65,30 @@ const STATUS_HEX: Record<string, string> = {
 
 const MARKER_SIZE = 22
 
-function makeMarkerIcon(color: string, unverified = false): L.DivIcon {
+function makeMarkerIcon(color: string, unverified = false, selected = false): L.DivIcon {
+  const size = selected ? MARKER_SIZE + 6 : MARKER_SIZE
+  const ring = selected ? '0 0 0 3px #2563eb' : 'none'
   if (unverified) {
     return L.divIcon({
       className: '',
       html: `<div style="
-        width:${MARKER_SIZE}px; height:${MARKER_SIZE}px; border-radius:50%;
+        width:${size}px; height:${size}px; border-radius:50%;
         background:${color}; border:3px dashed rgba(100,100,100,0.9);
-        opacity:0.7; box-shadow:0 1px 4px rgba(0,0,0,0.3);
+        opacity:0.7; box-shadow:0 1px 4px rgba(0,0,0,0.3), ${ring};
       " title="Unverified"></div>`,
-      iconSize: [MARKER_SIZE, MARKER_SIZE],
-      iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
     })
   }
   return L.divIcon({
     className: '',
     html: `<div style="
-      width:${MARKER_SIZE}px; height:${MARKER_SIZE}px; border-radius:50%;
+      width:${size}px; height:${size}px; border-radius:50%;
       background:${color}; border:3px solid white;
-      box-shadow:0 2px 6px rgba(0,0,0,0.4);
+      box-shadow:0 2px 6px rgba(0,0,0,0.4), ${ring};
     " title="Verified"></div>`,
-    iconSize: [MARKER_SIZE, MARKER_SIZE],
-    iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   })
 }
 
@@ -127,27 +143,48 @@ export function MapPage() {
   const userLocationLayerRef = useRef<L.CircleMarker | null>(null)
   const navigate = useNavigate()
   const { lat, lng, requestLocation, loading: locationLoading, error: locationError } = useLocationStore()
-  const { filters } = useFilterStore()
+  const { filters, setFuelTypes } = useFilterStore()
   const { mapStyle, setMapStyle } = useMapStyleStore()
   const { t, i18n } = useTranslation()
+  const lang = i18n.language as 'en' | 'my'
   const [suggestOpen, setSuggestOpen] = useState(false)
   const [suggestLat, setSuggestLat] = useState<number | null>(null)
   const [suggestLng, setSuggestLng] = useState<number | null>(null)
   const suggestionMarkerRef = useRef<L.Marker | null>(null)
+  const [selectedStationId, setSelectedStationId] = useState<string | null>(null)
 
   const effectiveLat = lat ?? YANGON_LAT
   const effectiveLng = lng ?? YANGON_LNG
+  const effectiveRadius =
+    filters.maxDistanceKm >= WHOLE_COUNTRY_KM
+      ? filters.maxDistanceKm
+      : lat !== null
+        ? filters.maxDistanceKm
+        : 25
 
   const { stations } = useNearbyStations({
     lat: effectiveLat,
     lng: effectiveLng,
-    maxDistanceKm: lat !== null ? filters.maxDistanceKm : 25,
+    maxDistanceKm: effectiveRadius,
     selectedRouteId: filters.selectedRouteId,
     fuelTypes: filters.fuelTypes,
     statusFilter: filters.statusFilter,
   })
 
   const filteredStations = filters.verifiedOnly ? stations.filter(isStationVerified) : stations
+
+  const selectedStation =
+    selectedStationId == null
+      ? null
+      : (filteredStations.find((s) => s.id === selectedStationId) ?? null)
+
+  function selectMapFuel(code: FuelCode) {
+    if (filters.fuelTypes.length === 1 && filters.fuelTypes[0] === code) {
+      setFuelTypes([])
+    } else {
+      setFuelTypes([code])
+    }
+  }
 
   function activateTileFallback() {
     if (!mapRef.current || tileFallbackActiveRef.current) return
@@ -171,11 +208,15 @@ export function MapPage() {
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
 
-    mapRef.current = L.map(mapContainerRef.current, {
+    const map = L.map(mapContainerRef.current, {
       center: [effectiveLat, effectiveLng],
       zoom: 14,
       zoomControl: true,
     })
+    mapRef.current = map
+
+    const onMapBackgroundClick = () => setSelectedStationId(null)
+    map.on('click', onMapBackgroundClick)
 
     const initialStyle = useMapStyleStore.getState().mapStyle
     addCartoLayerWithFallback(initialStyle)
@@ -188,18 +229,19 @@ export function MapPage() {
         weight: 2,
         fillOpacity: 1,
       })
-        .addTo(mapRef.current)
+        .addTo(map)
         .bindPopup(i18n.t('map.youAreHere'))
       userLocationLayerRef.current = circle
     }
 
     return () => {
+      map.off('click', onMapBackgroundClick)
       tileLayerRef.current?.remove()
       tileLayerRef.current = null
       tileFallbackActiveRef.current = false
       userLocationLayerRef.current?.remove()
       userLocationLayerRef.current = null
-      mapRef.current?.remove()
+      map.remove()
       mapRef.current = null
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -252,11 +294,11 @@ export function MapPage() {
       const worst = worstStatusForFuels(fs, filters.fuelTypes)
       const color = STATUS_HEX[worst] ?? STATUS_HEX.UNKNOWN
       const unverified = !isStationVerified(station)
-      const icon = makeMarkerIcon(color, unverified)
+      const isSelected = selectedStationId === station.id
+      const icon = makeMarkerIcon(color, unverified, isSelected)
 
       const marker = L.marker([station.lat, station.lng], { icon })
         .addTo(mapRef.current!)
-        .bindPopup(station.name)
         .bindTooltip(buildStationTooltip(station, t), {
           direction: 'top',
           permanent: false,
@@ -264,10 +306,14 @@ export function MapPage() {
           className: 'station-tooltip',
         })
 
-      marker.on('click', () => navigate(`/station/${station.id}`))
+      marker.on('click', (e) => {
+        L.DomEvent.stopPropagation(e)
+        setSelectedStationId(station.id)
+        mapRef.current?.panTo([station.lat, station.lng], { animate: true, duration: 0.35 })
+      })
       markersRef.current.push(marker)
     })
-  }, [filteredStations, navigate, filters.fuelTypes, t])
+  }, [filteredStations, filters.fuelTypes, t, selectedStationId])
 
   // Suggestion pin: show when user has picked a location on the map
   useEffect(() => {
@@ -330,20 +376,31 @@ export function MapPage() {
     requestLocation({ highAccuracy: true })
   }
 
+  const previewStatus = selectedStation?.current_status
+  const previewFs = previewStatus?.fuel_statuses_computed ?? {}
+  const focusFuelCode = filters.fuelTypes.length === 1 ? filters.fuelTypes[0] : null
+  const previewFuelChips =
+    focusFuelCode != null
+      ? [{ code: focusFuelCode, fuelStatus: previewFs[focusFuelCode] ?? 'UNKNOWN' }]
+      : FUEL_CODES.map((code) => ({
+          code,
+          fuelStatus: previewFs[code] ?? 'UNKNOWN',
+        })).filter((e) => e.fuelStatus !== 'UNKNOWN')
+
   return (
     <div className="relative h-full w-full">
       <div ref={mapContainerRef} className="h-full w-full" />
 
-      {/* Map style: Light / Dark — user preference, persisted */}
+      {/* Map tools — single top-right group: theme + my location */}
       <div
-        className="absolute top-3 right-3 z-[1000] flex rounded-xl bg-white/90 shadow-lg backdrop-blur-sm dark:bg-gray-900/90"
+        className="absolute top-3 right-3 z-[1000] flex items-stretch overflow-hidden rounded-xl bg-white/90 shadow-lg backdrop-blur-sm dark:bg-gray-900/90"
         role="group"
-        aria-label={t('map.mapStyle')}
+        aria-label={`${t('map.mapStyle')}; ${t('map.centerOnMyLocation')}`}
       >
         <button
           type="button"
           onClick={() => setMapStyle('light')}
-          className={`flex min-h-[40px] min-w-[44px] items-center justify-center rounded-l-xl px-2 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset ${
+          className={`flex min-h-[44px] min-w-[44px] items-center justify-center px-2 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset ${
             mapStyle === 'light'
               ? 'bg-blue-600 text-white'
               : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
@@ -357,7 +414,7 @@ export function MapPage() {
         <button
           type="button"
           onClick={() => setMapStyle('dark')}
-          className={`flex min-h-[40px] min-w-[44px] items-center justify-center rounded-r-xl px-2 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset ${
+          className={`flex min-h-[44px] min-w-[44px] items-center justify-center px-2 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset ${
             mapStyle === 'dark'
               ? 'bg-blue-600 text-white'
               : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
@@ -368,23 +425,25 @@ export function MapPage() {
         >
           <Moon className="h-5 w-5" />
         </button>
+        <div
+          className="my-2 w-px shrink-0 self-stretch bg-gray-200 dark:bg-gray-600"
+          aria-hidden
+        />
+        <button
+          type="button"
+          onClick={handleMyLocation}
+          disabled={locationLoading}
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center px-2 text-gray-900 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset disabled:opacity-60 active:scale-95 dark:text-gray-100 dark:hover:bg-gray-800"
+          title={t('map.centerOnMyLocation')}
+          aria-label={t('map.centerOnMyLocation')}
+        >
+          {locationLoading ? (
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          ) : (
+            <Crosshair className="h-5 w-5" />
+          )}
+        </button>
       </div>
-
-      {/* My location — below style toggle */}
-      <button
-        type="button"
-        onClick={handleMyLocation}
-        disabled={locationLoading}
-        className="absolute top-14 right-3 z-[1000] flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl bg-white/90 text-gray-900 shadow-lg backdrop-blur-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 active:scale-95 dark:bg-gray-900/90 dark:text-gray-100 dark:hover:bg-gray-800"
-        title={t('map.centerOnMyLocation')}
-        aria-label={t('map.centerOnMyLocation')}
-      >
-        {locationLoading ? (
-          <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        ) : (
-          <Crosshair className="h-5 w-5" />
-        )}
-      </button>
 
       {/* Location denied / error — when user taps "my location" but permission is off (e.g. on Android) */}
       {locationError && !locationLoading && (
@@ -400,25 +459,157 @@ export function MapPage() {
         </div>
       )}
 
-      {/* Legend — follows app language (en / my) */}
-      <div className="absolute bottom-10 left-3 z-[1000] rounded-xl bg-white/90 px-3 py-2 text-xs text-gray-800 shadow-lg backdrop-blur-sm dark:bg-gray-900/90 dark:text-gray-200">
-        {(['AVAILABLE', 'LIMITED', 'OUT', 'UNKNOWN'] as const).map((s) => (
-          <div key={s} className="flex items-center gap-2 py-0.5">
-            <span className={`h-3 w-3 rounded-full shrink-0 ${STATUS_DOT_COLORS[s]}`} />
-            <span>{t(`fuelStatus.${s}`)}</span>
+      {/* Bottom bar: fuel filter + compact legend + suggest — one panel */}
+      <div
+        className={clsx(
+          'absolute z-[1000] max-w-[calc(100%-1rem)] rounded-2xl border border-gray-100 bg-white/95 px-2.5 py-2 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95',
+          'left-1/2 -translate-x-1/2 sm:left-3 sm:translate-x-0 sm:max-w-none',
+          'w-[calc(100%-1rem)] sm:w-auto sm:min-w-0 sm:max-w-[min(36rem,calc(100%-1.5rem))]',
+          // Keep bar above the preview card (max-h ~42vh, anchored bottom-3)
+          selectedStation ? 'bottom-[calc(42vh+1.25rem)]' : 'bottom-2.5 sm:bottom-3',
+        )}
+      >
+        <p className="mb-1.5 text-center text-[10px] font-medium leading-snug text-gray-700 sm:text-left sm:text-[11px] dark:text-gray-300">
+          {t('map.fuelFilterHint')}
+        </p>
+        <div className="flex flex-wrap justify-center gap-1.5 sm:justify-start">
+          {FUEL_CODES.map((code) => {
+            const active = filters.fuelTypes.length === 1 && filters.fuelTypes[0] === code
+            return (
+              <button
+                key={code}
+                type="button"
+                onClick={() => selectMapFuel(code)}
+                className={clsx(
+                  'min-h-[36px] rounded-full px-2.5 py-1 text-xs font-semibold transition-colors sm:min-h-0 sm:px-3 sm:py-1.5 sm:text-sm',
+                  active
+                    ? 'bg-blue-600 text-white active:bg-blue-700'
+                    : 'bg-gray-100 text-gray-700 active:bg-gray-200 dark:bg-gray-800 dark:text-gray-200',
+                )}
+              >
+                {FUEL_DISPLAY[code][lang]}
+              </button>
+            )
+          })}
+        </div>
+        <div className="mt-2 flex flex-col gap-2 border-t border-gray-100 pt-2 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-gray-700 sm:justify-start sm:text-xs dark:text-gray-300">
+            {(['AVAILABLE', 'LIMITED', 'OUT', 'UNKNOWN'] as const).map((s) => (
+              <span key={s} className="inline-flex items-center gap-1.5">
+                <span className={`h-2.5 w-2.5 rounded-full shrink-0 sm:h-3 sm:w-3 ${STATUS_DOT_COLORS[s]}`} />
+                <span>{t(`fuelStatus.${s}`)}</span>
+              </span>
+            ))}
           </div>
-        ))}
+          <button
+            type="button"
+            onClick={() => setSuggestOpen(true)}
+            className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg py-1.5 text-center text-[11px] font-semibold text-amber-700 transition hover:bg-amber-50 active:bg-amber-100 sm:justify-end sm:py-0 sm:text-xs dark:text-amber-300 dark:hover:bg-gray-800"
+          >
+            <Lightbulb className="h-3.5 w-3.5 shrink-0" />
+            {t('suggest.missingStation')}
+          </button>
+        </div>
       </div>
 
-      {/* Missing-station CTA — bottom-right, above legend */}
-      <button
-        type="button"
-        onClick={() => setSuggestOpen(true)}
-        className="absolute bottom-10 right-3 z-[1000] flex items-center gap-1.5 rounded-xl bg-white/90 px-3 py-2 text-xs font-semibold text-amber-700 shadow-lg backdrop-blur-sm hover:bg-amber-50 active:scale-95 dark:bg-gray-900/90 dark:text-amber-300 dark:hover:bg-gray-800"
-      >
-        <Lightbulb className="h-3.5 w-3.5 shrink-0" />
-        {t('suggest.missingStation')}
-      </button>
+      {/* Station preview — tap marker; same signals as Nearby cards */}
+      {selectedStation && (
+        <div className="absolute bottom-3 left-3 right-3 z-[1001] max-h-[42vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-xl dark:border-gray-700 dark:bg-gray-900">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-base font-bold text-gray-900 dark:text-gray-100">{selectedStation.name}</span>
+                {selectedStation.is_verified ? (
+                  <Badge variant="verified">
+                    <CheckCircle className="mr-0.5 h-3 w-3" />
+                    {t('station.verifiedOwnerClaimed')}
+                  </Badge>
+                ) : selectedStation.verification_source === 'distributor' ? (
+                  <Badge variant="verified">
+                    <CheckCircle className="mr-0.5 h-3 w-3" />
+                    {t('station.verifiedDistributor')}
+                  </Badge>
+                ) : selectedStation.verification_source === 'crowd' ? (
+                  <Badge variant="verified">
+                    <CheckCircle className="mr-0.5 h-3 w-3" />
+                    {t('station.verifiedCrowd')}
+                  </Badge>
+                ) : null}
+                {previewStatus &&
+                  (previewStatus.is_stale ?? true) &&
+                  previewStatus.last_updated_at && (
+                    <Badge variant="stale">{t('station.stale')}</Badge>
+                  )}
+              </div>
+              <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{selectedStation.township}</span>
+                {selectedStation.distance_m !== undefined && (
+                  <>
+                    <span className="text-gray-700">·</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {formatDistance(selectedStation.distance_m)}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedStationId(null)}
+              className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-gray-700 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800"
+              aria-label={t('map.closePreview')}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {previewFuelChips.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {previewFuelChips.map(({ code, fuelStatus }) => (
+                <FuelChip
+                  key={code}
+                  code={code}
+                  status={fuelStatus}
+                  size={focusFuelCode ? 'md' : 'sm'}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">{t('station.noData')}</p>
+          )}
+
+          {previewStatus && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-700 dark:text-gray-300">
+              <div className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                <span>
+                  {!previewStatus.last_updated_at
+                    ? t('station.noData')
+                    : t('station.lastUpdated', {
+                        time: formatRelativeTime(previewStatus.last_updated_at),
+                      })}
+                </span>
+              </div>
+              {previewStatus.source_role && (
+                <span>{REPORTER_ROLE_LABEL[previewStatus.source_role][lang]}</span>
+              )}
+              {previewStatus.queue_bucket_computed && previewStatus.queue_bucket_computed !== 'NONE' && (
+                <span className="font-medium">{QUEUE_LABEL[previewStatus.queue_bucket_computed][lang]}</span>
+              )}
+            </div>
+          )}
+
+          <Button
+            variant="primary"
+            size="md"
+            className="mt-4 w-full"
+            onClick={() => navigate(`/station/${selectedStation.id}`)}
+          >
+            {t('map.viewStationDetails')}
+          </Button>
+        </div>
+      )}
 
       <SuggestStationSheet
         open={suggestOpen}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
 import { Store, CheckCircle, Send, Users, MapPin, Upload, Crosshair, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { getDeviceHash } from '@/lib/deviceHash'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
@@ -579,13 +580,14 @@ export function OperatorPage() {
         if (v !== 'SKIP') fs[code] = v
       }
 
+      const deviceHash = await getDeviceHash()
       const { error } = await supabase.functions.invoke('submit-report', {
         body: {
           station_id: myStation.id,
+          device_hash: deviceHash,
           fuel_statuses: fs,
           queue_bucket: queue,
           reporter_role: 'VERIFIED_STATION',
-          user_id: user.id,
         },
       })
 

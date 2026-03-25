@@ -49,11 +49,12 @@ export function FilterBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [filterMenuOpen])
 
+  /** One fuel at a time (typical driver has one vehicle). Tap active pill again to show all types. */
   function toggleFuelType(code: FuelCode) {
-    if (filters.fuelTypes.includes(code)) {
-      setFuelTypes(filters.fuelTypes.filter((c) => c !== code))
+    if (filters.fuelTypes.length === 1 && filters.fuelTypes[0] === code) {
+      setFuelTypes([])
     } else {
-      setFuelTypes([...filters.fuelTypes, code])
+      setFuelTypes([code])
     }
   }
 
@@ -167,7 +168,7 @@ export function FilterBar() {
       <div className="flex items-center gap-2 overflow-x-auto px-4 py-2.5 hide-scrollbar">
         {/* Fuel type pills — always visible */}
         {FUEL_CODES.map((code) => {
-          const active = filters.fuelTypes.includes(code)
+          const active = filters.fuelTypes.length === 1 && filters.fuelTypes[0] === code
           return (
             <button
               key={code}

@@ -60,8 +60,10 @@ export function ReportStationPickerPage() {
     map.invalidateSize()
     map.setView([nextLat, nextLng], zoom, { animate: false })
     window.requestAnimationFrame(() => {
-      map.invalidateSize()
-      map.flyTo([nextLat, nextLng], zoom, { duration: 0.5 })
+      const m = mapRef.current
+      if (!m || m !== map) return
+      m.invalidateSize()
+      m.flyTo([nextLat, nextLng], zoom, { duration: 0.5 })
     })
   }
 
