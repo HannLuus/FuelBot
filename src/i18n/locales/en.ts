@@ -308,6 +308,25 @@ export default {
       out: 'Empty',
       dontKnow: "Don't know",
     },
+    help: {
+      open: 'How to report',
+      intro: 'Quick guide for accurate reporting:',
+      qualityReminder: 'Only report what you can confirm right now. If unsure, choose "Don\'t know".',
+      pickerTitle: 'How to pick the right station',
+      pickerSteps: {
+        one: 'Set your point on the map so we can show the nearest stations.',
+        two: 'Use search by station name, township, or city if your GPS is off.',
+        three: 'Choose the exact station before continuing to submit.',
+        four: 'If station is missing, use "Suggest missing station" first.',
+      },
+      reportTitle: 'How to submit a good report',
+      reportSteps: {
+        one: 'Update fuel types based on what you can clearly see now.',
+        two: 'Set queue time honestly based on current waiting time.',
+        three: 'Add a short note only if it helps others.',
+        four: 'Submit once, then return later only when status changes.',
+      },
+    },
   },
   vote: {
     confirm: 'Confirm',

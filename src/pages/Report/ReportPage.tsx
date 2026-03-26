@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, ArrowRight, Send, CheckCircle2, MapPin } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Send, CheckCircle2, MapPin, CircleHelp } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
+import { ReportingHelpSheet } from '@/components/report/ReportingHelpSheet'
 import { FUEL_CODES, FUEL_DISPLAY, QUEUE_LABEL } from '@/lib/fuelUtils'
 import { getDeviceHash } from '@/lib/deviceHash'
 import { supabase } from '@/lib/supabase'
@@ -94,6 +95,8 @@ export function ReportPage() {
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<'success' | 'error' | 'toofar' | 'ratelimit' | 'dailylimit' | 'locationrequired' | null>(null)
+  const [helpOpen, setHelpOpen] = useState(false)
+  const [helpViewed, setHelpViewed] = useState(false)
 
   function setFuelStatus(code: FuelCode, value: FuelStatusChoice) {
     setFuelStatuses((prev) => ({ ...prev, [code]: value }))
@@ -141,6 +144,9 @@ export function ReportPage() {
 
       setResult('success')
       track('report_submit_success', { station_id: stationId })
+      if (helpViewed) {
+        track('report_submit_after_help', { station_id: stationId })
+      }
       setTimeout(() => navigate(stationId ? `/station/${stationId}` : '/report'), 1800)
     } catch {
       setResult('error')
@@ -199,8 +205,21 @@ export function ReportPage() {
             </p>
           )}
         </div>
+        <button
+          type="button"
+          onClick={() => {
+            setHelpOpen(true)
+            setHelpViewed(true)
+            track('report_help_opened', { context: 'report' })
+          }}
+          className="ml-auto flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl active:bg-gray-100"
+          aria-label={t('report.help.open')}
+          title={t('report.help.open')}
+        >
+          <CircleHelp className="h-5 w-5 text-gray-700" />
+        </button>
         {/* Step progress */}
-        <div className="ml-auto flex gap-1.5 pr-3">
+        <div className="flex gap-1.5 pr-3">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
@@ -373,6 +392,14 @@ export function ReportPage() {
           </Button>
         )}
       </div>
+      <ReportingHelpSheet
+        open={helpOpen}
+        context="report"
+        onClose={() => {
+          setHelpOpen(false)
+          track('report_help_closed', { context: 'report' })
+        }}
+      />
     </div>
   )
 }

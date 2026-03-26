@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, MapPin, Search, Lightbulb, Crosshair } from 'lucide-react'
+import { ArrowLeft, MapPin, Search, Lightbulb, Crosshair, CircleHelp } from 'lucide-react'
 import L from 'leaflet'
 import { useLocationStore } from '@/stores/locationStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
 import { SuggestStationSheet } from '@/components/station/SuggestStationSheet'
+import { ReportingHelpSheet } from '@/components/report/ReportingHelpSheet'
 import { Spinner } from '@/components/ui/Spinner'
 import { Button } from '@/components/ui/Button'
 import { formatDistance } from '@/lib/fuelUtils'
@@ -30,6 +31,7 @@ export function ReportStationPickerPage() {
   const { lat, lng, loading: locLoading, requestLocation } = useLocationStore()
   const [search, setSearch] = useState('')
   const [suggestOpen, setSuggestOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [pickedLat, setPickedLat] = useState(lat ?? YANGON_LAT)
   const [pickedLng, setPickedLng] = useState(lng ?? YANGON_LNG)
   const [hasManualPick, setHasManualPick] = useState(false)
@@ -209,6 +211,18 @@ export function ReportStationPickerPage() {
           <ArrowLeft className="h-5 w-5 text-gray-700" />
         </button>
         <h1 className="text-base font-bold text-gray-900">{t('report.selectStationTitle')}</h1>
+        <button
+          type="button"
+          onClick={() => {
+            setHelpOpen(true)
+            track('report_help_opened', { context: 'picker' })
+          }}
+          className="ml-auto flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl active:bg-gray-100"
+          aria-label={t('report.help.open')}
+          title={t('report.help.open')}
+        >
+          <CircleHelp className="h-5 w-5 text-gray-700" />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -365,6 +379,14 @@ export function ReportStationPickerPage() {
       </div>
 
       <SuggestStationSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} />
+      <ReportingHelpSheet
+        open={helpOpen}
+        context="picker"
+        onClose={() => {
+          setHelpOpen(false)
+          track('report_help_closed', { context: 'picker' })
+        }}
+      />
     </div>
   )
 }

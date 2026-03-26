@@ -23,7 +23,9 @@ export function useInboxUnreadCount(): number {
   }, [user])
 
   useEffect(() => {
-    void refresh()
+    queueMicrotask(() => {
+      void refresh()
+    })
   }, [refresh])
 
   useEffect(() => {
@@ -80,7 +82,9 @@ export function useAdminInboxUnreadCount(): number {
   }, [isAdmin])
 
   useEffect(() => {
-    void refresh()
+    queueMicrotask(() => {
+      void refresh()
+    })
   }, [refresh])
 
   useEffect(() => {
