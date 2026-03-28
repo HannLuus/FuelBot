@@ -220,6 +220,11 @@ export function B2BPage() {
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         <p className="text-sm text-gray-700">{t('b2b.description')}</p>
+        <p className="mt-1">
+          <Link to="/help#guide-b2bAccess" className="text-sm font-semibold text-blue-600 underline">
+            {t('help.links.b2bInline')}
+          </Link>
+        </p>
 
         <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <h2 className="mb-3 text-sm font-bold text-gray-900">{t('b2b.choosePlanDuration')}</h2>

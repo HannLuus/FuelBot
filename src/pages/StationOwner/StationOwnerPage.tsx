@@ -958,8 +958,11 @@ export function StationOwnerPage() {
         </div>
       )}
 
-      <div className="border-b border-gray-100 bg-white px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-white px-4 py-3">
         <h1 className="text-lg font-bold text-gray-900">{t('stationOwner.title')}</h1>
+        <Link to="/help#guide-stationRegister" className="text-xs font-semibold text-blue-600 underline">
+          {t('help.links.stationOwner')}
+        </Link>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

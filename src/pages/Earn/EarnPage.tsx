@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Copy, Gift, Link as LinkIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -151,8 +151,11 @@ export function EarnPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-gray-100 bg-white px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-white px-4 py-3">
         <h1 className="text-lg font-bold text-gray-900">{t('earn.title')}</h1>
+        <Link to="/help#guide-earnReferral" className="text-xs font-semibold text-blue-600 underline">
+          {t('help.links.earnInline')}
+        </Link>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">

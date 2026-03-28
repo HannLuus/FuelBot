@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift, Mail } from 'lucide-react'
+import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift, Mail, CircleHelp } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
@@ -163,6 +163,10 @@ export function AppLayout() {
             {t('common.landingPage')}
           </Link>
           <span aria-hidden="true">·</span>
+          <Link to="/help" className="hover:underline active:text-gray-900">
+            {t('nav.help')}
+          </Link>
+          <span aria-hidden="true">·</span>
           <Link to="/terms" className="hover:underline active:text-gray-900">
             {t('legal.termsOfService')}
           </Link>
@@ -305,6 +309,15 @@ export function AppLayout() {
                 <Globe className="h-5 w-5 text-gray-700 shrink-0" />
                 <span>{i18n.language === 'en' ? t('common.switchToMyanmar') : t('common.switchToEnglish')}</span>
               </button>
+
+              <Link
+                to="/help"
+                onClick={() => setSheetOpen(false)}
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+              >
+                <CircleHelp className="h-5 w-5 shrink-0 text-gray-700" />
+                <span>{t('nav.help')}</span>
+              </Link>
 
               <Link
                 to="/terms"

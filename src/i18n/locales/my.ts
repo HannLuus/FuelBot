@@ -1,3 +1,5 @@
+import { helpMy } from './helpMy'
+
 export default {
   app: {
     name: 'FuelBot',
@@ -162,6 +164,7 @@ export default {
     closePreview: 'ပိတ်မည်',
   },
   nav: {
+    help: 'အကူအညီ',
     nearby: 'အနီးနားရှိ',
     map: 'မြေပုံ',
     earn: 'ရရှိငွေ',
@@ -784,4 +787,5 @@ export default {
     listPriceOnly: 'ပုံမှန်စျေးနှုန်း',
     selectedDurationSummary: 'ရွေးထားသည့်အစီအစဉ်: {{months}} လ',
   },
+  help: helpMy,
 }

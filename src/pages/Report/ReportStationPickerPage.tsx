@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, MapPin, Search, Lightbulb, Crosshair, CircleHelp } from 'lucide-react'
 import L from 'leaflet'
@@ -227,6 +227,11 @@ export function ReportStationPickerPage() {
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <p className="mb-3 text-sm text-gray-700">{t('report.selectStationIntro')}</p>
+        <p className="mb-3 text-sm">
+          <Link to="/help?guide=reporting" className="font-medium text-blue-600 underline">
+            {t('help.links.reportInline')}
+          </Link>
+        </p>
 
         <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-3">
           <p className="mb-1 text-xs font-semibold text-gray-800">{t('report.mapPickerTitle')}</p>

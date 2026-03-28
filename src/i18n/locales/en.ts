@@ -1,3 +1,5 @@
+import { helpEn } from './helpEn'
+
 export default {
   app: {
     name: 'FuelBot',
@@ -162,6 +164,7 @@ export default {
     closePreview: 'Close',
   },
   nav: {
+    help: 'Help',
     nearby: 'Nearby',
     map: 'Map',
     earn: 'Earn',
@@ -784,4 +787,5 @@ export default {
     listPriceOnly: 'Standard pricing',
     selectedDurationSummary: 'Selected plan: {{months}} months',
   },
+  help: helpEn,
 }

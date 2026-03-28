@@ -31,6 +31,11 @@ export function BenefitsStationPage() {
           {t('benefits.stationOwners.title')}
         </h1>
         <p className="mt-2 text-gray-700">{t('benefits.stationOwners.intro')}</p>
+        <p className="mt-2">
+          <Link to="/help" className="text-sm font-semibold text-blue-600 underline">
+            {t('help.links.benefitsCta')}
+          </Link>
+        </p>
 
         <div className="mt-6 space-y-6 text-gray-800">
           <section>

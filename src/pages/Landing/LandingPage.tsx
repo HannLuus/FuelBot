@@ -478,6 +478,9 @@ export function LandingPage() {
       <footer className="border-t border-gray-200 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-4">
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-gray-700">
+            <Link to="/help" className="font-medium text-blue-600 underline">
+              {t('nav.help')}
+            </Link>
             <Link to="/terms" className="font-medium text-blue-600 underline">
               {t('legal.termsOfService')}
             </Link>

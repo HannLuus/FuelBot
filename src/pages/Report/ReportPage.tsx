@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ArrowRight, Send, CheckCircle2, MapPin, CircleHelp } from 'lucide-react'
 import { clsx } from 'clsx'
@@ -244,6 +244,11 @@ export function ReportPage() {
           >
             {t('report.changeStation')}
           </button>
+          <p className="mt-2 text-xs">
+            <Link to="/help?guide=reporting" className="font-semibold text-blue-700 underline">
+              {t('help.links.reportInline')}
+            </Link>
+          </p>
         </div>
 
         {/* Location required banner */}

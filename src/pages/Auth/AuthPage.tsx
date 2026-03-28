@@ -327,6 +327,11 @@ export function AuthPage() {
           <p className="mt-1 text-sm text-gray-700">
             {mode === 'reset' ? t('auth.setNewPasswordInstruction') : t('app.tagline')}
           </p>
+          <p className="mt-2 text-center">
+            <Link to="/help#guide-auth" className="text-sm font-medium text-blue-600 underline">
+              {t('help.links.authInline')}
+            </Link>
+          </p>
         </div>
 
         {/* Sign in / Sign up tabs — visible so both options are clear */}
