@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { ArrowRight, Globe, Users, Store, ShieldCheck, Trophy, Gift, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { usePWAInstall } from '@/hooks/usePWAInstall'
+import { useTopReporters } from '@/hooks/useTopReporters'
+import { TopReportersList } from '@/components/rewards/TopReportersList'
 import { supabase } from '@/lib/supabase'
 
 interface RecognitionStation {
@@ -12,13 +14,6 @@ interface RecognitionStation {
   township: string
   city: string
   recognition_photo_url: string | null
-}
-
-interface TopReporter {
-  user_id: string
-  display_name: string
-  report_count: number
-  rank: number
 }
 
 const HERO_CAROUSEL_IMAGES = [
@@ -38,7 +33,7 @@ export function LandingPage() {
   const navigate = useNavigate()
   const lang = i18n.language === 'my' ? 'my' : 'en'
   const [recognitions, setRecognitions] = useState<RecognitionStation[]>([])
-  const [topReporters, setTopReporters] = useState<TopReporter[]>([])
+  const { reporters: topReporters, loading: topReportersLoading } = useTopReporters()
   const [showIOSInstallModal, setShowIOSInstallModal] = useState(false)
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
@@ -83,18 +78,9 @@ export function LandingPage() {
     setRecognitions((data ?? []) as RecognitionStation[])
   }
 
-  async function loadTopReporters() {
-    const { data } = await supabase.rpc('get_top_reporters', {
-      period_days: 30,
-      result_limit: 10,
-    })
-    setTopReporters((data ?? []) as TopReporter[])
-  }
-
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void loadRecognitions()
-      void loadTopReporters()
     }, 0)
     return () => window.clearTimeout(timeoutId)
   }, [])
@@ -217,6 +203,14 @@ export function LandingPage() {
                 {t('landing.enterApp')}
                 <ArrowRight className="h-4 w-4" />
               </Button>
+              <Link
+                to="/leaderboard"
+                className="flex min-h-[44px] w-full items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-900 active:bg-amber-100"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <Trophy className="mr-2 h-4 w-4" />
+                {t('nav.leaderboard')}
+              </Link>
             </div>
           </div>
         )}
@@ -317,42 +311,13 @@ export function LandingPage() {
             <Trophy className="h-5 w-5 text-amber-500" />
             <h2 className="text-lg font-semibold text-gray-900">{t('landing.topReportersTitle')}</h2>
           </div>
-          <p className="mb-4 text-sm text-gray-700">{t('landing.topReportersSubtitle')}</p>
-          {topReporters.length === 0 ? (
-            <p className="text-sm text-gray-700">{t('landing.topReportersEmpty')}</p>
-          ) : (
-            <ol className="space-y-2">
-              {topReporters.map((reporter) => {
-                const isTop = Number(reporter.rank) === 1
-                return (
-                  <li
-                    key={reporter.user_id}
-                    className={[
-                      'flex items-center gap-3 rounded-xl border px-4 py-3',
-                      isTop
-                        ? 'border-amber-300 bg-amber-50'
-                        : 'border-gray-200 bg-gray-50',
-                    ].join(' ')}
-                  >
-                    <span
-                      className={[
-                        'min-w-[2rem] text-center text-sm font-bold',
-                        isTop ? 'text-amber-600' : 'text-gray-700',
-                      ].join(' ')}
-                    >
-                      {t('landing.topReporterRank', { rank: reporter.rank })}
-                    </span>
-                    <span className="flex-1 text-sm font-semibold text-gray-900">
-                      {reporter.display_name}
-                    </span>
-                    <span className="text-sm text-gray-700">
-                      {t('landing.topReporterReports', { count: reporter.report_count })}
-                    </span>
-                  </li>
-                )
-              })}
-            </ol>
-          )}
+          <p className="mb-2 text-sm text-gray-700">{t('landing.topReportersSubtitle')}</p>
+          <p className="mb-4 text-sm">
+            <Link to="/leaderboard" className="font-semibold text-blue-600 underline">
+              {t('leaderboard.openDedicatedPage')}
+            </Link>
+          </p>
+          <TopReportersList reporters={topReporters} loading={topReportersLoading} />
         </section>
 
         {/* Reward rules */}
@@ -480,6 +445,9 @@ export function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-gray-700">
             <Link to="/help" className="font-medium text-blue-600 underline">
               {t('nav.help')}
+            </Link>
+            <Link to="/leaderboard" className="font-medium text-blue-600 underline">
+              {t('nav.leaderboard')}
             </Link>
             <Link to="/terms" className="font-medium text-blue-600 underline">
               {t('legal.termsOfService')}

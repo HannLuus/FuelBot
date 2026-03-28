@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MapPin, RefreshCw, X, Trophy, Lightbulb } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
@@ -92,14 +93,19 @@ export function HomePage() {
 
       {/* Reporter stats strip — only when user has reported this month */}
       {myStats && (
-        <div className="shrink-0 flex items-center gap-2 border-b border-amber-100 bg-amber-50 px-4 py-2 text-xs text-amber-800">
-          <Trophy className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-          <span className="font-semibold">{t('home.yourStatsThisMonth')}: {myStats.report_count}</span>
-          {Number(myStats.rank) > 0 && (
-            <span className="ml-1 text-amber-700">
-              · {t('home.yourRank', { rank: myStats.rank })}
+        <div className="shrink-0 flex flex-wrap items-center gap-2 border-b border-amber-100 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Trophy className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+            <span className="font-semibold">
+              {t('home.yourStatsThisMonth')}: {myStats.report_count}
             </span>
-          )}
+            {Number(myStats.rank) > 0 && (
+              <span className="text-amber-700">· {t('home.yourRank', { rank: myStats.rank })}</span>
+            )}
+          </div>
+          <Link to="/leaderboard" className="shrink-0 font-semibold text-amber-900 underline">
+            {t('nav.leaderboard')}
+          </Link>
         </div>
       )}
 

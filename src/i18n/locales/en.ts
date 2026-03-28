@@ -163,8 +163,13 @@ export default {
     viewStationDetails: 'Full details',
     closePreview: 'Close',
   },
+  leaderboard: {
+    backToWebsite: 'Back to full website',
+    openDedicatedPage: 'Open dedicated rankings page',
+  },
   nav: {
     help: 'Help',
+    leaderboard: 'Rankings',
     nearby: 'Nearby',
     map: 'Map',
     earn: 'Earn',

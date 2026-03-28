@@ -159,6 +159,14 @@ export function EarnPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
+        <p className="mb-3 text-center">
+          <Link
+            to="/leaderboard"
+            className="text-sm font-semibold text-amber-800 underline decoration-amber-600 underline-offset-2"
+          >
+            {t('nav.leaderboard')} — {t('landing.topReportersTitle')}
+          </Link>
+        </p>
         {pageError && (
           <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{pageError}</p>
         )}

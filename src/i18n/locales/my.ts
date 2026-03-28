@@ -163,8 +163,13 @@ export default {
     viewStationDetails: 'အသေးစိတ်',
     closePreview: 'ပိတ်မည်',
   },
+  leaderboard: {
+    backToWebsite: 'ဝက်ဘ်ဆိုက်အပြည့်အစုံကို ပြန်သွားရန်',
+    openDedicatedPage: 'အဆင့်ဇယားကို သီးခြားစာမျက်နှာဖြင့် ဖွင့်ရန်',
+  },
   nav: {
     help: 'အကူအညီ',
+    leaderboard: 'အဆင့်ဇယား',
     nearby: 'အနီးနားရှိ',
     map: 'မြေပုံ',
     earn: 'ရရှိငွေ',

@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift, Mail, CircleHelp } from 'lucide-react'
+import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift, Mail, CircleHelp, Trophy } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
@@ -167,6 +167,10 @@ export function AppLayout() {
             {t('nav.help')}
           </Link>
           <span aria-hidden="true">·</span>
+          <Link to="/leaderboard" className="hover:underline active:text-gray-900">
+            {t('nav.leaderboard')}
+          </Link>
+          <span aria-hidden="true">·</span>
           <Link to="/terms" className="hover:underline active:text-gray-900">
             {t('legal.termsOfService')}
           </Link>
@@ -226,6 +230,15 @@ export function AppLayout() {
               >
                 <img src="/FuelbotLogo.png" alt="" className="h-5 w-5 shrink-0 object-contain" />
                 <span>{t('common.homePage')}</span>
+              </Link>
+
+              <Link
+                to="/leaderboard"
+                onClick={() => setSheetOpen(false)}
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+              >
+                <Trophy className="h-5 w-5 shrink-0 text-amber-500" />
+                <span>{t('nav.leaderboard')}</span>
               </Link>
 
               {user && (

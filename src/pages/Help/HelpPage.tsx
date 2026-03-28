@@ -144,6 +144,9 @@ export function HelpPage() {
             <Link to="/landing" className="font-medium text-blue-600 underline">
               {t('help.footerWebsite')}
             </Link>
+            <Link to="/leaderboard" className="font-medium text-blue-600 underline">
+              {t('nav.leaderboard')}
+            </Link>
             <Link to="/terms" className="font-medium text-blue-600 underline">
               {t('legal.termsOfService')}
             </Link>
