@@ -9,7 +9,8 @@ import { useAuthStore } from '@/stores/authStore'
 
 type AuthMode = 'signin' | 'signup' | 'forgot' | 'reset'
 
-const RESET_LINK_WAIT_MS = 5000
+/** Recovery session can be slow on mobile; 5s falsely showed "link expired" while tokens were still processing. */
+const RESET_LINK_FALLBACK_MS = 90_000
 
 function getHashParams(): Record<string, string> {
   const hash = window.location.hash?.slice(1) ?? ''
@@ -75,7 +76,7 @@ export function AuthPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirectPath = searchParams.get('redirect') || '/home'
-  const { user, signOut } = useAuthStore()
+  const { user, signOut, loading: authLoading } = useAuthStore()
   const [mode, setMode] = useState<AuthMode>(() =>
     getInitialMode(searchParams.get('mode'), getHashParams()),
   )
@@ -91,17 +92,27 @@ export function AuthPage() {
   const [resendMessage, setResendMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    const params = getHashParams()
-    if (params.type === 'recovery') {
-      setMode('reset')
-      setError(null)
-      setResetLinkExpired(false)
+    const applyRecoveryFromHash = () => {
+      const params = getHashParams()
+      if (params.type === 'recovery') {
+        setMode('reset')
+        setError(null)
+        setResetLinkExpired(false)
+      }
     }
+    applyRecoveryFromHash()
+    window.addEventListener('hashchange', applyRecoveryFromHash)
+    return () => window.removeEventListener('hashchange', applyRecoveryFromHash)
   }, [])
 
   useEffect(() => {
+    if (user) setResetLinkExpired(false)
+  }, [user])
+
+  useEffect(() => {
     if (mode !== 'reset' || user !== null) return
-    const timer = setTimeout(() => setResetLinkExpired(true), RESET_LINK_WAIT_MS)
+    if (getHashParams().type !== 'recovery') return
+    const timer = window.setTimeout(() => setResetLinkExpired(true), RESET_LINK_FALLBACK_MS)
     return () => clearTimeout(timer)
   }, [mode, user])
 
@@ -200,7 +211,7 @@ export function AuthPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900">{t('app.name')}</h1>
           <p role="status" aria-live="polite" className="mt-4 text-sm text-gray-700">
-            {t('auth.confirmingLink')}
+            {authLoading ? t('auth.confirmingLink') : t('auth.confirmingLinkAlmostDone')}
           </p>
           <div className="mt-6 flex justify-center" aria-hidden="true">
             <Spinner />

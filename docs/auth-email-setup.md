@@ -141,6 +141,22 @@ To use the same welcome email in your **hosted** Supabase project:
 
 After saving, new signups will receive the welcome email instead of the default.
 
+## Reset password email (hosted) + landing on `/auth`
+
+Password-reset links must end on a URL where the app can read `type=recovery` in the **hash** and show the **new password** form.
+
+1. **Redirect allow list:** Supabase → **Authentication** → **URL Configuration** → add  
+   `https://fuelbotmm.com/auth` and `http://localhost:5173/auth` (and any preview domain if needed).  
+   The app calls `resetPasswordForEmail` with `redirectTo: <origin>/auth`.
+
+2. **If the link opens the homepage while you’re already “signed in”** with no password step: Supabase may be redirecting to the **site root** with tokens in the hash. The FuelBot **`index.html`** now sends those visits to **`/auth`** before React loads so `AuthPage` can run the reset flow.
+
+3. **Branded reset email:** Copy the HTML from **`supabase/templates/recovery.html`** into the dashboard:
+
+   - **Authentication** → **Email Templates** → **Reset password**
+   - Set **Subject** (e.g. `Reset your FuelBot password`)
+   - Paste the file contents as **Body** — keep **`{{ .ConfirmationURL }}`** exactly (that is the reset link).
+
 ## References
 
 - [Supabase: Send emails with custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp)

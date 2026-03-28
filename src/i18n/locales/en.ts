@@ -374,6 +374,7 @@ export default {
     setNewPasswordHeading: 'Set new password',
     setNewPasswordInstruction: 'Enter a new password below.',
     confirmingLink: 'Confirming your link…',
+    confirmingLinkAlmostDone: 'Almost there — finishing sign-in from your reset link…',
     resetLinkExpired: 'This link has expired or is invalid. Request a new password reset from the sign-in page.',
     emailDeliveryFailed:
       'We could not send the email. This is usually a server mail setup issue: verify your sender domain in Resend (resend.com/domains) and use that domain in Supabase → Authentication → SMTP “Sender email”.',
