@@ -166,6 +166,22 @@ export default {
   leaderboard: {
     backToWebsite: 'Back to full website',
     openDedicatedPage: 'Open dedicated rankings page',
+    displayNameTitle: 'Leaderboard name',
+    displayNameDescription:
+      'Choose how you appear on the public rankings. We suggest a name from your account; you can edit it before saving.',
+    displayNameLabel: 'Display name',
+    displayNameHint: '2–30 characters. Remove to show initials from your account instead.',
+    displayNameSave: 'Save',
+    displayNameUseSuggested: 'Use suggested name',
+    displayNameRemove: 'Remove custom name',
+    displayNameSaved: 'Saved. Your name will show on the leaderboard.',
+    displayNameRemoved: 'Custom name removed. Rankings will use your initials.',
+    displayNameTooShort: 'Enter at least 2 characters.',
+    displayNameTooLong: 'Keep it to 30 characters or fewer.',
+    displayNameTaken: 'That name is already taken. Try another or use the suggested name.',
+    displayNameSaveFailed: 'Could not save. Try again.',
+    displayNameRemoveFailed: 'Could not remove. Try again.',
+    displayNameSignInHint: 'Sign in to set how your name appears on the leaderboard.',
   },
   nav: {
     help: 'Help',

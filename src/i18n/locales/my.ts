@@ -166,6 +166,22 @@ export default {
   leaderboard: {
     backToWebsite: 'ဝက်ဘ်ဆိုက်အပြည့်အစုံကို ပြန်သွားရန်',
     openDedicatedPage: 'အဆင့်ဇယားကို သီးခြားစာမျက်နှာဖြင့် ဖွင့်ရန်',
+    displayNameTitle: 'အဆင့်ဇယားတွင် ပြမည့်အမည်',
+    displayNameDescription:
+      'အများသိ အဆင့်ဇယားတွင် သင်ဘယ်လိုပြမလဲ ရွေးပါ။ အကောင့်မှ အမည်ကို အကြံပြုပြီး သိမ်းမီ ပြင်ဆင်နိုင်သည်။',
+    displayNameLabel: 'ပြသမည့်အမည်',
+    displayNameHint: 'စာလုံး ၂ မှ ၃၀ ထိ။ ဖယ်ရှားပါက အကောင့်မှ အစာလုံးပေါင်းဖြင့် ပြမည်။',
+    displayNameSave: 'သိမ်းမည်',
+    displayNameUseSuggested: 'အကြံပြုအမည်သုံးမည်',
+    displayNameRemove: 'စိတ်ကြိုက်အမည် ဖယ်ရှားမည်',
+    displayNameSaved: 'သိမ်းပြီးပါပြီ။ အဆင့်ဇယားတွင် သင့်အမည် ပေါ်မည်။',
+    displayNameRemoved: 'စိတ်ကြိုက်အမည် ဖယ်ပြီးပါပြီ။ အစာလုံးပေါင်းဖြင့် ပြမည်။',
+    displayNameTooShort: 'စာလုံး အနည်းဆုံး ၂ လုံး ထည့်ပါ။',
+    displayNameTooLong: 'စာလုံး ၃၀ လုံးထက် မပိုရပါ။',
+    displayNameTaken: 'ထိုအမည် အသုံးပြုပြီးသားဖြစ်သည်။ အခြားအမည် သို့မဟုတ် အကြံပြုအမည်ကို သုံးပါ။',
+    displayNameSaveFailed: 'သိမ်းမရပါ။ ထပ်ကြိုးစားပါ။',
+    displayNameRemoveFailed: 'ဖယ်မရပါ။ ထပ်ကြိုးစားပါ။',
+    displayNameSignInHint: 'အဆင့်ဇယားတွင် သင့်အမည် သတ်မှတ်ရန် ဝင်ရောက်ပါ။',
   },
   nav: {
     help: 'အကူအညီ',

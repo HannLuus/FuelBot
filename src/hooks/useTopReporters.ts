@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export interface TopReporterRow {
@@ -12,6 +12,12 @@ export function useTopReporters() {
   const [reporters, setReporters] = useState<TopReporterRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [reloadToken, setReloadToken] = useState(0)
+
+  const refetch = useCallback(() => {
+    setLoading(true)
+    setReloadToken((n) => n + 1)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -26,13 +32,14 @@ export function useTopReporters() {
         setReporters([])
       } else {
         setReporters((data ?? []) as TopReporterRow[])
+        setError(null)
       }
       setLoading(false)
     })()
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [reloadToken])
 
-  return { reporters, loading, error }
+  return { reporters, loading, error, refetch }
 }

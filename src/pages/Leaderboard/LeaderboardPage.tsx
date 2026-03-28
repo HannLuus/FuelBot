@@ -3,13 +3,16 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Gift, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { useAuthStore } from '@/stores/authStore'
+import { ReporterDisplayNameCard } from '@/components/rewards/ReporterDisplayNameCard'
 import { useTopReporters } from '@/hooks/useTopReporters'
 import { TopReportersList } from '@/components/rewards/TopReportersList'
 
 export function LeaderboardPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { reporters, loading, error } = useTopReporters()
+  const { user } = useAuthStore()
+  const { reporters, loading, error, refetch } = useTopReporters()
 
   useEffect(() => {
     const title = `${t('nav.leaderboard')} — ${t('app.name')}`
@@ -44,6 +47,14 @@ export function LeaderboardPage() {
             {t('landing.getReferralCodeCta')}
           </Link>
         </p>
+
+        {user ? (
+          <ReporterDisplayNameCard user={user} onSaved={refetch} />
+        ) : (
+          <p className="mb-4 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
+            {t('leaderboard.displayNameSignInHint')}
+          </p>
+        )}
 
         <section className="rounded-2xl bg-white p-6 shadow-sm">
           <div className="mb-1 flex items-center gap-2">

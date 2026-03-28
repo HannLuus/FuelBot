@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
+import { ReporterDisplayNameCard } from '@/components/rewards/ReporterDisplayNameCard'
 
 interface ReferralRewardRow {
   id: string
@@ -167,6 +168,9 @@ export function EarnPage() {
             {t('nav.leaderboard')} — {t('landing.topReportersTitle')}
           </Link>
         </p>
+        <div className="mb-3">
+          <ReporterDisplayNameCard user={user} />
+        </div>
         {pageError && (
           <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{pageError}</p>
         )}
