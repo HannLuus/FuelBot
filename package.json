@@ -18,7 +18,8 @@
     "find-name-duplicates": "node scripts/find-name-duplicates.mjs",
     "fix-duplicate-locations": "node scripts/fix-duplicate-locations-with-google.mjs",
     "lookup-coordinates": "node scripts/lookup-coordinates-by-text-search.mjs",
-    "discover": "node scripts/discover-and-ingest-by-region.mjs"
+    "discover": "node scripts/discover-and-ingest-by-region.mjs",
+    "audit:supabase": "node scripts/audit-supabase-project.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",

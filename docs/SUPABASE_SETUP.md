@@ -1,5 +1,25 @@
 # Supabase setup for FuelBot
 
+## Canonical project (do not change casually)
+
+| Item | Value |
+|------|--------|
+| **Project ref** | `feenwusofmhnpuahekvu` |
+| **API URL** | `https://feenwusofmhnpuahekvu.supabase.co` |
+| **Dashboard** | [Project settings](https://supabase.com/dashboard/project/feenwusofmhnpuahekvu/settings/api) |
+
+The Vite app reads **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_ANON_KEY`** from `.env` (see `.env.example`). The anon key’s JWT payload must contain the same `ref` as in the URL, or the client throws on startup.
+
+**Verify your machine:** from the repo root run `npm run audit:supabase`. It checks `.env` / `.env.local`, `.cursor/mcp.json`, and tracked files for this ref and blocks known typos (e.g. wrong subdomain strings).
+
+**One local env file:** use **`.env`** only for local development (from `.env.example`). Do not maintain `.env.staging` or `.env.production` in the repo folder — they cause wrong-project confusion. Those filenames stay in `.gitignore` so they are never committed if someone creates them by mistake.
+
+**Vercel:** set **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_ANON_KEY`** on **Production** to this project. Remove or realign **Preview** / **Development** env vars that still point at an old staging Supabase project.
+
+**GitHub:** remove unused repo or org **Secrets** that were only for staging, if any. No change needed if you are not using Actions with Supabase keys.
+
+---
+
 This project is wired to your Supabase project **feenwusofmhnpuahekvu**. Follow these steps so the app (and the AI) can use Supabase safely.
 
 ---

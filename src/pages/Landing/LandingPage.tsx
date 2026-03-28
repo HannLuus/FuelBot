@@ -16,7 +16,7 @@ interface RecognitionStation {
 
 interface TopReporter {
   user_id: string
-  display_name: string | null
+  display_name: string
   report_count: number
   rank: number
 }
@@ -343,7 +343,7 @@ export function LandingPage() {
                       {t('landing.topReporterRank', { rank: reporter.rank })}
                     </span>
                     <span className="flex-1 text-sm font-semibold text-gray-900">
-                      {reporter.display_name ?? `Reporter #${reporter.rank}`}
+                      {reporter.display_name}
                     </span>
                     <span className="text-sm text-gray-700">
                       {t('landing.topReporterReports', { count: reporter.report_count })}
@@ -363,6 +363,7 @@ export function LandingPage() {
           </div>
           <ul className="space-y-2 text-sm text-gray-700">
             <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesOnceADay')}</li>
+            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesStationAdds')}</li>
             <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesMinimum')}</li>
             <li className="flex gap-2"><span className="mt-0.5 text-blue-500">◉</span>{t('landing.rewardRulesDraw')}</li>
             <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesSignIn')}</li>

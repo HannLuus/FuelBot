@@ -69,6 +69,7 @@ Deno.serve(async (req) => {
     .update({
       is_verified: true,
       verification_source: 'owner',
+      owner_verified_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       referral_reward_status: grantReferralReward ? 'PENDING' : null,
       registration_reject_reason: null,

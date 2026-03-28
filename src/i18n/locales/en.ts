@@ -92,14 +92,17 @@ export default {
     benefitsFleetCta: 'Benefits for fleet owners',
     topReportersTitle: 'Top reporters this month',
     topReportersSubtitle: 'People helping everyone find fuel. The top 10% enter a monthly lucky draw.',
-    topReportersEmpty: 'Reports will appear here. Sign in and report fuel availability to join the leaderboard.',
+    topReportersEmpty:
+      'Scores will appear here. Sign in, report fuel availability, or add a station (map suggestion or owner registration) after admin approval to join the leaderboard.',
     topReporterRank: '#{{rank}}',
     topReporterReports: '{{count}} reports',
     topReporterGuaranteed: 'Top reporter',
     topReporterDrawEligible: 'Draw eligible',
     rewardRulesTitle: 'How rewards work',
     rewardRulesOnceADay: 'Report once a day (at most) — each day you contribute counts as one point.',
-    rewardRulesMinimum: 'You need at least 5 reports in the month to be eligible for any reward.',
+    rewardRulesStationAdds:
+      'Suggesting a new station on the map or completing owner registration also counts — only after an admin has approved the listing.',
+    rewardRulesMinimum: 'You need at least 5 counted contributions in the month to be eligible for any reward.',
     rewardRulesTopPerformer: '#1 reporter is highlighted on the leaderboard.',
     rewardRulesDraw: 'All reporters in the top 10% enter the monthly lucky draw.',
     rewardRulesPartner: 'Rewards are currently lucky-draw based only.',
@@ -361,6 +364,8 @@ export default {
     resendConfirmationSent: 'Confirmation email sent again. Check your inbox.',
     resendConfirmationError: 'Could not resend. Wait a moment and try again.',
     checkEmailReset: 'Check your email for a link to reset your password.',
+    checkEmailResetHint:
+      'Use the exact email you signed up with (no extra spaces). Check spam or Promotions. If the address is not registered, no email is sent — for security the app still shows this message.',
     newPassword: 'New password',
     confirmPassword: 'Confirm password',
     passwordsDoNotMatch: 'Passwords do not match.',
@@ -370,6 +375,8 @@ export default {
     setNewPasswordInstruction: 'Enter a new password below.',
     confirmingLink: 'Confirming your link…',
     resetLinkExpired: 'This link has expired or is invalid. Request a new password reset from the sign-in page.',
+    emailDeliveryFailed:
+      'We could not send the email. This is usually a server mail setup issue: verify your sender domain in Resend (resend.com/domains) and use that domain in Supabase → Authentication → SMTP “Sender email”.',
   },
   legal: {
     termsTitle: 'Terms of Service',

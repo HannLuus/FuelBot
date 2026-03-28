@@ -22,8 +22,30 @@ function getInitialMode(searchMode: string | null, hashParams: Record<string, st
   return 'signin'
 }
 
-function formatAuthError(message: string | undefined, t: TFunction): string {
+type AuthErrorFlow = 'signin' | 'signup' | 'forgot' | 'reset'
+
+function formatAuthError(
+  message: string | undefined,
+  t: TFunction,
+  ctx?: { status?: number; flow?: AuthErrorFlow },
+): string {
   const normalized = (message ?? '').toLowerCase()
+  const status = typeof ctx?.status === 'number' ? ctx.status : undefined
+  const flow = ctx?.flow
+
+  const messageSuggestsEmailFailure =
+    normalized.includes('error sending recovery email') ||
+    normalized.includes('error sending magic link') ||
+    normalized.includes('error sending signup email') ||
+    normalized.includes('error sending email')
+
+  const likelyAuthEmailFailure =
+    messageSuggestsEmailFailure ||
+    ((flow === 'forgot' || flow === 'signup') && status === 500)
+
+  if (likelyAuthEmailFailure) {
+    return t('auth.emailDeliveryFailed')
+  }
 
   if (normalized.includes('invalid login credentials') || normalized.includes('invalid credentials')) {
     return t('auth.invalidCredentials')
@@ -89,18 +111,20 @@ export function AuthPage() {
     setError(null)
     setSuccess(null)
 
+    const emailTrimmed = email.trim()
+
     try {
       if (mode === 'signin') {
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) { setError(formatAuthError(error.message, t)); return }
+        const { error } = await supabase.auth.signInWithPassword({ email: emailTrimmed, password })
+        if (error) { setError(formatAuthError(error.message, t, { status: error.status, flow: 'signin' })); return }
         navigate(redirectPath)
       } else if (mode === 'signup') {
         if (!acceptedTerms) {
           setError(t('auth.mustAcceptTerms'))
           return
         }
-        const { data, error } = await supabase.auth.signUp({ email, password })
-        if (error) { setError(formatAuthError(error.message, t)); return }
+        const { data, error } = await supabase.auth.signUp({ email: emailTrimmed, password })
+        if (error) { setError(formatAuthError(error.message, t, { status: error.status, flow: 'signup' })); return }
         if (data.session) {
           const now = new Date().toISOString()
           await supabase.rpc('ensure_user_legal_acceptance', {
@@ -111,18 +135,18 @@ export function AuthPage() {
         setSuccess(t('auth.checkEmailConfirm'))
         setResendMessage(null)
       } else if (mode === 'forgot') {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await supabase.auth.resetPasswordForEmail(emailTrimmed, {
           redirectTo: `${window.location.origin}/auth`,
         })
-        if (error) { setError(formatAuthError(error.message, t)); return }
-        setSuccess(t('auth.checkEmailReset'))
+        if (error) { setError(formatAuthError(error.message, t, { status: error.status, flow: 'forgot' })); return }
+        setSuccess(`${t('auth.checkEmailReset')} ${t('auth.checkEmailResetHint')}`)
       } else if (mode === 'reset') {
         if (password !== confirmPassword) {
           setError(t('auth.passwordsDoNotMatch'))
           return
         }
         const { error } = await supabase.auth.updateUser({ password })
-        if (error) { setError(formatAuthError(error.message, t)); return }
+        if (error) { setError(formatAuthError(error.message, t, { status: error.status, flow: 'reset' })); return }
         setSuccess(t('auth.passwordUpdated'))
         setMode('signin')
         setPassword('')

@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
 
   const { data: suggestion, error: suggestionErr } = await service
     .from('station_suggestions')
-    .select('id, name, city, address, lat, lng, note, suggested_by, station_id, status')
+    .select('id, name, city, address, lat, lng, note, suggested_by, station_id, status, approved_at')
     .eq('id', suggestionId)
     .maybeSingle()
 
@@ -45,12 +45,17 @@ Deno.serve(async (req) => {
     return json({ error: 'Suggestion name is invalid' }, 400)
   }
 
+  const nowIso = new Date().toISOString()
+
   // Idempotent path: a station has already been created and linked.
   if (suggestion.station_id) {
-    if (suggestion.status !== 'approved') {
+    if (suggestion.status !== 'approved' || suggestion.approved_at == null) {
       await service
         .from('station_suggestions')
-        .update({ status: 'approved' })
+        .update({
+          status: 'approved',
+          approved_at: suggestion.approved_at ?? nowIso,
+        })
         .eq('id', suggestion.id)
     }
     return json({ success: true, station_id: suggestion.station_id, already_exists: true })
@@ -88,7 +93,7 @@ Deno.serve(async (req) => {
 
   const { error: updateErr } = await service
     .from('station_suggestions')
-    .update({ status: 'approved', station_id: station.id })
+    .update({ status: 'approved', station_id: station.id, approved_at: nowIso })
     .eq('id', suggestion.id)
 
   if (updateErr) {
