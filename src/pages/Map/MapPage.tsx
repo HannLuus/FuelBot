@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
@@ -41,6 +41,9 @@ const STATUS_HEX: Record<string, string> = {
 }
 
 const MARKER_SIZE = 22
+
+/** After "my location" flyTo, skip national/route fitBounds so it does not immediately zoom out. */
+const MANUAL_RECENTER_SUPPRESS_FIT_MS = 3500
 
 function makeMarkerIcon(color: string, unverified = false, selected = false): L.DivIcon {
   const size = selected ? MARKER_SIZE + 6 : MARKER_SIZE
@@ -121,6 +124,8 @@ export function MapPage() {
   /** True after user taps "my location" — recenters even when lat/lng match persisted GPS (user may have panned away). */
   const pendingRecenterRef = useRef(false)
   const prevUserLocationRef = useRef<{ lat: number; lng: number } | null>(null)
+  /** After we center on the user, skip auto fitBounds briefly so national/route view does not undo flyTo. */
+  const lastManualRecenterAtRef = useRef(0)
   const navigate = useNavigate()
   const {
     lat,
@@ -153,6 +158,7 @@ export function MapPage() {
     if (typeof document === 'undefined') return
     function onVisibilityChange() {
       if (!document.hidden && usingIpFallback && !locationLoading) {
+        pendingRecenterRef.current = true
         requestLocation({ highAccuracy: true })
       }
     }
@@ -192,9 +198,10 @@ export function MapPage() {
   }
 
   /** Re-centers on user; invalidateSize helps mobile when the map sits under overlays. */
-  function focusMapOnUser(uLat: number, uLng: number, zoom = 15) {
+  const focusMapOnUser = useCallback((uLat: number, uLng: number, zoom = 15) => {
     const map = mapRef.current
     if (!map) return
+    lastManualRecenterAtRef.current = Date.now()
     map.invalidateSize()
     map.setView([uLat, uLng], zoom, { animate: false })
     window.requestAnimationFrame(() => {
@@ -203,7 +210,7 @@ export function MapPage() {
       m.invalidateSize()
       m.flyTo([uLat, uLng], zoom, { duration: 0.55 })
     })
-  }
+  }, [])
 
   function addCartoLayerWithFallback(style: MapStyle) {
     if (!mapRef.current) return
@@ -273,7 +280,15 @@ export function MapPage() {
 
   // User pin + map center: fly when coordinates change OR when user tapped "my location" with unchanged coords (Zustand may not update lat/lng).
   useEffect(() => {
-    if (lat == null || lng == null || !mapRef.current) return
+    if (!mapRef.current) return
+
+    if (lat == null || lng == null) {
+      userLocationLayerRef.current?.remove()
+      userLocationLayerRef.current = null
+      pendingRecenterRef.current = false
+      prevUserLocationRef.current = null
+      return
+    }
 
     userLocationLayerRef.current?.remove()
     userLocationLayerRef.current = L.circleMarker([lat, lng], {
@@ -295,7 +310,7 @@ export function MapPage() {
       focusMapOnUser(lat, lng, 15)
     }
     prevUserLocationRef.current = { lat, lng }
-  }, [lat, lng, locationLoading, t])
+  }, [lat, lng, locationLoading, t, focusMapOnUser])
 
   // When app language changes, update "You are here" popup text
   useEffect(() => {
@@ -387,6 +402,7 @@ export function MapPage() {
   const isRouteView = !!filters.selectedRouteId
   useEffect(() => {
     if (!mapRef.current || (!isNationalView && !isRouteView) || filteredStations.length === 0) return
+    if (Date.now() - lastManualRecenterAtRef.current < MANUAL_RECENTER_SUPPRESS_FIT_MS) return
     const bounds = L.latLngBounds(
       filteredStations.map((s) => [s.lat, s.lng] as L.LatLngTuple),
     )
