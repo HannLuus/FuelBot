@@ -273,9 +273,6 @@ export function LandingPage() {
             <Button onClick={() => navigate('/home')}>
               {t('landing.openFuelBot')}
             </Button>
-            <Button variant="secondary" onClick={() => navigate('/station')}>
-              {t('landing.registerStationCta')}
-            </Button>
           </div>
         </section>
 
