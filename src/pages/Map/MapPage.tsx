@@ -118,6 +118,9 @@ export function MapPage() {
   const tileLayerRef = useRef<L.TileLayer | null>(null)
   const tileFallbackActiveRef = useRef(false)
   const userLocationLayerRef = useRef<L.CircleMarker | null>(null)
+  /** True after user taps "my location" — recenters even when lat/lng match persisted GPS (user may have panned away). */
+  const pendingRecenterRef = useRef(false)
+  const prevUserLocationRef = useRef<{ lat: number; lng: number } | null>(null)
   const navigate = useNavigate()
   const {
     lat,
@@ -188,6 +191,20 @@ export function MapPage() {
     tileLayerRef.current = makeOsmFallbackTileLayer().addTo(mapRef.current)
   }
 
+  /** Re-centers on user; invalidateSize helps mobile when the map sits under overlays. */
+  function focusMapOnUser(uLat: number, uLng: number, zoom = 15) {
+    const map = mapRef.current
+    if (!map) return
+    map.invalidateSize()
+    map.setView([uLat, uLng], zoom, { animate: false })
+    window.requestAnimationFrame(() => {
+      const m = mapRef.current
+      if (!m) return
+      m.invalidateSize()
+      m.flyTo([uLat, uLng], zoom, { duration: 0.55 })
+    })
+  }
+
   function addCartoLayerWithFallback(style: MapStyle) {
     if (!mapRef.current) return
     const layer = makeCartoTileLayer(style)
@@ -254,11 +271,10 @@ export function MapPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- helper is intentionally stable for this component lifecycle
   }, [mapStyle])
 
-  // When user location updates (e.g. after tapping "My location"), center map and update pin
+  // User pin + map center: fly when coordinates change OR when user tapped "my location" with unchanged coords (Zustand may not update lat/lng).
   useEffect(() => {
     if (lat == null || lng == null || !mapRef.current) return
 
-    mapRef.current.flyTo([lat, lng], 15, { duration: 0.6 })
     userLocationLayerRef.current?.remove()
     userLocationLayerRef.current = L.circleMarker([lat, lng], {
       radius: 8,
@@ -269,7 +285,17 @@ export function MapPage() {
     })
       .addTo(mapRef.current)
       .bindPopup(t('map.youAreHere'))
-  }, [lat, lng, t])
+
+    if (locationLoading) return
+
+    const prev = prevUserLocationRef.current
+    const coordsChanged = prev == null || prev.lat !== lat || prev.lng !== lng
+    if (coordsChanged || pendingRecenterRef.current) {
+      pendingRecenterRef.current = false
+      focusMapOnUser(lat, lng, 15)
+    }
+    prevUserLocationRef.current = { lat, lng }
+  }, [lat, lng, locationLoading, t])
 
   // When app language changes, update "You are here" popup text
   useEffect(() => {
@@ -369,6 +395,7 @@ export function MapPage() {
   }, [isNationalView, isRouteView, filteredStations, lat, lng])
 
   function handleMyLocation() {
+    pendingRecenterRef.current = true
     requestLocation({ highAccuracy: true })
   }
 
