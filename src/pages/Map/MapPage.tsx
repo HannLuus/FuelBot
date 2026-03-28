@@ -119,7 +119,14 @@ export function MapPage() {
   const tileFallbackActiveRef = useRef(false)
   const userLocationLayerRef = useRef<L.CircleMarker | null>(null)
   const navigate = useNavigate()
-  const { lat, lng, requestLocation, loading: locationLoading, error: locationError } = useLocationStore()
+  const {
+    lat,
+    lng,
+    requestLocation,
+    loading: locationLoading,
+    error: locationError,
+    usingIpFallback,
+  } = useLocationStore()
   const { filters, setFuelTypes } = useFilterStore()
   const { mapStyle, setMapStyle } = useMapStyleStore()
   const { t, i18n } = useTranslation()
@@ -138,6 +145,17 @@ export function MapPage() {
       : lat !== null
         ? filters.maxDistanceKm
         : 25
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    function onVisibilityChange() {
+      if (!document.hidden && usingIpFallback && !locationLoading) {
+        requestLocation({ highAccuracy: true })
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [requestLocation, usingIpFallback, locationLoading])
 
   const { stations } = useNearbyStations({
     lat: effectiveLat,
@@ -434,6 +452,22 @@ export function MapPage() {
           >
             {t('home.tryAgain')}
           </button>
+        </div>
+      )}
+
+      {usingIpFallback && !locationError && !locationLoading && (
+        <div className="absolute top-24 right-3 left-3 z-[1000] rounded-xl bg-amber-50 px-3 py-2.5 text-xs text-amber-800 shadow-lg dark:bg-amber-950/90 dark:text-amber-200">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <p className="flex-1 font-medium">{t('home.usingIpLocation')}</p>
+            <button
+              type="button"
+              onClick={() => requestLocation({ highAccuracy: true })}
+              className="font-semibold underline underline-offset-2"
+            >
+              {t('home.useGps')}
+            </button>
+          </div>
         </div>
       )}
 

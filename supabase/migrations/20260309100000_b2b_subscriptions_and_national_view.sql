@@ -53,6 +53,7 @@ BEGIN
 END $$;
 
 -- Return current user's active B2B entitlements (plan_type, route_id).
+DROP FUNCTION IF EXISTS public.get_my_b2b_entitlements();
 CREATE OR REPLACE FUNCTION public.get_my_b2b_entitlements()
 RETURNS TABLE (plan_type text, route_id uuid)
 LANGUAGE sql

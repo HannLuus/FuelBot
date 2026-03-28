@@ -16,12 +16,14 @@ ON CONFLICT (id) DO NOTHING;
 ALTER TABLE public.payment_config ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can read (Operator and B2B pages need to show this)
+DROP POLICY IF EXISTS "payment_config_select" ON public.payment_config;
 CREATE POLICY "payment_config_select"
   ON public.payment_config FOR SELECT
   TO anon, authenticated
   USING (true);
 
 -- Only admins can update (via admin_users)
+DROP POLICY IF EXISTS "payment_config_update_admin" ON public.payment_config;
 CREATE POLICY "payment_config_update_admin"
   ON public.payment_config FOR UPDATE
   TO authenticated
@@ -32,6 +34,7 @@ CREATE POLICY "payment_config_update_admin"
     EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid())
   );
 
+DROP POLICY IF EXISTS "payment_config_insert_admin" ON public.payment_config;
 CREATE POLICY "payment_config_insert_admin"
   ON public.payment_config FOR INSERT
   TO authenticated

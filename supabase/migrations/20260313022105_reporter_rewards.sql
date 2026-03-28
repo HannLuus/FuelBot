@@ -2,28 +2,30 @@
 -- Adds: reporter_display_names, reward_events, get_top_reporters RPC
 
 -- Optional display name that reporters can set for the leaderboard
-CREATE TABLE reporter_display_names (
+CREATE TABLE IF NOT EXISTS public.reporter_display_names (
   user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   display_name text NOT NULL CHECK (char_length(display_name) BETWEEN 2 AND 30),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE reporter_display_names ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reporter_display_names ENABLE ROW LEVEL SECURITY;
 
 -- Users can manage their own display name
+DROP POLICY IF EXISTS "reporter_display_names_own" ON public.reporter_display_names;
 CREATE POLICY "reporter_display_names_own"
-  ON reporter_display_names
+  ON public.reporter_display_names
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
 -- Public can read display names (they appear on the leaderboard)
+DROP POLICY IF EXISTS "reporter_display_names_public_read" ON public.reporter_display_names;
 CREATE POLICY "reporter_display_names_public_read"
-  ON reporter_display_names
+  ON public.reporter_display_names
   FOR SELECT
   USING (true);
 
 -- Audit table for monthly reward winners
-CREATE TABLE reward_events (
+CREATE TABLE IF NOT EXISTS public.reward_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   period_label text NOT NULL,
   user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -34,12 +36,13 @@ CREATE TABLE reward_events (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE reward_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reward_events ENABLE ROW LEVEL SECURITY;
 
 -- Admin RLS policy added in 20260313100001_reward_events_admin_policy.sql
 
 
 -- RPC: return ranked reporters for a given rolling period
+DROP FUNCTION IF EXISTS public.get_top_reporters(integer, integer);
 CREATE OR REPLACE FUNCTION get_top_reporters(
   period_days integer DEFAULT 30,
   result_limit integer DEFAULT 20
@@ -59,7 +62,7 @@ AS $$
     COUNT(*) AS report_count,
     ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) AS rank
   FROM station_status_reports r
-  LEFT JOIN reporter_display_names d ON d.user_id = r.reporter_user_id
+  LEFT JOIN public.reporter_display_names d ON d.user_id = r.reporter_user_id
   WHERE
     r.reporter_user_id IS NOT NULL
     AND r.reporter_role != 'VERIFIED_STATION'
@@ -70,6 +73,7 @@ AS $$
 $$;
 
 -- RPC: single-user stats for in-app "Your stats" card
+DROP FUNCTION IF EXISTS public.get_my_reporter_stats(integer);
 CREATE OR REPLACE FUNCTION get_my_reporter_stats(
   period_days integer DEFAULT 30
 )

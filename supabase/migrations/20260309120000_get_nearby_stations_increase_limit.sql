@@ -1,6 +1,7 @@
 -- Increase get_nearby_stations limit from 50 to 500 so more stations show within the selected radius.
 -- Also require location IS NOT NULL so only spatially indexed rows are returned.
 
+DROP FUNCTION IF EXISTS public.get_nearby_stations(double precision, double precision, double precision);
 CREATE OR REPLACE FUNCTION public.get_nearby_stations(user_lat double precision, user_lng double precision, radius_km double precision DEFAULT 5)
 RETURNS TABLE(
   id uuid, name text, brand text, lat double precision, lng double precision,
@@ -11,6 +12,7 @@ RETURNS TABLE(
 )
 LANGUAGE sql
 STABLE SECURITY DEFINER
+SET search_path = public
 AS $function$
   SELECT
     s.id, s.name, s.brand, s.lat, s.lng, s.address_text,

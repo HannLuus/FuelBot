@@ -16,13 +16,29 @@ ALTER TABLE public.stations
   ADD COLUMN IF NOT EXISTS recognition_photo_confirmed boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS recognition_photo_updated_at timestamptz;
 
-ALTER TABLE public.stations
-  ADD CONSTRAINT stations_subscription_tier_requested_check
-  CHECK (subscription_tier_requested IN ('small', 'medium', 'large') OR subscription_tier_requested IS NULL);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_constraint
+    WHERE conname = 'stations_subscription_tier_requested_check'
+  ) THEN
+    ALTER TABLE public.stations
+      ADD CONSTRAINT stations_subscription_tier_requested_check
+      CHECK (subscription_tier_requested IN ('small', 'medium', 'large') OR subscription_tier_requested IS NULL);
+  END IF;
+END $$;
 
-ALTER TABLE public.stations
-  ADD CONSTRAINT stations_referral_reward_status_check
-  CHECK (referral_reward_status IN ('PENDING', 'PAID', 'COLLECTED') OR referral_reward_status IS NULL);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_constraint
+    WHERE conname = 'stations_referral_reward_status_check'
+  ) THEN
+    ALTER TABLE public.stations
+      ADD CONSTRAINT stations_referral_reward_status_check
+      CHECK (referral_reward_status IN ('PENDING', 'PAID', 'COLLECTED') OR referral_reward_status IS NULL);
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.referral_codes (
   user_id uuid PRIMARY KEY,

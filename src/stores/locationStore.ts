@@ -18,13 +18,54 @@ interface LocationState {
   clearError: () => void
 }
 
+type PersistedLocation = {
+  lat: number
+  lng: number
+  ts: number
+  source: 'gps' | 'ip'
+}
+
+const LAST_LOCATION_KEY = 'fuelbot:last_location'
+
+function loadPersistedLocation(): PersistedLocation | null {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return null
+    const raw = window.localStorage.getItem(LAST_LOCATION_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as PersistedLocation
+    if (
+      !parsed ||
+      typeof parsed.lat !== 'number' ||
+      typeof parsed.lng !== 'number' ||
+      isNaN(parsed.lat) ||
+      isNaN(parsed.lng) ||
+      typeof parsed.ts !== 'number' ||
+      (parsed.source !== 'gps' && parsed.source !== 'ip')
+    ) {
+      return null
+    }
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function savePersistedLocation(loc: PersistedLocation) {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return
+    window.localStorage.setItem(LAST_LOCATION_KEY, JSON.stringify(loc))
+  } catch {
+    // ignore
+  }
+}
+
 export const useLocationStore = create<LocationState>((set) => ({
-  lat: null,
-  lng: null,
+  lat: loadPersistedLocation()?.lat ?? null,
+  lng: loadPersistedLocation()?.lng ?? null,
   error: null,
   loading: false,
   permissionChecked: false,
-  usingIpFallback: false,
+  usingIpFallback: loadPersistedLocation()?.source === 'ip',
 
   clearError: () => set({ error: null }),
 
@@ -93,6 +134,7 @@ export const useLocationStore = create<LocationState>((set) => ({
             return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
           }),
         ])
+        savePersistedLocation({ lat, lng, ts: Date.now(), source: 'ip' })
         set({ lat, lng, loading: false, error: null, usingIpFallback: true })
       } catch {
         // All providers failed — surface the original HTML5 error as it is more relevant
@@ -107,6 +149,12 @@ export const useLocationStore = create<LocationState>((set) => ({
     }
 
     const handleSuccess = (pos: GeolocationPosition) => {
+      savePersistedLocation({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        ts: Date.now(),
+        source: 'gps',
+      })
       set({
         lat: pos.coords.latitude,
         lng: pos.coords.longitude,

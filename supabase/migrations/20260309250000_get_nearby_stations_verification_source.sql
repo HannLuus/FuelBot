@@ -12,6 +12,7 @@ RETURNS TABLE(
 )
 LANGUAGE sql
 STABLE SECURITY DEFINER
+SET search_path = public
 AS $function$
   SELECT
     s.id, s.name, s.brand, s.lat, s.lng, s.address_text,

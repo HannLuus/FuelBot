@@ -15,8 +15,9 @@ dist-ssr
 # Environment and secrets – never commit
 .env
 .env.local
+.env.staging
 .env.production
-.cursor/mcp.json
+.cursor/
 Untitled
 
 # Editor directories and files

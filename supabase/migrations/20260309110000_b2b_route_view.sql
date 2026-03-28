@@ -2,6 +2,7 @@
 -- get_my_b2b_entitlements now returns route_name for route_view; get_stations_along_route returns stations in corridor.
 
 -- Return current user's active B2B entitlements (plan_type, route_id, route_name).
+DROP FUNCTION IF EXISTS public.get_my_b2b_entitlements();
 CREATE OR REPLACE FUNCTION public.get_my_b2b_entitlements()
 RETURNS TABLE (plan_type text, route_id uuid, route_name text)
 LANGUAGE sql

@@ -15,10 +15,12 @@ CREATE INDEX IF NOT EXISTS idx_station_location_reports_created_at
 ALTER TABLE public.station_location_reports ENABLE ROW LEVEL SECURITY;
 
 -- Anyone (including anon) can insert a report so we can collect feedback without login.
+DROP POLICY IF EXISTS station_location_reports_insert ON public.station_location_reports;
 CREATE POLICY station_location_reports_insert ON public.station_location_reports
   FOR INSERT WITH CHECK (true);
 
 -- Only service role can read (admin reviews reports).
+DROP POLICY IF EXISTS station_location_reports_select_service ON public.station_location_reports;
 CREATE POLICY station_location_reports_select_service ON public.station_location_reports
   FOR SELECT USING (auth.jwt() ->> 'role' = 'service_role');
 

@@ -17,6 +17,12 @@ Real-time fuel availability and queue times at nearby stations. Built for Myanma
 
 ---
 
+## Development workflow
+
+For non-trivial work (database changes, Edge Functions, auth/RLS, payments, major flows), follow the **ATLAS** checklist: **[docs/ATLAS_DEVELOPMENT_WORKFLOW.md](docs/ATLAS_DEVELOPMENT_WORKFLOW.md)** (Architect → Trace → Link → Assemble → Stress-test, plus validate/monitor when shipping).
+
+---
+
 ## Setup
 
 ### 1. Environment

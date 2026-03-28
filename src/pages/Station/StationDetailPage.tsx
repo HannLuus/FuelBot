@@ -17,7 +17,7 @@ import {
   REPORTER_ROLE_LABEL,
 } from '@/lib/fuelUtils'
 import { useAuthStore } from '@/stores/authStore'
-import { subscribeToPush, unsubscribeFromPush } from '@/lib/pushSubscription'
+import { subscribeToPush } from '@/lib/pushSubscription'
 
 interface ReliabilityRow {
   reports_last_7d: number
@@ -45,6 +45,8 @@ export function StationDetailPage() {
   const lang = i18n.language as 'en' | 'my'
   const { user, session } = useAuthStore()
   const [isFollowing, setIsFollowing] = useState(false)
+  const [followLoading, setFollowLoading] = useState(false)
+  const [followError, setFollowError] = useState<string | null>(null)
   const [claiming, setClaiming] = useState(false)
   const [claimMessage, setClaimMessage] = useState<string | null>(null)
   const [claimScreenshotPath, setClaimScreenshotPath] = useState<string | null>(null)
@@ -57,6 +59,33 @@ export function StationDetailPage() {
   const [claimScreenshotInputKey, setClaimScreenshotInputKey] = useState(0)
 
   const { station, reports, loading, error, refresh } = useStationDetail(id!)
+
+  useEffect(() => {
+    if (!user || !id) {
+      setIsFollowing(false)
+      return
+    }
+    let cancelled = false
+    void (async () => {
+      const { data, error } = await supabase
+        .from('station_followers')
+        .select('station_id')
+        .eq('user_id', user.id)
+        .eq('station_id', id)
+        .limit(1)
+        .maybeSingle()
+
+      if (cancelled) return
+      if (error) {
+        setIsFollowing(false)
+        return
+      }
+      setIsFollowing(!!data)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [user, id])
 
   useEffect(() => {
     if (!id) return
@@ -99,23 +128,44 @@ export function StationDetailPage() {
   }
 
   async function toggleFollow() {
-    if (!user || !station) return
-    if (isFollowing) {
-      await supabase
-        .from('station_followers')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('station_id', station.id)
-      setIsFollowing(false)
-      await unsubscribeFromPush()
-    } else {
-      await supabase
+    if (!user || !station || followLoading) return
+    setFollowLoading(true)
+    setFollowError(null)
+    try {
+      if (isFollowing) {
+        const { error } = await supabase
+          .from('station_followers')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('station_id', station.id)
+        if (error) throw error
+        setIsFollowing(false)
+        return
+      }
+
+      const { error: insertError } = await supabase
         .from('station_followers')
         .insert({ user_id: user.id, station_id: station.id })
-      setIsFollowing(true)
-      // Subscribe to push notifications so the user receives alerts when fuel is back in stock.
-      // subscribeToPush handles permission prompting and saving the subscription to the DB.
-      await subscribeToPush()
+      if (insertError) {
+        if (typeof (insertError as { code?: unknown }).code === 'string' && (insertError as { code: string }).code === '23505') {
+          setIsFollowing(true)
+        } else {
+          throw insertError
+        }
+      } else {
+        setIsFollowing(true)
+      }
+
+      const pushResult = await subscribeToPush()
+      if (pushResult === 'denied') {
+        setFollowError('Push notifications permission was denied.')
+      } else if (pushResult === 'error') {
+        setFollowError('Push notifications could not be enabled.')
+      }
+    } catch {
+      setFollowError(t('errors.generic'))
+    } finally {
+      setFollowLoading(false)
     }
   }
 
@@ -389,6 +439,7 @@ export function StationDetailPage() {
               variant="secondary"
               size="md"
               onClick={() => void toggleFollow()}
+              disabled={followLoading}
             >
               {isFollowing ? (
                 <BellOff className="h-4 w-4 text-gray-700" />
@@ -398,6 +449,12 @@ export function StationDetailPage() {
             </Button>
           )}
         </div>
+
+        {followError && (
+          <div className="px-4 pb-2">
+            <p className="text-xs text-orange-700">{followError}</p>
+          </div>
+        )}
 
         {/* Recent reports */}
         {reports.length > 0 && (
