@@ -396,6 +396,12 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/submit-report/index.ts"
 
+# Station registration: gateway JWT off; function validates Bearer with auth.getUser (same pattern as get-referral-code).
+[functions.register-station]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/register-station/index.ts"
+
 [functions.b2b-subscribe]
 enabled = true
 verify_jwt = true

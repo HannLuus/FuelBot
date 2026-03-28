@@ -124,6 +124,10 @@ export default {
       sectionExtras: 'More for you',
       recognition: 'Optional recognition — your station can appear in our “People helping the people” section.',
       ownerTools: 'Owner-only tools — for example, only you can correct your station’s pin location.',
+      routePlanningIncluded:
+        'Route planning along our predefined corridors (e.g. Yangon–Mandalay) — included with your station subscription at no extra charge. Use it for your own logistics (e.g. tankers) to see fuel status along the way.',
+      routePlanningNationalNote:
+        'Nationwide map view for every station in Myanmar is not included; that remains a separate fleet (B2B) plan for transport companies that are not station subscribers.',
       sectionCost: 'What it costs',
       pricingNote: 'A small annual subscription (e.g. around 10,000 MMK per month). One low cost for real value: visibility, trust, and control over your listing.',
       alsoSeeFleet: 'For fleet owners and transport companies, see',
@@ -138,6 +142,9 @@ export default {
       planRoutes: 'Plan refuelling for entire routes instead of guessing or calling around.',
       avoidEmpty: 'Avoid sending drivers to empty stations — real-time status by station and fuel type.',
       oneAccount: 'One account, same app — sign in like everyone else; we enable national and route access for your paid plan.',
+      sectionNotStationProgram:
+        'This fleet plan is separate from the fuel station owner program. Station subscribers get corridor/route planning included with their station subscription; fleet-only customers pay for route or national access here and do not receive station-owner benefits (verification, owner dashboard, included route tools for operators, etc.).',
+      sectionComparedToStations: 'Compared to station subscribers',
       sectionCost: 'What it costs',
       pricingNote: 'An annual subscription for route or national access. You get high-value information for fleet operations at a fraction of the cost of ad-hoc solutions.',
       alsoSeeStations: 'For fuel station owners, see',
@@ -346,6 +353,8 @@ export default {
     backToApp: 'Back to app',
     email: 'Email',
     password: 'Password',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
     signUp: 'Sign Up',
     continueAnonymous: 'Continue without signing in',
     agreeToTerms: 'By signing in or signing up you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.',
@@ -447,6 +456,10 @@ export default {
     registerLocationClear: 'Change',
     registerLocationError: 'Could not get location. Check permissions or try picking on map.',
     registerSessionRequired: 'Please sign in again to continue.',
+    registerPendingLimit:
+      'You already have 3 pending registrations. Please wait for approval before submitting another.',
+    registerCoordsMyanmar: 'Station location must be inside Myanmar. Adjust the map pin or use GPS.',
+    registerFormNameRequired: 'Enter a station name (at least 2 characters).',
     registerSubmit: 'Register my station',
     registerPending: 'Registration received. We’ll verify and activate your listing soon.',
     registerSuccess: 'Station registered. It will appear after verification.',
@@ -503,6 +516,9 @@ export default {
     setCorrectLocationUseGps: 'Use my GPS point',
     setCorrectLocationSaveFromMap: 'Save this location',
     setCorrectLocationCurrentPin: 'Current station pin: {{lat}}, {{lng}}',
+    includedRoutePlanningTitle: 'Route planning included',
+    includedRoutePlanningBody:
+      'For the subscription period you paid for, use predefined route corridors on Home (route filter) or switch to Route access in the menu — included at no extra charge. Nationwide view for all stations stays a separate fleet plan.',
     setCorrectLocationSelectedPin: 'Selected pin: {{lat}}, {{lng}}',
     registerFormNamePlaceholder: 'e.g. Myanmar Petroleum Station',
     registerFormBrandPlaceholder: 'e.g. MPE, PTT (optional)',

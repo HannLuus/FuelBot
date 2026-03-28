@@ -45,13 +45,24 @@ export function useB2BEntitlements(): B2BEntitlements & { loading: boolean, refr
       }[]
       const hasNationalView = rows.some((r) => r.plan_type === 'national_view')
       const routeRows = rows.filter((r) => r.plan_type === 'route_view')
-      const routes: B2BRoute[] = routeRows
-        .filter((r) => r.route_id && r.route_name)
-        .map((r) => ({ id: r.route_id!, name: r.route_name! }))
+      const byRouteId = new Map<string, { id: string; name: string; validUntilMs: number }>()
+      for (const r of routeRows) {
+        if (!r.route_id || !r.route_name) continue
+        const ms = new Date(r.valid_until).getTime()
+        const prev = byRouteId.get(r.route_id)
+        if (!prev || ms > prev.validUntilMs) {
+          byRouteId.set(r.route_id, { id: r.route_id, name: r.route_name, validUntilMs: ms })
+        }
+      }
+      const routes: B2BRoute[] = Array.from(byRouteId.values()).map(({ id, name }) => ({ id, name }))
       const routeIds = routes.map((r) => r.id)
-      
-      const validUntilStr = routeRows.length > 0 ? routeRows[0].valid_until : null
-      const routeAccessValidUntil = validUntilStr ? new Date(validUntilStr) : null
+
+      let routeAccessValidUntil: Date | null = null
+      for (const r of routeRows) {
+        const d = new Date(r.valid_until)
+        if (Number.isNaN(d.getTime())) continue
+        if (!routeAccessValidUntil || d > routeAccessValidUntil) routeAccessValidUntil = d
+      }
 
       setEntitlements({ hasNationalView, routeIds, routes, routeAccessValidUntil })
     } catch {

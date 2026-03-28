@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import L from 'leaflet'
 import { Store, CheckCircle, Send, Users, MapPin, Upload, Crosshair, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -17,6 +19,40 @@ import { YANGON_LAT, YANGON_LNG, makeCartoTileLayer } from '@/lib/map'
 
 const PAYMENT_SCREENSHOT_BUCKET = 'b2b-payment-screenshots'
 const DURATION_OPTIONS: B2BDurationMonths[] = [3, 6, 12]
+
+async function parseRegisterStationInvokeError(err: unknown): Promise<string | null> {
+  if (err instanceof FunctionsHttpError) {
+    const ctx = err.context
+    if (ctx instanceof Response) {
+      try {
+        const j = (await ctx.json()) as { error?: string }
+        if (typeof j.error === 'string') return j.error
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  if (err != null && typeof (err as { message?: unknown }).message === 'string') {
+    return (err as { message: string }).message
+  }
+  return null
+}
+
+function formatRegisterStationServerMessage(raw: string | null, t: TFunction): string {
+  if (!raw) return t('stationOwner.registerError')
+  const lower = raw.toLowerCase()
+  if (lower.includes('non-2xx')) return t('stationOwner.registerSessionRequired')
+  if (lower.includes('invalid referral code')) return t('stationOwner.invalidReferralCode')
+  if (lower.includes('own referral code')) return t('stationOwner.ownReferralCode')
+  if (lower.includes('invalid or expired session') || lower.includes('unauthorized')) {
+    return t('stationOwner.registerSessionRequired')
+  }
+  if (lower.includes('3 pending registrations')) return t('stationOwner.registerPendingLimit')
+  if (lower.includes('within myanmar')) return t('stationOwner.registerCoordsMyanmar')
+  if (lower.includes('station name is required')) return t('stationOwner.registerFormNameRequired')
+  if (lower.includes('failed to register station')) return t('stationOwner.registerError')
+  return raw
+}
 
 type FuelStatusOrSkip = FuelStatus | 'SKIP'
 type SaveState = 'idle' | 'saving' | 'success' | 'error'
@@ -59,6 +95,9 @@ export function StationOwnerPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [myStation, setMyStation] = useState<Station | null>(null)
+  const [routeBundleValidUntil, setRouteBundleValidUntil] = useState<string | null>(null)
+  /** Bumps every minute so we re-check `routeBundleValidUntil` against wall clock (matches DB `> now()` after the instant passes). */
+  const [stationBundleClockTick, setStationBundleClockTick] = useState(0)
   const [currentStatus, setCurrentStatus] = useState<StationCurrentStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [posting, setPosting] = useState(false)
@@ -141,7 +180,57 @@ export function StationOwnerPage() {
   }, [myStation])
   const showPlanSelection = !myStation || ownerPortalState === 'draft'
 
+  const refreshRouteBundleValidUntil = useCallback(async () => {
+    if (!user?.id) {
+      setRouteBundleValidUntil(null)
+      return
+    }
+    const { data, error } = await supabase.rpc('station_owner_route_bundle_valid_until')
+    if (error) {
+      setRouteBundleValidUntil(null)
+      return
+    }
+    const raw = data as unknown
+    if (raw == null) {
+      setRouteBundleValidUntil(null)
+      return
+    }
+    const pick = Array.isArray(raw) ? raw[0] : raw
+    if (pick == null) {
+      setRouteBundleValidUntil(null)
+      return
+    }
+    setRouteBundleValidUntil(typeof pick === 'string' ? pick : String(pick))
+  }, [user?.id])
+
   useEffect(() => {
+    const intervalId = window.setInterval(() => setStationBundleClockTick((n) => n + 1), 60_000)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void refreshRouteBundleValidUntil()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [refreshRouteBundleValidUntil])
+
+  /**
+   * Route bundle window from RPC (`station_owner_route_bundle_valid_until`) and still in the future.
+   * Subscription end on the server uses Postgres `make_interval(months => …)`; if you ever compute the
+   * same end in the client, use `addCalendarMonthsUtc` from `@/lib/calendarInterval` — not `Date#setUTCMonth`
+   * (JS overflows end-of-month; Postgres clamps to the last day of the target month).
+   */
+  const stationRouteBundleActive = useMemo(() => {
+    void stationBundleClockTick
+    if (routeBundleValidUntil == null) return false
+    const endMs = new Date(routeBundleValidUntil).getTime()
+    if (Number.isNaN(endMs)) return false
+    return endMs > Date.now()
+  }, [routeBundleValidUntil, stationBundleClockTick])
+
+  useEffect(() => {
+    setRouteBundleValidUntil(null)
     if (!user) return
     void loadMyStation()
   // eslint-disable-next-line react-hooks/exhaustive-deps -- loadMyStation should rerun only when authenticated user identity changes
@@ -321,6 +410,7 @@ export function StationOwnerPage() {
       .maybeSingle()
     if (error) {
       setLoading(false)
+      await refreshRouteBundleValidUntil()
       return
     }
     setMyStation(data ?? null)
@@ -343,6 +433,7 @@ export function StationOwnerPage() {
       setCurrentStatus(null)
     }
     setLoading(false)
+    await refreshRouteBundleValidUntil()
   }
 
   async function loadCurrentStatus(stationId: string) {
@@ -379,6 +470,13 @@ export function StationOwnerPage() {
     setRegisterResult(null)
     setRegisterErrorMessage(null)
     try {
+      const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession()
+      const accessToken = refreshed.session?.access_token
+      if (refreshErr || !accessToken) {
+        setRegisterResult('error')
+        setRegisterErrorMessage(t('stationOwner.registerSessionRequired'))
+        return
+      }
       const body: Record<string, unknown> = {
         name: registerForm.name.trim(),
         brand: registerForm.brand.trim() || null,
@@ -400,7 +498,7 @@ export function StationOwnerPage() {
         body.lng = lng
       }
       const { data, error } = await supabase.functions.invoke('register-station', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
         body,
       })
       if (error) throw error
@@ -418,13 +516,8 @@ export function StationOwnerPage() {
       void loadMyStation()
     } catch (err) {
       setRegisterResult('error')
-      const msg =
-        err != null && typeof (err as { message?: unknown }).message === 'string'
-          ? (err as { message: string }).message
-          : err instanceof Error
-            ? err.message
-            : null
-      setRegisterErrorMessage(msg)
+      const raw = await parseRegisterStationInvokeError(err)
+      setRegisterErrorMessage(formatRegisterStationServerMessage(raw, t))
     } finally {
       setRegistering(false)
     }
@@ -1385,6 +1478,13 @@ export function StationOwnerPage() {
                 <p className="mt-2 text-xs text-gray-700">
                   {currentStatus.last_updated_at ? formatRelativeTime(currentStatus.last_updated_at) : '—'} · {QUEUE_LABEL[currentStatus.queue_bucket_computed ?? 'NONE'][lang]}
                 </p>
+              </div>
+            )}
+
+            {stationRouteBundleActive && (
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                <p className="font-semibold text-blue-900">{t('stationOwner.includedRoutePlanningTitle')}</p>
+                <p className="mt-1 text-xs text-blue-800">{t('stationOwner.includedRoutePlanningBody')}</p>
               </div>
             )}
 

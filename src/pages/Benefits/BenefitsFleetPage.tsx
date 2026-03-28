@@ -48,6 +48,13 @@ export function BenefitsFleetPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900">
+              {t('benefits.fleetOwners.sectionComparedToStations')}
+            </h2>
+            <p className="mt-2 text-gray-700">{t('benefits.fleetOwners.sectionNotStationProgram')}</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900">
               {t('benefits.fleetOwners.sectionCost')}
             </h2>
             <p className="mt-2 text-gray-700">

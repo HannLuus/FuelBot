@@ -62,6 +62,7 @@ supabase functions deploy send-fuel-alerts
 supabase functions deploy operator-report-payment
 supabase functions deploy contact-us
 supabase functions deploy get-referral-code --no-verify-jwt   # auth done in function; see docs/REFERRAL_CODE_FLOW.md
+supabase functions deploy register-station --no-verify-jwt   # same: Bearer validated inside the function
 # Admin panel invokeables: disable gateway JWT so preflight/post hit the function; each uses requireAdminUser()
 # (Same flags are set in supabase/config.toml under [functions.admin-*] for CLI deploys from this repo.)
 supabase functions deploy admin-approve-registration --no-verify-jwt

@@ -62,7 +62,9 @@ export function BenefitsStationPage() {
             <ul className="mt-2 list-inside list-disc space-y-1 text-gray-700">
               <li>{t('benefits.stationOwners.recognition')}</li>
               <li>{t('benefits.stationOwners.ownerTools')}</li>
+              <li>{t('benefits.stationOwners.routePlanningIncluded')}</li>
             </ul>
+            <p className="mt-2 text-sm text-gray-700">{t('benefits.stationOwners.routePlanningNationalNote')}</p>
           </section>
 
           <section>

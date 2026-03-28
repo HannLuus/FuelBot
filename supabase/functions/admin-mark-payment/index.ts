@@ -1,3 +1,6 @@
+// Renewals: call this again (or update the station row) so payment_received_at reflects the new paid period
+// and subscription_duration_months matches the term. Included route/corridor access uses payment_received_at +
+// COALESCE(subscription_duration_months, 12) in station_owner_route_bundle_valid_until().
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAdminUser } from '../_shared/adminAuth.ts'
 

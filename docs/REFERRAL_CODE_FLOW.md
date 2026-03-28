@@ -23,6 +23,14 @@ If the Earn page shows “Code unavailable” and the console shows **401 (Unaut
 2. **Wrong project** – `VITE_SUPABASE_URL` in `.env` must point to the same project the function is deployed to (e.g. `feenwusofmhnpuahekvu.supabase.co`).
 3. **Session** – The app refreshes the session and sends `Authorization: Bearer <access_token>` explicitly. If the session is expired or missing, the user must sign in again.
 
+## Station registration (`register-station`) and 401
+
+If **Register my station** fails with a generic Supabase error (e.g. “Edge Function returned a non-2xx status code”) and logs show **`POST register-station` → 401**, the referral code is usually **not** the problem. The same **gateway JWT** issue as above applies: deploy **`register-station` with `verify_jwt: false`** (`--no-verify-jwt`). The function already checks the Bearer token with `auth.getUser` before inserting the row.
+
+```bash
+supabase functions deploy register-station --no-verify-jwt
+```
+
 ## Testing the referral flow
 
 1. **Get your referral code (as a driver/subscriber)**  

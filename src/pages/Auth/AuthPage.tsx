@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import type { TFunction } from 'i18next'
+import type { Session } from '@supabase/supabase-js'
+import { Eye, EyeOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import {
+  clearPasswordRecoveryEmailMarker,
+  markPasswordRecoveryEmailSent,
+  sessionSuggestsPasswordRecoveryStep,
+  wasPasswordRecoveryEmailSentRecently,
+} from '@/lib/authRecovery'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
@@ -17,9 +25,12 @@ function getHashParams(): Record<string, string> {
   return Object.fromEntries(new URLSearchParams(hash))
 }
 
-function getInitialMode(searchMode: string | null, hashParams: Record<string, string>): AuthMode {
+function getInitialMode(): AuthMode {
+  const hashParams = getHashParams()
   if (hashParams.type === 'recovery') return 'reset'
-  if (searchMode === 'signup') return 'signup'
+  const search = new URLSearchParams(window.location.search)
+  if (search.get('type') === 'recovery') return 'reset'
+  if (search.get('mode') === 'signup') return 'signup'
   return 'signin'
 }
 
@@ -77,12 +88,13 @@ export function AuthPage() {
   const [searchParams] = useSearchParams()
   const redirectPath = searchParams.get('redirect') || '/home'
   const { user, signOut, loading: authLoading } = useAuthStore()
-  const [mode, setMode] = useState<AuthMode>(() =>
-    getInitialMode(searchParams.get('mode'), getHashParams()),
-  )
+  const [mode, setMode] = useState<AuthMode>(() => getInitialMode())
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showMainPassword, setShowMainPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -106,12 +118,54 @@ export function AuthPage() {
   }, [])
 
   useEffect(() => {
+    if (searchParams.get('type') === 'recovery') {
+      setMode('reset')
+      setError(null)
+      setResetLinkExpired(false)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    function enterPasswordRecoveryUi() {
+      setMode('reset')
+      setError(null)
+      setResetLinkExpired(false)
+    }
+
+    function maybeRecoveryFromSession(event: string, session: Session | null) {
+      if (event === 'PASSWORD_RECOVERY') {
+        enterPasswordRecoveryUi()
+        return
+      }
+      if (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN') return
+      if (!session?.user) return
+      const jwtHintsRecovery = sessionSuggestsPasswordRecoveryStep(session)
+      const path = window.location.pathname
+      const onAuthPath = path === '/auth' || path.startsWith('/auth/')
+      const storageHintsRecovery = event === 'INITIAL_SESSION' && onAuthPath && wasPasswordRecoveryEmailSentRecently()
+      if (jwtHintsRecovery || storageHintsRecovery) {
+        enterPasswordRecoveryUi()
+      }
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      maybeRecoveryFromSession(event, session)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
     if (user) setResetLinkExpired(false)
   }, [user])
 
   useEffect(() => {
     if (mode !== 'reset' || user !== null) return
-    if (getHashParams().type !== 'recovery') return
+    const hashRecovery = getHashParams().type === 'recovery'
+    const searchRecovery = new URLSearchParams(window.location.search).get('type') === 'recovery'
+    const pendingMarker = wasPasswordRecoveryEmailSentRecently()
+    if (!hashRecovery && !searchRecovery && !pendingMarker) return
     const timer = window.setTimeout(() => setResetLinkExpired(true), RESET_LINK_FALLBACK_MS)
     return () => clearTimeout(timer)
   }, [mode, user])
@@ -128,6 +182,7 @@ export function AuthPage() {
       if (mode === 'signin') {
         const { error } = await supabase.auth.signInWithPassword({ email: emailTrimmed, password })
         if (error) { setError(formatAuthError(error.message, t, { status: error.status, flow: 'signin' })); return }
+        clearPasswordRecoveryEmailMarker()
         navigate(redirectPath)
       } else if (mode === 'signup') {
         if (!acceptedTerms) {
@@ -150,6 +205,7 @@ export function AuthPage() {
           redirectTo: `${window.location.origin}/auth`,
         })
         if (error) { setError(formatAuthError(error.message, t, { status: error.status, flow: 'forgot' })); return }
+        markPasswordRecoveryEmailSent()
         setSuccess(`${t('auth.checkEmailReset')} ${t('auth.checkEmailResetHint')}`)
       } else if (mode === 'reset') {
         if (password !== confirmPassword) {
@@ -158,11 +214,14 @@ export function AuthPage() {
         }
         const { error } = await supabase.auth.updateUser({ password })
         if (error) { setError(formatAuthError(error.message, t, { status: error.status, flow: 'reset' })); return }
+        clearPasswordRecoveryEmailMarker()
         setSuccess(t('auth.passwordUpdated'))
-        setMode('signin')
         setPassword('')
         setConfirmPassword('')
+        setShowNewPassword(false)
+        setShowConfirmPassword(false)
         window.history.replaceState(null, '', window.location.pathname)
+        navigate(redirectPath)
       }
     } finally {
       setLoading(false)
@@ -286,7 +345,13 @@ export function AuthPage() {
               type="button"
               role="tab"
               aria-selected={mode === 'signup'}
-              onClick={() => { setMode('signup'); setError(null); setSuccess(null); setAcceptedTerms(false) }}
+              onClick={() => {
+                clearPasswordRecoveryEmailMarker()
+                setMode('signup')
+                setError(null)
+                setSuccess(null)
+                setAcceptedTerms(false)
+              }}
               className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-colors ${mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`}
             >
               {t('auth.signUp')}
@@ -318,17 +383,28 @@ export function AuthPage() {
               <label htmlFor="auth-password" className="mb-1.5 block text-sm font-semibold text-gray-700">
                 {t('auth.password')}
               </label>
-              <input
-                id="auth-password"
-                type="password"
-                required
-                minLength={8}
-                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ fontSize: '16px' }}
-                className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
-              />
+              <div className="relative">
+                <input
+                  id="auth-password"
+                  type={showMainPassword ? 'text' : 'password'}
+                  required
+                  minLength={8}
+                  autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ fontSize: '16px' }}
+                  className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 py-3.5 pl-4 pr-12 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
+                />
+                <button
+                  type="button"
+                  aria-label={showMainPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                  aria-pressed={showMainPassword}
+                  onClick={() => setShowMainPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl text-gray-600 active:bg-gray-100"
+                >
+                  {showMainPassword ? <EyeOff className="h-5 w-5 shrink-0" aria-hidden /> : <Eye className="h-5 w-5 shrink-0" aria-hidden />}
+                </button>
+              </div>
               {mode === 'signin' && (
                 <button
                   type="button"
@@ -374,33 +450,55 @@ export function AuthPage() {
                 <label htmlFor="auth-new-password" className="mb-1.5 block text-sm font-semibold text-gray-700">
                   {t('auth.newPassword')}
                 </label>
-                <input
-                id="auth-new-password"
-                type="password"
-                required
-                minLength={8}
-                autoComplete="new-password"
-                value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ fontSize: '16px' }}
-                  className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
-                />
+                <div className="relative">
+                  <input
+                    id="auth-new-password"
+                    type={showNewPassword ? 'text' : 'password'}
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ fontSize: '16px' }}
+                    className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 py-3.5 pl-4 pr-12 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    aria-label={showNewPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                    aria-pressed={showNewPassword}
+                    onClick={() => setShowNewPassword((v) => !v)}
+                    className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl text-gray-600 active:bg-gray-100"
+                  >
+                    {showNewPassword ? <EyeOff className="h-5 w-5 shrink-0" aria-hidden /> : <Eye className="h-5 w-5 shrink-0" aria-hidden />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label htmlFor="auth-confirm-password" className="mb-1.5 block text-sm font-semibold text-gray-700">
                   {t('auth.confirmPassword')}
                 </label>
-                <input
-                id="auth-confirm-password"
-                type="password"
-                required
-                minLength={8}
-                autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{ fontSize: '16px' }}
-                  className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
-                />
+                <div className="relative">
+                  <input
+                    id="auth-confirm-password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    style={{ fontSize: '16px' }}
+                    className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 py-3.5 pl-4 pr-12 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:bg-white focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    aria-label={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                    aria-pressed={showConfirmPassword}
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl text-gray-600 active:bg-gray-100"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5 shrink-0" aria-hidden /> : <Eye className="h-5 w-5 shrink-0" aria-hidden />}
+                  </button>
+                </div>
               </div>
             </>
           )}
@@ -468,6 +566,7 @@ export function AuthPage() {
           <button
             type="button"
             onClick={() => {
+              if (mode === 'signin') clearPasswordRecoveryEmailMarker()
               setMode(mode === 'signin' ? 'signup' : 'signin')
               setError(null)
               setSuccess(null)
