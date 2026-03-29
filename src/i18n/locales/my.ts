@@ -585,7 +585,7 @@ export default {
     noReferralRewardsYet: 'Referral ဆုမရှိသေးပါ။',
   },
   suggest: {
-    missingStation: 'ဆိုင်တစ်ခု 빠져있나요?',
+    missingStation: 'ဆိုင်တစ်ခု မပါဘူးလား?',
     suggestLink: 'အကြံပြုမည်',
     title: 'ဆိုင်တစ်ခု အကြံပြုမည်',
     intro: 'ကျွန်ုပ်တို့မြေပုံပေါ်မရှိသော ဆီဆိုင်တစ်ခု သိပါသလား? ပြောပြပါ၊ ကျွန်ုပ်တို့ စစ်ဆေးပေးပါမည်။',
