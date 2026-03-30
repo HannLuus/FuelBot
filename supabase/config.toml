@@ -453,3 +453,8 @@ entrypoint = "./functions/admin-mark-referral-paid/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/admin-inbox-bulk/index.ts"
+
+[functions.daily-executive-report]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/daily-executive-report/index.ts"

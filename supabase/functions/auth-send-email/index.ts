@@ -135,6 +135,35 @@ function buildHtml(params: {
   </body></html>`
 }
 
+async function maybeNotifyAdminOnSignup(params: {
+  resend: Resend
+  emailActionType: string
+  userEmail: string
+}) {
+  const { resend, emailActionType, userEmail } = params
+  if (emailActionType !== 'signup') return
+
+  const adminEmail = Deno.env.get('ADMIN_NOTIFICATION_EMAIL') ?? Deno.env.get('ADMIN_EMAIL')
+  if (!adminEmail) return
+
+  const safeEmail = escapeHtml(userEmail)
+  try {
+    await resend.emails.send({
+      from: RESEND_FROM,
+      to: [adminEmail],
+      subject: 'FuelBot: new user sign-up',
+      html: `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1e293b">
+        <h2 style="margin:0 0 12px">New user sign-up</h2>
+        <p style="margin:0 0 8px">A new account has signed up on FuelBot.</p>
+        <p style="margin:0"><strong>Email:</strong> ${safeEmail}</p>
+      </body></html>`,
+    })
+  } catch (err) {
+    // Do not block auth mail delivery if admin notification fails.
+    console.error('auth-send-email: admin signup notify failed', err)
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 })
@@ -273,6 +302,12 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
     })
   }
+
+  await maybeNotifyAdminOnSignup({
+    resend,
+    emailActionType: email_action_type,
+    userEmail: to,
+  })
 
   return new Response(JSON.stringify({}), {
     status: 200,

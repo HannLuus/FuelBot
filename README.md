@@ -37,6 +37,8 @@ Also configure:
 
 - Payment copy, KPay QR URL, and optional KPay phone: **Admin → Payment settings** (`payment_config` in Supabase), not `VITE_*` vars
 - `ADMIN_NOTIFICATION_EMAIL` (for admin action emails; e.g. `support@fuelbotmm.com`)
+- `CRON_SECRET` (required by scheduled functions such as `snapshot-station-statuses` and `daily-executive-report`)
+- `REPORT_TIMEZONE_OFFSET_MINUTES` (optional; default `390` for Myanmar UTC+6:30) for daily executive report day windows
 - **Invoices:** On station approval and B2B payment confirmation, customers receive a tax invoice email (Commercial Tax % configurable; default 5%). Optional Edge secrets: `INVOICE_COMMERCIAL_TAX_PERCENT`, `INVOICE_SUPPORT_EMAIL`, `INVOICE_COMPANY_NAME`. Rows are stored in table `invoices` with sequential `FB-YYYY-######` numbers via `allocate_invoice_number()`.
 - Station subscription (flat 10,000 MMK/month = 120,000 MMK/year):
   - `VITE_STATION_SUBSCRIPTION_ANNUAL_MMK=120000`
@@ -73,9 +75,14 @@ supabase functions deploy admin-mark-payment --no-verify-jwt
 supabase functions deploy admin-mark-referral-collected --no-verify-jwt
 supabase functions deploy admin-mark-referral-paid --no-verify-jwt
 supabase functions deploy snapshot-station-statuses
+supabase functions deploy daily-executive-report --no-verify-jwt
 ```
 
 Schedule `snapshot-station-statuses` to run **hourly** (e.g. Supabase Dashboard → Database → Cron, or an external cron hitting the function URL) so that uptime metrics can be computed after ~1 month of data.
+Schedule `daily-executive-report` to run **once daily** (recommended local morning). Include header `x-cron-secret: <CRON_SECRET>`.
+
+`daily-executive-report` emails a one-page table (Today / Yesterday / Growth %) for sign-ups, active users, usage actions, payment-report events, plus current pending approvals and user mix.
+To get "email every new sign-up", configure Supabase Auth **Send Email hook** to this repo's `auth-send-email` Edge Function; it now sends an admin notification on `signup` events.
 
 Set `SUPABASE_SERVICE_ROLE_KEY` in the Edge Function secrets via the Supabase dashboard.
 
