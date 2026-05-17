@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi, Upload, Menu, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { getSupabaseApiHostname } from '@/lib/supabaseHost'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
@@ -24,9 +25,11 @@ const PAYMENT_SCREENSHOT_BUCKET = 'b2b-payment-screenshots'
 function isTrustedStorageUrl(url: string): boolean {
   try {
     const parsed = new URL(url)
+    const apiHost = getSupabaseApiHostname()
     return (
       parsed.protocol === 'https:' &&
-      parsed.hostname.endsWith('.supabase.co') &&
+      (parsed.hostname.endsWith('.supabase.co') ||
+        (apiHost !== null && parsed.hostname === apiHost)) &&
       parsed.pathname.startsWith('/storage/')
     )
   } catch {

@@ -14,9 +14,23 @@ precacheAndRoute(self.__WB_MANIFEST)
 self.skipWaiting()
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()))
 
-// Supabase API — network first, 5 min cache
+function supabaseApiHostFromEnv(): string | null {
+  const raw = import.meta.env.VITE_SUPABASE_URL
+  if (!raw) return null
+  try {
+    return new URL(raw).hostname.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+const supabaseApiHost = supabaseApiHostFromEnv()
+
+// Supabase API — network first, 5 min cache (cloud + self-hosted)
 registerRoute(
-  ({ url }) => url.hostname.endsWith('.supabase.co'),
+  ({ url }) =>
+    url.hostname.endsWith('.supabase.co') ||
+    (supabaseApiHost !== null && url.hostname === supabaseApiHost),
   new NetworkFirst({
     cacheName: 'supabase-cache',
     plugins: [new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 300 })],

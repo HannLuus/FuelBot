@@ -7,11 +7,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY env variables')
 }
 
+function isValidSupabaseApiUrl(url: string): boolean {
+  try {
+    return new URL(url).protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 function projectRefFromSupabaseUrl(url: string): string | null {
   try {
     const { hostname } = new URL(url)
-    const m = /^([a-z0-9]+)\.supabase\.co$/i.exec(hostname)
-    return m ? m[1].toLowerCase() : null
+    const cloud = /^([a-z0-9]+)\.supabase\.co$/i.exec(hostname)
+    if (cloud) return cloud[1].toLowerCase()
+    return hostname.toLowerCase()
   } catch {
     return null
   }
@@ -34,17 +43,12 @@ function projectRefFromAnonJwt(jwt: string): string | null {
 const urlRef = projectRefFromSupabaseUrl(supabaseUrl)
 const keyRef = projectRefFromAnonJwt(supabaseAnonKey)
 
-if (!urlRef) {
+if (!isValidSupabaseApiUrl(supabaseUrl) || !urlRef) {
   throw new Error(
-    'VITE_SUPABASE_URL must look like https://YOUR_PROJECT_REF.supabase.co (copy Project URL from Supabase → Settings → API).',
+    'VITE_SUPABASE_URL must be a valid https Supabase API URL (cloud: https://YOUR_PROJECT_REF.supabase.co, or your self-hosted API origin).',
   )
 }
-if (!keyRef) {
-  throw new Error(
-    'VITE_SUPABASE_ANON_KEY is not a valid Supabase anon key (missing ref claim). Paste anon public from Settings → API.',
-  )
-}
-if (urlRef !== keyRef) {
+if (keyRef && urlRef !== keyRef) {
   throw new Error(
     `VITE_SUPABASE_URL is for project "${urlRef}" but the anon key is for "${keyRef}". Use both from the same Supabase project, remove duplicate VITE_* lines in .env / .env.local, then restart the dev server.`,
   )
