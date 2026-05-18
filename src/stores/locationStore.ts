@@ -103,37 +103,43 @@ export const useLocationStore = create<LocationState>((set) => ({
         return { lat, lng }
       }
 
-      // Race all providers simultaneously — first valid response wins.
-      // This avoids the old sequential approach where 2–3 timeouts could mean 20–60s of waiting.
+      // Try providers in order — geojs and ipapi.co first (most reliable); ipwho.is removed (403 blocks).
+      const ipProviders: Array<() => Promise<{ lat: number; lng: number }>> = [
+        async () => {
+          const res = await fetch('https://get.geojs.io/v1/ip/geo.json')
+          const data = await res.json()
+          return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
+        },
+        async () => {
+          const res = await fetch('https://ipapi.co/json/')
+          const data = await res.json()
+          return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
+        },
+        async () => {
+          const res = await fetch('https://ipinfo.io/json')
+          const data = await res.json()
+          const [la, lo] = data.loc.split(',')
+          return { lat: parseFloat(la), lng: parseFloat(lo) }
+        },
+        async () => {
+          const res = await fetch('https://freeipapi.com/api/json')
+          const data = await res.json()
+          return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
+        },
+      ]
+
       try {
-        const { lat, lng } = await Promise.any([
-          fetchAndValidate(async () => {
-            const res = await fetch('https://ipapi.co/json/')
-            const data = await res.json()
-            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          }),
-          fetchAndValidate(async () => {
-            const res = await fetch('https://ipinfo.io/json')
-            const data = await res.json()
-            const [la, lo] = data.loc.split(',')
-            return { lat: parseFloat(la), lng: parseFloat(lo) }
-          }),
-          fetchAndValidate(async () => {
-            const res = await fetch('https://ipwho.is/')
-            const data = await res.json()
-            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          }),
-          fetchAndValidate(async () => {
-            const res = await fetch('https://freeipapi.com/api/json')
-            const data = await res.json()
-            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          }),
-          fetchAndValidate(async () => {
-            const res = await fetch('https://get.geojs.io/v1/ip/geo.json')
-            const data = await res.json()
-            return { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) }
-          }),
-        ])
+        let lat = NaN
+        let lng = NaN
+        for (const provider of ipProviders) {
+          try {
+            ;({ lat, lng } = await fetchAndValidate(provider))
+            break
+          } catch {
+            /* try next provider */
+          }
+        }
+        if (isNaN(lat) || isNaN(lng)) throw new Error('All IP geolocation providers failed')
         savePersistedLocation({ lat, lng, ts: Date.now(), source: 'ip' })
         set({ lat, lng, loading: false, error: null, usingIpFallback: true })
       } catch {
