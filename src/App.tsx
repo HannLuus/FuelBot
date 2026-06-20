@@ -19,6 +19,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
 import { ContactPage } from '@/pages/Contact/ContactPage'
+import { AdvertisePage } from '@/pages/Advertise/AdvertisePage'
 import { HelpPage } from '@/pages/Help/HelpPage'
 import { RequireAdmin, RequireAuth, RequireFleetContext, RequireStationContext } from '@/components/auth/RouteGuards'
 import { InboxPage } from '@/pages/Inbox/InboxPage'
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/advertise" element={<AdvertisePage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/leaderboard" element={<Navigate to="/" replace />} />
         <Route path="/earn" element={<Navigate to="/" replace />} />

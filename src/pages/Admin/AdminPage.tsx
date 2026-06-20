@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { FunctionsHttpError } from '@supabase/supabase-js'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Lightbulb, MapPin, Wifi, Upload, Menu, Mail } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Lightbulb, MapPin, Wifi, Upload, Menu, Mail, Megaphone } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSupabaseApiHostname } from '@/lib/supabaseHost'
 import { useAuthStore } from '@/stores/authStore'
@@ -12,6 +12,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { SUBSCRIPTION_TIERS, formatMmk, getTierPrice } from '@/lib/subscriptionTiers'
 import type { StationStatusReport, StationClaim, Station, SubscriptionTierRequested } from '@/types'
 import { AdminInboxPanel } from '@/pages/Admin/AdminInboxPanel'
+import { AdminSponsorsPanel } from '@/pages/Admin/AdminSponsorsPanel'
 import { useAdminInboxUnreadCount } from '@/hooks/useInboxUnreadCount'
 
 const PAYMENT_CONFIG_BUCKET = 'payment-config'
@@ -75,7 +76,7 @@ function StorageFileButton({ bucket, path, label }: { bucket: string; path: stri
   )
 }
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'payment' | 'suggestions' | 'b2b' | 'inbox'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'payment' | 'sponsors' | 'suggestions' | 'b2b' | 'inbox'
 
 interface StationSuggestion {
   id: string
@@ -224,6 +225,7 @@ export function AdminPage() {
     { key: 'claims' as Tab, label: t('admin.stationClaims'), icon: Store, badge: claims.length, badgeClass: 'bg-orange-500', activeClass: 'text-blue-600' },
     { key: 'suggestions' as Tab, label: t('admin.suggestionsTab'), icon: Lightbulb, badge: suggestions.length, badgeClass: 'bg-amber-500', activeClass: 'text-amber-600' },
     { key: 'payment' as Tab, label: t('admin.paymentSettings'), icon: Settings, badge: 0, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
+    { key: 'sponsors' as Tab, label: t('admin.sponsorsTab'), icon: Megaphone, badge: 0, badgeClass: 'bg-green-600', activeClass: 'text-green-600' },
     { key: 'b2b' as Tab, label: 'B2B', icon: Wifi, badge: pendingB2B.length, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
     {
       key: 'inbox' as Tab,
@@ -933,6 +935,8 @@ export function AdminPage() {
               </Button>
             </div>
           )
+        ) : tab === 'sponsors' ? (
+          <AdminSponsorsPanel />
         ) : tab === 'flagged' ? (
           flagged.length === 0 ? (
             <p className="py-12 text-center text-gray-700">{t('admin.noFlagged')}</p>
