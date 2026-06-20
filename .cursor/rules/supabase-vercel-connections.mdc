@@ -1,54 +1,38 @@
 ---
-description: When to use VPS Supabase (Studio), app env connection, and Vercel
+description: FuelBot uses VPS self-hosted Supabase — never Supabase Cloud
 alwaysApply: true
 ---
 
-# Supabase (VPS self-hosted), Database, and Vercel
+# VPS Supabase backend (mandatory)
 
-FuelBot’s backend is **self-hosted Supabase on the VPS** — not Supabase Cloud.
+**FuelBot backend = self-hosted Supabase on VPS.** Not Supabase Cloud.
 
 | What | URL |
 |------|-----|
-| **API (Kong)** | `https://fuelbot.lucas-dev-server.tech` |
+| **API** | `https://fuelbot.lucas-dev-server.tech` |
 | **Studio** | `https://studio.fuelbot.lucas-dev-server.tech` |
 
-No SSH tunnel. No `mcp.supabase.com`. No `supabase link` to a cloud project ref.
+## Never do this
 
-See **[docs/SUPABASE_SETUP.md](../../docs/SUPABASE_SETUP.md)** for full details.
+- Do **not** use `*.supabase.co`, project ref `feenwusofmhnpuahekvu`, or Supabase Cloud Dashboard
+- Do **not** use Supabase Cloud MCP (`mcp.supabase.com`) or ask the user to `supabase db push` to cloud
+- Do **not** assume SSH tunnels — the API is public HTTPS
 
-## 1. Studio (schema + data)
+Read **[AGENTS.md](../../AGENTS.md)** and **[docs/SUPABASE_SETUP.md](../../docs/SUPABASE_SETUP.md)** first for DB/backend work.
 
-**Use Studio when:** Applying migrations, browsing tables, running SQL, checking data.
+## Apply migrations (VPS only)
 
-- **SQL editor:** `https://studio.fuelbot.lucas-dev-server.tech/project/default/sql/new`
-- **Versioned migrations:** SQL files in [`supabase/migrations/`](../../supabase/migrations/) — paste into Studio and run (or use combined files like `RUN_IN_STUDIO_*.sql`).
-- Do **not** tell the user to use Supabase Cloud dashboard or Cloud MCP.
+1. SQL files in `supabase/migrations/`
+2. Apply via **Studio SQL editor** (paste + run), **or**
+3. `POST {VITE_SUPABASE_URL}/pg/query` with body `{ "query": "<sql>" }` and header `Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY` (local `.env.local` only — AI should run this, not ask the user to paste SQL unless they prefer Studio)
 
-## 2. App connection (React + local scripts)
-
-**Use env + `@supabase/supabase-js` when:** Writing or changing application code.
-
-- **Frontend (Vercel + local):** `VITE_SUPABASE_URL=https://fuelbot.lucas-dev-server.tech` and `VITE_SUPABASE_ANON_KEY`
-- **Local scripts/imports only:** `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` — never in Vercel client bundle
-
-## 3. Vercel
-
-**Use Vercel for:** Hosting the frontend.
-
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the **VPS** values
-- `SUPABASE_SERVICE_ROLE_KEY` is **not** required on Vercel for the static app
-
-## 4. Edge Functions (VPS)
-
-Legacy functions live in [`supabase/functions/`](../../supabase/functions/). Deploy/run on the **VPS stack**, not Supabase Cloud.
-
-## Summary
+## Connections
 
 | Task | Use |
 |------|-----|
-| Apply migration DDL, inspect tables, ad-hoc SQL | **Studio** (`studio.fuelbot.lucas-dev-server.tech`) |
-| React app queries / auth / RLS | **App env** (`VITE_SUPABASE_*`) |
-| Import scripts, admin bypass RLS | **Local** `SUPABASE_SERVICE_ROLE_KEY` |
-| Deploy frontend | **Vercel** |
+| DDL / inspect tables / ad-hoc SQL | Studio or `/pg/query` (service role, local) |
+| React app auth + RLS queries | `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` |
+| Import scripts, bypass RLS | Local `SUPABASE_SERVICE_ROLE_KEY` |
+| Deploy frontend | Vercel with same `VITE_SUPABASE_*` |
 
-Run `npm run audit:supabase` to verify env files point at the VPS API URL.
+Run `npm run audit:supabase` to confirm env points at the VPS API URL.

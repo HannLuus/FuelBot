@@ -1,13 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders, json, requireAuthedUser } from '../_shared/adminAuth.ts'
-import { resolveReferral } from '../_shared/referralResolver.ts'
 
 interface Payload {
   station_id: string
   name?: string | null
   brand?: string | null
   subscription_tier_requested?: 'small' | 'medium' | 'large'
-  referral_code?: string | null
   station_photo_urls?: string[]
   location_photo_url?: string | null
 }
@@ -44,22 +42,6 @@ Deno.serve(async (req) => {
   if (station.verified_owner_id !== authed.user.id) return json({ error: 'Forbidden' }, 403)
   if (station.payment_received_at) return json({ error: 'Tier is locked after payment confirmation' }, 400)
 
-  let referrerUserId: string | null | undefined = undefined
-  let referralMatchedCode: string | undefined = undefined
-  const referralCode = (payload.referral_code ?? '').trim()
-  if (referralCode) {
-    const resolved = await resolveReferral(service, referralCode, authed.user.id)
-    if (!resolved) {
-      const selfCheck = await resolveReferral(service, referralCode, null)
-      if (selfCheck && selfCheck.user_id === authed.user.id) {
-        return json({ error: 'Cannot use your own referral code' }, 400)
-      }
-      return json({ error: 'Invalid referral code' }, 400)
-    }
-    referrerUserId = resolved.user_id
-    referralMatchedCode = resolved.code
-  }
-
   const patch: Record<string, unknown> = {}
   if (typeof payload.name !== 'undefined') {
     const trimmed = (payload.name ?? '').toString().trim()
@@ -77,9 +59,6 @@ Deno.serve(async (req) => {
   if (payload.station_photo_urls) {
     patch.station_photo_urls = payload.station_photo_urls
   }
-  if (typeof referrerUserId !== 'undefined') {
-    patch.referrer_user_id = referrerUserId
-  }
 
   const { error: updateErr } = await service
     .from('stations')
@@ -95,5 +74,5 @@ Deno.serve(async (req) => {
     return json({ error: 'Failed to update verification info' }, 500)
   }
 
-  return json({ success: true, referral_matched: referralMatchedCode })
+  return json({ success: true })
 })

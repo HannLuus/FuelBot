@@ -63,7 +63,6 @@ supabase functions deploy submit-report
 supabase functions deploy send-fuel-alerts
 supabase functions deploy operator-report-payment
 supabase functions deploy contact-us
-supabase functions deploy get-referral-code --no-verify-jwt   # auth done in function; see docs/REFERRAL_CODE_FLOW.md
 supabase functions deploy register-station --no-verify-jwt   # same: Bearer validated inside the function
 # Admin panel invokeables: disable gateway JWT so preflight/post hit the function; each uses requireAdminUser()
 # (Same flags are set in supabase/config.toml under [functions.admin-*] for CLI deploys from this repo.)
@@ -72,8 +71,6 @@ supabase functions deploy admin-reject-registration --no-verify-jwt
 supabase functions deploy admin-create-station-from-suggestion --no-verify-jwt
 supabase functions deploy admin-confirm-b2b --no-verify-jwt
 supabase functions deploy admin-mark-payment --no-verify-jwt
-supabase functions deploy admin-mark-referral-collected --no-verify-jwt
-supabase functions deploy admin-mark-referral-paid --no-verify-jwt
 supabase functions deploy snapshot-station-statuses
 supabase functions deploy daily-executive-report --no-verify-jwt
 ```
@@ -203,7 +200,6 @@ You can run the script in stages (e.g. one region per run) and concatenate or re
 - Owner-first station registration and verification workflow
 - Tier selection (small / medium / large) with annual MMK pricing
 - Payment instructions + QR visibility
-- Referral code support (15% reward to the person who gets the deal)
 - Post verified updates (after admin approval)
 - Recognition photo upload/confirm flow for landing hero
 

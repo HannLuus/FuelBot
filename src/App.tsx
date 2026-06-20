@@ -13,7 +13,6 @@ import { PrivacyPage } from '@/pages/Legal/PrivacyPage'
 import { BenefitsStationPage } from '@/pages/Benefits/BenefitsStationPage'
 import { BenefitsFleetPage } from '@/pages/Benefits/BenefitsFleetPage'
 import { B2BPage } from '@/pages/B2B/B2BPage'
-import { EarnPage } from '@/pages/Earn/EarnPage'
 import { GaragePage } from '@/pages/Garage/GaragePage'
 import { VehicleDetailPage } from '@/pages/Garage/VehicleDetailPage'
 import { Spinner } from '@/components/ui/Spinner'
@@ -21,7 +20,6 @@ import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
 import { ContactPage } from '@/pages/Contact/ContactPage'
 import { HelpPage } from '@/pages/Help/HelpPage'
-import { LeaderboardPage } from '@/pages/Leaderboard/LeaderboardPage'
 import { RequireAdmin, RequireAuth, RequireFleetContext, RequireStationContext } from '@/components/auth/RouteGuards'
 import { InboxPage } from '@/pages/Inbox/InboxPage'
 
@@ -69,7 +67,8 @@ export default function App() {
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/help" element={<HelpPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/leaderboard" element={<Navigate to="/" replace />} />
+        <Route path="/earn" element={<Navigate to="/" replace />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
@@ -83,7 +82,6 @@ export default function App() {
             <Route path="/station" element={<StationOwnerPage />} />
           </Route>
           <Route element={<RequireAuth />}>
-            <Route path="/earn" element={<EarnPage />} />
             <Route path="/inbox" element={<InboxPage />} />
             <Route path="/garage" element={<GaragePage />} />
             <Route path="/garage/:vehicleId" element={<VehicleDetailPage />} />

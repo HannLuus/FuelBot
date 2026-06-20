@@ -9,7 +9,6 @@ export const HELP_GUIDE_SLUGS = [
   'stationPayment',
   'garageEfficiency',
   'b2bAccess',
-  'earnReferral',
 ] as const
 
 export type HelpGuideSlug = (typeof HELP_GUIDE_SLUGS)[number]
@@ -69,14 +68,6 @@ export const FAQ_SECTIONS: {
       { anchorId: 'faq-b2b-what', qKey: 'help.faq.b2b.q1', aKey: 'help.faq.b2b.a1' },
       { anchorId: 'faq-b2b-pending', qKey: 'help.faq.b2b.q2', aKey: 'help.faq.b2b.a2' },
       { anchorId: 'faq-b2b-national', qKey: 'help.faq.b2b.q3', aKey: 'help.faq.b2b.a3' },
-    ],
-  },
-  {
-    sectionId: 'earn',
-    titleKey: 'help.faqGroups.earnTitle',
-    items: [
-      { anchorId: 'faq-earn-code', qKey: 'help.faq.earn.q1', aKey: 'help.faq.earn.a1' },
-      { anchorId: 'faq-earn-station', qKey: 'help.faq.earn.q2', aKey: 'help.faq.earn.a2' },
     ],
   },
 ]
@@ -210,18 +201,5 @@ export const GUIDE_CONFIG: GuideConfig[] = [
     troubleshootKeys: ['help.guides.b2bAccess.t1'],
     relatedBenefitsPath: '/benefits/fleet-owners',
     relatedBenefitsLabelKey: 'help.guides.b2bAccess.related',
-  },
-  {
-    slug: 'earnReferral',
-    anchorId: 'guide-earnReferral',
-    titleKey: 'help.guides.earnReferral.title',
-    prereqKey: 'help.guides.earnReferral.prereq',
-    stepKeys: [
-      'help.guides.earnReferral.s1',
-      'help.guides.earnReferral.s2',
-      'help.guides.earnReferral.s3',
-      'help.guides.earnReferral.s4',
-    ],
-    troubleshootKeys: ['help.guides.earnReferral.t1'],
   },
 ]

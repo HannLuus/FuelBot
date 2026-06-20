@@ -1,7 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'npm:resend@2.0.0'
 import { emailLogoHtml, getAppBaseUrl, RESEND_FROM } from '../_shared/emailHeader.ts'
-import { resolveReferral } from '../_shared/referralResolver.ts'
 import { escapeHtml } from '../_shared/adminAuth.ts'
 
 const YANGON_LAT = 16.8661
@@ -17,7 +16,6 @@ interface RegisterPayload {
   lat?: number
   lng?: number
   subscription_tier_requested?: 'small' | 'medium' | 'large'
-  referral_code?: string | null
 }
 
 function json(body: unknown, status: number) {
@@ -76,25 +74,11 @@ Deno.serve(async (req) => {
   const address_text = (body.address ?? '').trim() || null
   const brand = (body.brand ?? '').trim() || null
   const requestedTier = body.subscription_tier_requested ?? null
-  const referralCodeRaw = (body.referral_code ?? '').trim().toUpperCase()
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
-
-  let referrerUserId: string | null = null
-  if (referralCodeRaw) {
-    const resolved = await resolveReferral(supabase, referralCodeRaw, user.id)
-    if (!resolved) {
-      const selfCheck = await resolveReferral(supabase, referralCodeRaw, null)
-      if (selfCheck && selfCheck.user_id === user.id) {
-        return json({ error: 'Cannot use your own referral code' }, 400)
-      }
-      return json({ error: 'Invalid referral code' }, 400)
-    }
-    referrerUserId = resolved.user_id
-  }
 
   // Guard against spam registrations: cap pending (unpaid) stations per user at 3
   const { count: pendingCount } = await supabase
@@ -125,7 +109,6 @@ Deno.serve(async (req) => {
       is_verified: false,
       verified_owner_id: user.id,
       subscription_tier_requested: requestedTier,
-      referrer_user_id: referrerUserId,
       registration_reject_reason: null,
       registration_rejected_at: null,
     })

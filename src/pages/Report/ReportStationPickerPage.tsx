@@ -365,7 +365,6 @@ export function ReportStationPickerPage() {
             <div>
               <p className="text-sm font-semibold text-blue-900">{t('report.cantFindStationTitle')}</p>
               <p className="mt-1 text-xs text-blue-900">{t('report.cantFindStationBody')}</p>
-              <p className="mt-1 text-xs text-blue-900">{t('report.cantFindStationRewardsHint')}</p>
             </div>
           </div>
           <Button

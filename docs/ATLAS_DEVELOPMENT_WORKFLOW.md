@@ -35,7 +35,7 @@ Answer briefly:
 2. **Integrations:** Supabase client, Edge Function callers, Google/Gemini scripts, email — note auth (anon JWT, service role, admin checks).
 3. **Edge cases:** rate limits (`submit-report`, external APIs), token expiry, offline PWA, empty lists, permission denied (RLS), duplicate submissions.
 
-**References:** domain overview in [README.md](../README.md); auth/email [auth-email-setup.md](./auth-email-setup.md); referral JWT [REFERRAL_CODE_FLOW.md](./REFERRAL_CODE_FLOW.md).
+**References:** domain overview in [README.md](../README.md); auth/email [auth-email-setup.md](./auth-email-setup.md).
 
 ---
 

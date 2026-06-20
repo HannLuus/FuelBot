@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { FunctionsHttpError } from '@supabase/supabase-js'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Trophy, Lightbulb, MapPin, Wifi, Upload, Menu, Mail } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Lightbulb, MapPin, Wifi, Upload, Menu, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSupabaseApiHostname } from '@/lib/supabaseHost'
 import { useAuthStore } from '@/stores/authStore'
@@ -75,7 +75,7 @@ function StorageFileButton({ bucket, path, label }: { bucket: string; path: stri
   )
 }
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'referrals' | 'payment' | 'rewards' | 'suggestions' | 'b2b' | 'inbox'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'payment' | 'suggestions' | 'b2b' | 'inbox'
 
 interface StationSuggestion {
   id: string
@@ -89,21 +89,6 @@ interface StationSuggestion {
   status: 'pending' | 'approved' | 'rejected'
   station_id?: string | null
   created_at: string
-}
-
-interface ReporterRow {
-  user_id: string
-  display_name: string | null
-  report_count: number
-  rank: number
-}
-interface PendingReferralRewardRow {
-  id: string
-  station_id: string
-  amount_mmk: number
-  status: string
-  created_at: string
-  stations: { name: string } | null
 }
 
 interface PendingB2BRow {
@@ -128,15 +113,6 @@ interface AdminClaimRow extends StationClaim {
     Station,
     'id' | 'name' | 'township' | 'city' | 'is_verified' | 'payment_reported_at' | 'payment_received_at' | 'verified_owner_id'
   > | null
-}
-
-function fairShuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const tmp = a[i]; a[i] = a[j]; a[j] = tmp
-  }
-  return a
 }
 
 function toLocalDateTimeInputValue(isoLike: string | null | undefined): string {
@@ -195,15 +171,12 @@ export function AdminPage() {
   const [flagged, setFlagged] = useState<StationStatusReport[]>([])
   const [claims, setClaims] = useState<AdminClaimRow[]>([])
   const [registrations, setRegistrations] = useState<Station[]>([])
-  const [pendingReferrals, setPendingReferrals] = useState<PendingReferralRewardRow[]>([])
   const [suggestions, setSuggestions] = useState<StationSuggestion[]>([])
   const [pendingB2B, setPendingB2B] = useState<PendingB2BRow[]>([])
   const [loading, setLoading] = useState(true)
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [rejectingStation, setRejectingStation] = useState<Station | null>(null)
   const [rejectReasonInput, setRejectReasonInput] = useState('')
-  const [referralPaymentRef, setReferralPaymentRef] = useState('')
-  const [referralPayStationId, setReferralPayStationId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [paymentConfig, setPaymentConfig] = useState<{
     payment_instructions: string
@@ -234,15 +207,6 @@ export function AdminPage() {
   const [b2bPricingSaving, setB2BPricingSaving] = useState(false)
   const [b2bPricingSaved, setB2BPricingSaved] = useState(false)
 
-  // Rewards tab state
-  const [rewardsPeriodDays, setRewardsPeriodDays] = useState(30)
-  const [rewardsMinReports, setRewardsMinReports] = useState(5)
-  const [rewardsDrawCount, setRewardsDrawCount] = useState(3)
-  const [reporters, setReporters] = useState<ReporterRow[]>([])
-  const [rewardsLoading, setRewardsLoading] = useState(false)
-  const [drawResult, setDrawResult] = useState<ReporterRow[] | null>(null)
-  const [rewardsRecorded, setRewardsRecorded] = useState(false)
-  const [rewardsRecording, setRewardsRecording] = useState(false)
   const [tabMenuOpen, setTabMenuOpen] = useState(false)
   const tabMenuRef = useRef<HTMLDivElement>(null)
   const claimDuplicateCounts = useMemo(() => {
@@ -258,10 +222,8 @@ export function AdminPage() {
     { key: 'registrations' as Tab, label: t('admin.pendingRegistrations'), icon: CreditCard, badge: registrations.length, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
     { key: 'flagged' as Tab, label: t('admin.flaggedReports'), icon: Flag, badge: flagged.length, badgeClass: 'bg-red-500', activeClass: 'text-blue-600' },
     { key: 'claims' as Tab, label: t('admin.stationClaims'), icon: Store, badge: claims.length, badgeClass: 'bg-orange-500', activeClass: 'text-blue-600' },
-    { key: 'referrals' as Tab, label: t('admin.referralPayouts'), icon: CreditCard, badge: pendingReferrals.length, badgeClass: 'bg-green-600', activeClass: 'text-blue-600' },
     { key: 'suggestions' as Tab, label: t('admin.suggestionsTab'), icon: Lightbulb, badge: suggestions.length, badgeClass: 'bg-amber-500', activeClass: 'text-amber-600' },
     { key: 'payment' as Tab, label: t('admin.paymentSettings'), icon: Settings, badge: 0, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
-    { key: 'rewards' as Tab, label: t('admin.rewardsTab'), icon: Trophy, badge: 0, badgeClass: 'bg-amber-500', activeClass: 'text-amber-600' },
     { key: 'b2b' as Tab, label: 'B2B', icon: Wifi, badge: pendingB2B.length, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
     {
       key: 'inbox' as Tab,
@@ -329,12 +291,6 @@ export function AdminPage() {
   }, [tab])
 
   useEffect(() => {
-    if (tab !== 'rewards') return
-    void loadReporters()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, rewardsPeriodDays])
-
-  useEffect(() => {
     if (tab !== 'b2b') return
     setB2BPricingLoading(true)
     void (async () => {
@@ -361,61 +317,6 @@ export function AdminPage() {
       }
     })()
   }, [tab])
-
-  async function loadReporters() {
-    setRewardsLoading(true)
-    setDrawResult(null)
-    setRewardsRecorded(false)
-    const { data } = await supabase.rpc('get_top_reporters', {
-      period_days: rewardsPeriodDays,
-      result_limit: 100,
-    })
-    setReporters((data ?? []) as ReporterRow[])
-    setRewardsLoading(false)
-  }
-
-  function runDraw() {
-    const eligible = reporters.filter(
-      (r) => Number(r.rank) > 1 && Number(r.report_count) >= rewardsMinReports,
-    )
-    if (eligible.length === 0) { setDrawResult([]); return }
-    setDrawResult(fairShuffle(eligible).slice(0, rewardsDrawCount))
-    setRewardsRecorded(false)
-  }
-
-  async function recordWinners() {
-    if (!drawResult) return
-    const periodLabel = new Date().toISOString().slice(0, 7)
-    setRewardsRecording(true)
-    const topPerformer = reporters.find((r) => Number(r.rank) === 1)
-
-    const rows = [
-      ...(topPerformer
-        ? [{
-            period_label: periodLabel,
-            user_id: topPerformer.user_id,
-            reward_type: 'TOP_PERFORMER',
-            report_count: Number(topPerformer.report_count),
-            rank: 1,
-          }]
-        : []),
-      ...drawResult.map((r) => ({
-        period_label: periodLabel,
-        user_id: r.user_id,
-        reward_type: 'LUCKY_DRAW',
-        report_count: Number(r.report_count),
-        rank: Number(r.rank),
-      })),
-    ]
-
-    const { error: insertErr } = await supabase.from('reward_events').insert(rows)
-    setRewardsRecording(false)
-    if (insertErr) {
-      setError(insertErr.message)
-      return
-    }
-    setRewardsRecorded(true)
-  }
 
   async function savePaymentConfig() {
     setPaymentConfigSaving(true)
@@ -496,7 +397,7 @@ export function AdminPage() {
     if (!isAdmin) return
     setLoading(true)
     setError(null)
-    const [flaggedRes, claimsRes, registrationsRes, pendingRefRes, suggestionsRes, b2bRes] = await Promise.all([
+    const [flaggedRes, claimsRes, registrationsRes, suggestionsRes, b2bRes] = await Promise.all([
       supabase
         .from('station_status_reports')
         .select('*')
@@ -513,11 +414,6 @@ export function AdminPage() {
         .not('verified_owner_id', 'is', null)
         .eq('is_verified', false)
         .is('registration_rejected_at', null)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('referral_rewards')
-        .select('id, station_id, amount_mmk, status, created_at, stations(name)')
-        .eq('status', 'PENDING')
         .order('created_at', { ascending: false }),
       supabase
         .from('station_suggestions')
@@ -538,7 +434,6 @@ export function AdminPage() {
       }))
     setClaims(claimsData)
     setRegistrations((registrationsRes.data ?? []) as Station[])
-    setPendingReferrals((pendingRefRes.data ?? []) as unknown as PendingReferralRewardRow[])
     setSuggestions((suggestionsRes.data ?? []) as StationSuggestion[])
     setPendingB2B((b2bRes.data ?? []) as PendingB2BRow[])
     setLoading(false)
@@ -650,44 +545,6 @@ export function AdminPage() {
       })
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
-      await loadAll()
-    } catch (err) {
-      setError(formatAdminActionError(err, t))
-    } finally {
-      setWorkingId(null)
-    }
-  }
-
-  async function markReferralCollected(stationId: string) {
-    setWorkingId(stationId)
-    setError(null)
-    try {
-      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-mark-referral-collected', {
-        station_id: stationId,
-      })
-      if (fnErr) throw fnErr
-      if (data?.error) throw new Error(data.error)
-      await loadAll()
-    } catch (err) {
-      setError(formatAdminActionError(err, t))
-    } finally {
-      setWorkingId(null)
-    }
-  }
-
-  async function markReferralPaid(stationId: string) {
-    setWorkingId(stationId)
-    setError(null)
-    try {
-      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-mark-referral-paid', {
-        station_id: stationId,
-        payment_method: 'KBZ_PAY',
-        payment_reference: referralPaymentRef.trim() || undefined,
-      })
-      if (fnErr) throw fnErr
-      if (data?.error) throw new Error(data.error)
-      setReferralPayStationId(null)
-      setReferralPaymentRef('')
       await loadAll()
     } catch (err) {
       setError(formatAdminActionError(err, t))
@@ -1076,209 +933,6 @@ export function AdminPage() {
               </Button>
             </div>
           )
-        ) : tab === 'referrals' ? (
-          pendingReferrals.length === 0 ? (
-            <p className="py-12 text-center text-gray-700">{t('admin.noPendingReferrals')}</p>
-          ) : (
-            <div className="space-y-3">
-              {pendingReferrals.map((reward) => (
-                <div key={reward.id} className="rounded-xl border border-gray-200 bg-white p-4">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {reward.stations?.name ?? reward.station_id.slice(0, 8)}
-                  </p>
-                  <p className="text-xs text-gray-700">
-                    {t('admin.referralAmount')}: {reward.amount_mmk.toLocaleString('en-US')} MMK
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      loading={workingId === reward.station_id}
-                      onClick={() => void markReferralCollected(reward.station_id)}
-                    >
-                      {t('admin.markCollected')}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      loading={referralPayStationId === reward.station_id && workingId === reward.station_id}
-                      onClick={() => setReferralPayStationId(reward.station_id)}
-                    >
-                      {t('admin.markPaid')}
-                    </Button>
-                  </div>
-                  {referralPayStationId === reward.station_id && (
-                    <div className="mt-3 flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
-                      <p className="text-xs text-gray-700">{t('admin.referralPaidKpayOnly')}</p>
-                      <div className="flex flex-wrap items-end gap-2">
-                      <input
-                        value={referralPaymentRef}
-                        onChange={(e) => setReferralPaymentRef(e.target.value)}
-                        placeholder={t('admin.paymentReference')}
-                        className="rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-900"
-                      />
-                      <Button
-                        size="sm"
-                        loading={workingId === reward.station_id}
-                        onClick={() => void markReferralPaid(reward.station_id)}
-                        disabled={workingId === reward.station_id}
-                      >
-                        {t('admin.confirmPaid')}
-                      </Button>
-                      <Button size="sm" variant="secondary" onClick={() => { setReferralPayStationId(null); setReferralPaymentRef('') }}>
-                        {t('admin.cancel')}
-                      </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )
-        ) : tab === 'rewards' ? (
-          <div className="space-y-5">
-            <h2 className="text-base font-bold text-gray-900">{t('admin.rewardsTitle')}</h2>
-
-            {/* Controls */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-700">{t('admin.rewardsPeriodLabel')}</label>
-                <select
-                  value={rewardsPeriodDays}
-                  onChange={(e) => setRewardsPeriodDays(Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
-                >
-                  <option value={30}>30 days</option>
-                  <option value={31}>31 days</option>
-                  <option value={28}>28 days</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-700">{t('admin.rewardsMinReports')}</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={31}
-                  value={rewardsMinReports}
-                  onChange={(e) => setRewardsMinReports(Number(e.target.value))}
-                  className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-700">{t('admin.rewardsDrawCount')}</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={rewardsDrawCount}
-                  onChange={(e) => setRewardsDrawCount(Number(e.target.value))}
-                  className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
-                />
-              </div>
-              <div className="flex items-end">
-                <Button size="sm" variant="secondary" loading={rewardsLoading} onClick={() => void loadReporters()}>
-                  Refresh
-                </Button>
-              </div>
-            </div>
-
-            <p className="text-xs text-gray-700">{t('admin.rewardsPeriodNote', { days: rewardsPeriodDays })}</p>
-
-            {rewardsLoading ? (
-              <div className="flex justify-center py-8"><Spinner /></div>
-            ) : reporters.length === 0 ? (
-              <p className="py-8 text-center text-gray-700">{t('admin.rewardsNoReporters')}</p>
-            ) : (
-              <>
-                {/* Leaderboard */}
-                <div>
-                  <h3 className="mb-2 text-sm font-semibold text-gray-800">{t('admin.rewardsLeaderboardTitle')}</h3>
-                  <ol className="space-y-1.5">
-                    {reporters.map((r) => (
-                      <li
-                        key={r.user_id}
-                        className={[
-                          'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm',
-                          Number(r.rank) === 1
-                            ? 'border-amber-300 bg-amber-50'
-                            : 'border-gray-200 bg-white',
-                        ].join(' ')}
-                      >
-                        <span className="w-7 text-center font-bold text-gray-700">#{r.rank}</span>
-                        <span className="flex-1 text-gray-900">
-                          {r.display_name ?? r.user_id.slice(0, 12) + '…'}
-                        </span>
-                        <span className="text-gray-700">{r.report_count} reports</span>
-                        {Number(r.rank) === 1 && (
-                          <span className="rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-white">
-                            {t('admin.rewardsGuaranteedLabel')}
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
-                {/* Draw pool summary */}
-                {(() => {
-                  const eligible = reporters.filter(
-                    (r) => Number(r.rank) > 1 && Number(r.report_count) >= rewardsMinReports,
-                  )
-                  return (
-                    <p className="text-xs text-gray-700">
-                      {t('admin.rewardsEligibleCount', { count: eligible.length, min: rewardsMinReports })}
-                    </p>
-                  )
-                })()}
-
-                {/* Run draw */}
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="primary"
-                    onClick={runDraw}
-                  >
-                    <Trophy className="h-4 w-4" />
-                    {drawResult === null ? t('admin.rewardsRunDraw') : t('admin.rewardsReRunDraw')}
-                  </Button>
-                </div>
-
-                {/* Draw result */}
-                {drawResult !== null && (
-                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-blue-800">{t('admin.rewardsDrawResultTitle')}</h3>
-                    {drawResult.length === 0 ? (
-                      <p className="text-sm text-gray-700">No eligible reporters in the pool.</p>
-                    ) : (
-                      <ol className="mb-4 space-y-1.5">
-                        {drawResult.map((r) => (
-                          <li key={r.user_id} className="flex items-center gap-2 rounded-lg border border-blue-100 bg-white px-3 py-2 text-sm">
-                            <span className="flex-1 text-gray-900">
-                              {r.display_name ?? r.user_id.slice(0, 12) + '…'}
-                            </span>
-                            <span className="text-gray-700">{r.report_count} reports · rank #{r.rank}</span>
-                            <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs font-bold text-white">
-                              {t('admin.rewardsDrawLabel')}
-                            </span>
-                          </li>
-                        ))}
-                      </ol>
-                    )}
-                    {rewardsRecorded ? (
-                      <p className="text-sm font-semibold text-green-700">{t('admin.rewardsRecorded')}</p>
-                    ) : (
-                      <Button
-                        variant="primary"
-                        loading={rewardsRecording}
-                        onClick={() => void recordWinners()}
-                      >
-                        {t('admin.rewardsRecordWinners')}
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
         ) : tab === 'flagged' ? (
           flagged.length === 0 ? (
             <p className="py-12 text-center text-gray-700">{t('admin.noFlagged')}</p>

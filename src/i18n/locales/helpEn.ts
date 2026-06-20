@@ -18,7 +18,6 @@ export const helpEn = {
     'stationOwner': 'Station owner help',
     'b2bInline': 'Fleet & route help',
     'garageInline': 'Fuel efficiency guide',
-    'earnInline': 'Referral & rewards help',
     'reportInline': 'Full reporting guide',
     'benefitsCta': 'Step-by-step help'
   },
@@ -27,8 +26,7 @@ export const helpEn = {
     'modesTitle': 'App modes (General / Station / Fleet)',
     'reportingTitle': 'Reporting fuel',
     'stationTitle': 'Station owners',
-    'b2bTitle': 'Fleet & route (B2B)',
-    'earnTitle': 'Earn & referrals'
+    'b2bTitle': 'Fleet & route (B2B)'
   },
   'faq': {
     'account': {
@@ -53,7 +51,7 @@ export const helpEn = {
       'q1': 'Who can report?',
       'a1': 'Signed-in users in General mode can report. Location is usually required so reports match the right station.',
       'q2': 'How often can I report?',
-      'a2': 'The app limits how often you can report the same station and how many reports count per day for rewards. Follow on-screen messages.',
+      'a2': 'The app limits how often you can report the same station per day. Follow on-screen messages.',
       'q3': 'The station is missing from the list.',
       'a3': 'Use Suggest missing station from the report flow. After approval, you and others can report there.'
     },
@@ -76,12 +74,6 @@ export const helpEn = {
       'a2': 'Your payment was received and is waiting for admin confirmation. Paid map features stay locked until status becomes active.',
       'q3': 'What is the difference between route and national?',
       'a3': 'Route focuses on stations along selected corridors. National shows broader coverage. Exact options depend on your purchased plan.'
-    },
-    'earn': {
-      'q1': 'Where is my referral code?',
-      'a1': 'Open Earn in General mode while signed in. Station owners do not receive driver referral commission — the app will explain if you are not eligible.',
-      'q2': 'How do rewards work?',
-      'a2': 'Rules, leaderboard, and draws are described on the Earn page and website. Amounts depend on live app rules and referred subscriptions.'
     }
   },
   'guides': {
@@ -105,7 +97,7 @@ export const helpEn = {
     'mapModes': {
       'title': 'General, Station, and Fleet modes',
       'prereq': 'Open the user menu when your account has more than one role.',
-      's1': 'General: nearby stations, reporting, earn — typical for drivers.',
+      's1': 'General: nearby stations and reporting — typical for drivers.',
       's2': 'Station owner: manage your verified station, subscription, and official status.',
       's3': 'Fleet: route or nationwide tools after B2B payment is active.',
       's4': 'If a mode is missing, you may need sign-in, station setup, or a fleet purchase first.',
@@ -167,15 +159,6 @@ export const helpEn = {
       't1': 'Wrong odometer or partial fills can skew results — edit or delete a bad fill-up from the vehicle page.',
       't2': 'Plates are private and never shared in benchmarks.',
       'related': 'Benefits for fleet owners'
-    },
-    'earnReferral': {
-      'title': 'Referral code and rewards',
-      'prereq': 'General mode, signed in, and not a verified station owner if you want driver referral commission.',
-      's1': 'Open Earn from the navigation.',
-      's2': 'Copy your code or share link. Commission rules apply when referred stations subscribe — see live text in the app.',
-      's3': 'Leaderboard and lucky draw rules appear on the website and Earn page.',
-      's4': 'Exact percentages and caps follow the latest in-app copy so help stays accurate when pricing changes.',
-      't1': 'No code? Sign out and in, or contact us if you believe you should have one.'
     }
   }
 } as const

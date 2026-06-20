@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { FunctionsHttpError } from '@supabase/supabase-js'
@@ -42,8 +42,6 @@ function formatRegisterStationServerMessage(raw: string | null, t: TFunction): s
   if (!raw) return t('stationOwner.registerError')
   const lower = raw.toLowerCase()
   if (lower.includes('non-2xx')) return t('stationOwner.registerSessionRequired')
-  if (lower.includes('invalid referral code')) return t('stationOwner.invalidReferralCode')
-  if (lower.includes('own referral code')) return t('stationOwner.ownReferralCode')
   if (lower.includes('invalid or expired session') || lower.includes('unauthorized')) {
     return t('stationOwner.registerSessionRequired')
   }
@@ -93,7 +91,6 @@ export function StationOwnerPage() {
   const lang = i18n.language as 'en' | 'my'
   const { user, session } = useAuthStore()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
   const [myStation, setMyStation] = useState<Station | null>(null)
   const [routeBundleValidUntil, setRouteBundleValidUntil] = useState<string | null>(null)
   /** Bumps every minute so we re-check `routeBundleValidUntil` against wall clock (matches DB `> now()` after the instant passes). */
@@ -131,7 +128,6 @@ export function StationOwnerPage() {
   const [queue] = useState<QueueBucket>('NONE')
   const [tier, setTier] = useState<SubscriptionTierRequested>('small')
   const [durationMonths, setDurationMonths] = useState<B2BDurationMonths>(3)
-  const [referralCodeInput, setReferralCodeInput] = useState('')
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [stationPhotos, setStationPhotos] = useState<string[]>([])
@@ -394,13 +390,6 @@ export function StationOwnerPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch uptime only when station identity changes
   }, [myStation?.id])
 
-  useEffect(() => {
-    const refFromUrl = searchParams.get('ref')?.trim() ?? ''
-    if (refFromUrl) {
-      setReferralCodeInput(refFromUrl.toUpperCase())
-    }
-  }, [searchParams])
-
   async function loadMyStation() {
     if (!user) return
     const { data, error } = await supabase
@@ -425,9 +414,6 @@ export function StationOwnerPage() {
       setRecognitionPhotoUrl(data.recognition_photo_url ?? null)
       setEditableStationName(data.name ?? '')
       setEditableStationBrand(data.brand ?? '')
-      if (data.referrer_user_id) {
-        setReferralCodeInput('ASSIGNED')
-      }
       await loadCurrentStatus(data.id)
     } else {
       setCurrentStatus(null)
@@ -484,7 +470,6 @@ export function StationOwnerPage() {
         township: registerForm.township.trim() || undefined,
         city: registerForm.city.trim() || 'Yangon',
         subscription_tier_requested: tier,
-        referral_code: referralCodeInput.trim() || null,
       }
       const lat = registerForm.lat
       const lng = registerForm.lng
@@ -658,14 +643,12 @@ export function StationOwnerPage() {
     setSaveState('saving')
     setSaveMessage(null)
     try {
-      const referralToSend = referralCodeInput === 'ASSIGNED' ? null : (referralCodeInput.trim() || null)
       const { data, error } = await supabase.functions.invoke('update-operator-verification', {
         body: {
           station_id: myStation.id,
           name: editableStationName.trim() || null,
           brand: editableStationBrand.trim() || null,
           subscription_tier_requested: tier,
-          referral_code: referralToSend,
           station_photo_urls: stationPhotos,
           location_photo_url: locationPhoto,
         },
@@ -673,22 +656,11 @@ export function StationOwnerPage() {
       if (error) throw error
       if (data?.error) throw new Error(data.error)
       setSaveState('success')
-      setSaveMessage(
-        data?.referral_matched
-          ? t('stationOwner.referralSavedWithCode', { code: data.referral_matched })
-          : t('stationOwner.referralSaved')
-      )
+      setSaveMessage(null)
       await loadMyStation()
       return true
-    } catch (err) {
-      const message = err instanceof Error ? err.message : t('errors.generic')
-      if (message.toLowerCase().includes('own referral')) {
-        setSaveMessage(t('stationOwner.ownReferralCode'))
-      } else if (message.toLowerCase().includes('invalid referral')) {
-        setSaveMessage(t('stationOwner.invalidReferralCode'))
-      } else {
-        setSaveMessage(t('errors.generic'))
-      }
+    } catch {
+      setSaveMessage(t('errors.generic'))
       setSaveState('error')
       return false
     }
@@ -1127,20 +1099,6 @@ export function StationOwnerPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    {t('stationOwner.referralCode')}
-                  </label>
-                  <input
-                    type="text"
-                    value={referralCodeInput}
-                    onChange={(e) => setReferralCodeInput(e.target.value.toUpperCase())}
-                    placeholder={t('stationOwner.referralCodePlaceholder')}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-[11px] text-gray-700">{t('stationOwner.referralCodeOptionalNote')}</p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
                     {t('stationOwner.registerLocationLabel')}
                   </label>
                   {registerForm.lat != null &&
@@ -1295,17 +1253,6 @@ export function StationOwnerPage() {
                       placeholder={t('stationOwner.verificationBrandPlaceholder')}
                     />
                   </div>
-                </div>
-
-                <div className="mt-3">
-                  <label className="mb-1 block text-xs font-semibold text-gray-700">{t('stationOwner.referralCode')}</label>
-                  <input
-                    value={referralCodeInput === 'ASSIGNED' ? '' : referralCodeInput}
-                    onChange={(e) => setReferralCodeInput(e.target.value)}
-                    placeholder={t('stationOwner.referralCodePlaceholder')}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-[11px] text-gray-700">{t('stationOwner.referralCodeOptionalNote')}</p>
                 </div>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">

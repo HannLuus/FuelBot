@@ -119,13 +119,6 @@ export function StationCard({ station }: StationCardProps) {
           </div>
         </div>
       )}
-      {station.referrer_user_id && (
-        <p className="mt-2 text-xs text-gray-700">
-          {station.referral_reward_status === 'PENDING'
-            ? t('station.referrerRewardPending')
-            : t('station.referrerRewarded')}
-        </p>
-      )}
     </button>
   )
 }

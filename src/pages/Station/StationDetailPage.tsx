@@ -374,13 +374,6 @@ export function StationDetailPage() {
               })}
             </p>
           )}
-          {station.referrer_user_id && (
-            <p className="mt-1 text-xs text-gray-700">
-              {station.referral_reward_status === 'PENDING'
-                ? t('station.referrerRewardPending')
-                : t('station.referrerRewarded')}
-            </p>
-          )}
 
           {/* Reliability (activity-based) + Uptime when available */}
           {(reliability && (reliability.reports_last_7d > 0 || reliability.reports_last_30d > 0)) ||

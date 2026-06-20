@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, Globe, Users, Store, ShieldCheck, Trophy, Gift, Menu, X } from 'lucide-react'
+import { ArrowRight, Globe, Store, ShieldCheck, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { usePWAInstall } from '@/hooks/usePWAInstall'
-import { useTopReporters } from '@/hooks/useTopReporters'
-import { TopReportersList } from '@/components/rewards/TopReportersList'
 import { supabase } from '@/lib/supabase'
 
 interface RecognitionStation {
@@ -33,7 +31,6 @@ export function LandingPage() {
   const navigate = useNavigate()
   const lang = i18n.language === 'my' ? 'my' : 'en'
   const [recognitions, setRecognitions] = useState<RecognitionStation[]>([])
-  const { reporters: topReporters, loading: topReportersLoading } = useTopReporters()
   const [showIOSInstallModal, setShowIOSInstallModal] = useState(false)
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
@@ -203,14 +200,6 @@ export function LandingPage() {
                 {t('landing.enterApp')}
                 <ArrowRight className="h-4 w-4" />
               </Button>
-              <Link
-                to="/leaderboard"
-                className="flex min-h-[44px] w-full items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-900 active:bg-amber-100"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <Trophy className="mr-2 h-4 w-4" />
-                {t('nav.leaderboard')}
-              </Link>
             </div>
           </div>
         )}
@@ -287,55 +276,6 @@ export function LandingPage() {
             <li>{t('landing.whatWeAchieveHelp')}</li>
             <li>{t('landing.whatWeAchieveMyanmar')}</li>
           </ul>
-        </section>
-
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <Users className="h-5 w-5 text-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">{t('landing.whatYouEarnTitle')}</h2>
-          </div>
-          <p className="text-gray-700">{t('landing.whatYouEarnBody')}</p>
-          <div className="mt-4">
-            <Link to="/earn" className="text-sm font-semibold text-blue-600 underline">
-              {t('landing.getReferralCodeCta')}
-            </Link>
-          </div>
-        </section>
-
-        {/* Top reporters leaderboard */}
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
-          <div className="mb-1 flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-amber-500" />
-            <h2 className="text-lg font-semibold text-gray-900">{t('landing.topReportersTitle')}</h2>
-          </div>
-          <p className="mb-2 text-sm text-gray-700">{t('landing.topReportersSubtitle')}</p>
-          <p className="mb-4 text-sm">
-            <Link to="/leaderboard" className="font-semibold text-blue-600 underline">
-              {t('leaderboard.openDedicatedPage')}
-            </Link>
-          </p>
-          <TopReportersList reporters={topReporters} loading={topReportersLoading} />
-        </section>
-
-        {/* Reward rules */}
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <Gift className="h-5 w-5 text-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">{t('landing.rewardRulesTitle')}</h2>
-          </div>
-          <ul className="space-y-2 text-sm text-gray-700">
-            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesOnceADay')}</li>
-            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesStationAdds')}</li>
-            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesMinimum')}</li>
-            <li className="flex gap-2"><span className="mt-0.5 text-blue-500">◉</span>{t('landing.rewardRulesDraw')}</li>
-            <li className="flex gap-2"><span className="mt-0.5 text-gray-400">•</span>{t('landing.rewardRulesSignIn')}</li>
-          </ul>
-          <div className="mt-4">
-            <Button size="sm" variant="secondary" onClick={() => navigate('/auth?mode=signup')}>
-              {t('auth.signUp')}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
         </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm">
@@ -471,9 +411,6 @@ export function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-gray-700">
             <Link to="/help" className="font-medium text-blue-600 underline">
               {t('nav.help')}
-            </Link>
-            <Link to="/leaderboard" className="font-medium text-blue-600 underline">
-              {t('nav.leaderboard')}
             </Link>
             <Link to="/terms" className="font-medium text-blue-600 underline">
               {t('legal.termsOfService')}

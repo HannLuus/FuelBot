@@ -21,7 +21,6 @@ export type ClaimStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 
 export type SubscriptionTier = 'BASIC' | 'VERIFIED' | 'FLEET'
 export type SubscriptionTierRequested = 'small' | 'medium' | 'large'
-export type ReferralRewardStatus = 'PENDING' | 'PAID' | 'COLLECTED'
 
 export type AlertTrigger = 'FUEL_BACK_IN_STOCK'
 
@@ -83,7 +82,7 @@ export interface Station {
   station_photo_urls?: string[]
   location_photo_url?: string | null
   referral_paid_at?: string | null
-  referral_reward_status?: ReferralRewardStatus | null
+  referral_reward_status?: 'PENDING' | 'PAID' | 'COLLECTED' | null
   recognition_photo_url?: string | null
   recognition_photo_confirmed?: boolean
   recognition_photo_updated_at?: string | null
@@ -157,23 +156,6 @@ export interface AlertsLog {
   trigger: AlertTrigger
   channel: AlertChannel
   sent_at: string
-}
-
-export interface ReferralCode {
-  user_id: string
-  code: string
-  created_at: string
-}
-
-export interface ReferralReward {
-  id: string
-  referrer_user_id: string
-  station_id: string
-  amount_mmk: number
-  status: ReferralRewardStatus
-  payment_reference: string | null
-  paid_at: string | null
-  created_at: string
 }
 
 export type InboxThreadStatus = 'open' | 'closed'

@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
   const { data: station, error: stationErr } = await service
     .from('stations')
     .select(
-      'id, name, township, city, is_verified, verified_owner_id, subscription_tier_requested, referrer_user_id, payment_received_at, payment_method, payment_reference, subscription_duration_months, subscription_price_paid_mmk, subscription_promo_applied, subscription_promo_percent',
+      'id, name, township, city, is_verified, verified_owner_id, subscription_tier_requested, payment_received_at, payment_method, payment_reference, subscription_duration_months, subscription_price_paid_mmk, subscription_promo_applied, subscription_promo_percent',
     )
     .eq('id', payload.station_id)
     .single()
@@ -59,11 +59,6 @@ Deno.serve(async (req) => {
     return json({ error: 'Payment must be marked received before approval' }, 400)
   }
 
-  const referrerIsStationOwner = station.referrer_user_id
-    ? (await service.from('stations').select('id').eq('verified_owner_id', station.referrer_user_id).limit(1).maybeSingle()).data != null
-    : false
-  const grantReferralReward = !!station.referrer_user_id && !referrerIsStationOwner
-
   const { error: updateErr } = await service
     .from('stations')
     .update({
@@ -71,7 +66,6 @@ Deno.serve(async (req) => {
       verification_source: 'owner',
       owner_verified_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      referral_reward_status: grantReferralReward ? 'PENDING' : null,
       registration_reject_reason: null,
       registration_rejected_at: null,
     })
@@ -89,22 +83,6 @@ Deno.serve(async (req) => {
       ? Math.round(Number(station.subscription_price_paid_mmk))
       : Math.round(tierPrice)
   const durationMonths = station.subscription_duration_months
-  const amountMmk = Math.round(subscriptionTotalMmk * 0.15)
-
-  if (grantReferralReward && amountMmk > 0) {
-    const { error: rewardErr } = await service
-      .from('referral_rewards')
-      .upsert({
-        referrer_user_id: station.referrer_user_id,
-        station_id: station.id,
-        amount_mmk: amountMmk,
-        status: 'PENDING',
-      }, { onConflict: 'station_id' })
-
-    if (rewardErr) {
-      console.error('admin-approve-registration reward upsert error:', rewardErr)
-    }
-  }
 
   const resendApi = Deno.env.get('RESEND_API_KEY')
   if (resendApi) {
@@ -112,7 +90,6 @@ Deno.serve(async (req) => {
       const resend = new Resend(resendApi)
       const appUrl = getAppBaseUrl()
       const appOrigin = new URL(appUrl).origin
-      const stationLabel = `${station.name} (${station.township}, ${station.city})`
       const taxPercent = getInvoiceCommercialTaxPercent()
       const { subtotalMmk, taxMmk, totalMmk } = splitTaxInclusiveTotalMmk(subscriptionTotalMmk, taxPercent)
       const tierLabel = tier ? tier.charAt(0).toUpperCase() + tier.slice(1) : 'Standard'
@@ -176,14 +153,6 @@ Deno.serve(async (req) => {
         }
 
         if (ownerEmail) {
-          const payoutBlock = grantReferralReward && amountMmk > 0
-            ? `<div style="max-width:600px;margin:0 auto 24px;padding:0 12px;font-family:Georgia,serif">
-              <p style="margin:0;font-size:14px;color:#334155;line-height:1.6;border-left:4px solid #1d4ed8;padding-left:14px">
-                <strong>Referral payout (Option B):</strong> Please pay <strong>${amountMmk.toLocaleString('en-US')} MMK</strong> to the referrer linked to this station, as arranged with FuelBot.
-              </p>
-            </div>`
-            : ''
-
           const thankYou =
             'Thank you for partnering with FuelBot. Your verified listing helps drivers find reliable fuel updates—we are glad to have you on board.'
 
@@ -211,7 +180,7 @@ Deno.serve(async (req) => {
                 paymentMethod: station.payment_method,
                 paymentReference: station.payment_reference,
                 thankYouMessage: escapeHtml(thankYou),
-              }) + payoutBlock
+              })
           } else {
             ownerHtml =
               emailLogoHtml(appUrl) +
@@ -220,8 +189,7 @@ Deno.serve(async (req) => {
               <p>We received your payment. Your station <strong>${safeStationLabel}</strong> is now verified.</p>
               <p>Tier: ${esc(tier || '—')}</p>
               <p><a href="${escapeHtml(appUrl + '/station')}" style="color:#1d4ed8">Open your station dashboard</a></p>
-            </div>` +
-              payoutBlock
+            </div>`
           }
 
           await resend.emails.send({
@@ -231,25 +199,6 @@ Deno.serve(async (req) => {
               ? `FuelBot — Invoice ${invoiceNumber} · Station verified`
               : 'FuelBot: payment received and station verified',
             html: ownerHtml,
-          })
-        }
-      }
-
-      if (grantReferralReward && amountMmk > 0) {
-        const refUser = await service.auth.admin.getUserById(station.referrer_user_id)
-        const refEmail = refUser.data.user?.email
-        if (refEmail) {
-          await resend.emails.send({
-            from: RESEND_FROM,
-            to: [refEmail],
-            subject: 'FuelBot: referral reward pending collection',
-            html: emailLogoHtml(appUrl) + `
-              <h3>You earned a referral reward</h3>
-              <p>Station: <strong>${escapeHtml(stationLabel)}</strong></p>
-              <p>Amount: <strong>${amountMmk.toLocaleString('en-US')} MMK</strong> (15%)</p>
-              <p>Option B: collect this from the station owner as instructed by FuelBot.</p>
-              <p>Open app: <a href="${escapeHtml(appUrl + '/station')}">${escapeHtml(appUrl + '/station')}</a></p>
-            `,
           })
         }
       }

@@ -79,8 +79,6 @@ Deno.serve(async (req) => {
       is_verified: false,
       verified_owner_id: null,
       subscription_tier_requested: null,
-      // No anonymous referral: only assign when suggester user_id exists.
-      referrer_user_id: suggestion.suggested_by ?? null,
       registration_reject_reason: null,
       registration_rejected_at: null,
     })
