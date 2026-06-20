@@ -38,6 +38,27 @@ export function BenefitsFleetPage() {
         </p>
 
         <div className="mt-6 space-y-6 text-gray-800">
+          <section className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-blue-800">
+              {t('benefits.fleetOwners.efficiencyFreeBadge')}
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-gray-900">
+              {t('benefits.fleetOwners.efficiencyTitle')}
+            </h2>
+            <p className="mt-2 text-gray-700">{t('benefits.fleetOwners.efficiencyIntro')}</p>
+            <ul className="mt-3 list-inside list-disc space-y-1 text-gray-700">
+              <li>{t('benefits.fleetOwners.efficiencyPoint1')}</li>
+              <li>{t('benefits.fleetOwners.efficiencyPoint2')}</li>
+              <li>{t('benefits.fleetOwners.efficiencyPoint3')}</li>
+              <li>{t('benefits.fleetOwners.efficiencyPoint4')}</li>
+            </ul>
+            <p className="mt-4">
+              <Link to="/garage" className="font-semibold text-blue-600 underline active:text-blue-800">
+                {t('benefits.fleetOwners.efficiencyCta')}
+              </Link>
+            </p>
+          </section>
+
           <section>
             <h2 className="text-lg font-semibold text-gray-900">
               {t('benefits.fleetOwners.sectionWhatYouGet')}

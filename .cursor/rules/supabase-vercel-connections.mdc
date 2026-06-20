@@ -1,64 +1,54 @@
 ---
-description: When to use Supabase MCP, Supabase CLI, app Supabase connection, and Vercel
+description: When to use VPS Supabase (Studio), app env connection, and Vercel
 alwaysApply: true
 ---
 
-# Supabase, Database, and Vercel — Which Connection or CLI to Use
+# Supabase (VPS self-hosted), Database, and Vercel
 
-This project has **Supabase MCP**, **Supabase CLI**, a **direct app connection to Supabase** (via env), and **Vercel** for hosting. Use the right one for each task.
+FuelBot’s backend is **self-hosted Supabase on the VPS** — not Supabase Cloud.
 
-## 1. Supabase MCP (Cursor ↔ Supabase)
+| What | URL |
+|------|-----|
+| **API (Kong)** | `https://fuelbot.lucas-dev-server.tech` |
+| **Studio** | `https://studio.fuelbot.lucas-dev-server.tech` |
 
-**The AI has MCP access to the Supabase project.** Use it. Do not ask the user to run Supabase CLI for tasks that MCP can do (deploy Edge Functions, run SQL, apply migrations, list tables, generate types). Deploying Edge Functions is the AI’s job via MCP — use `deploy_edge_function`, not “run `supabase functions deploy` in the terminal”.
+No SSH tunnel. No `mcp.supabase.com`. No `supabase link` to a cloud project ref.
 
-**Use MCP when:** The AI or you need to inspect or change the **remote project** from inside Cursor (no terminal, no app code).
+See **[docs/SUPABASE_SETUP.md](../../docs/SUPABASE_SETUP.md)** for full details.
 
-- **Read/write data:** Run ad-hoc SQL (e.g. inspect rows, one-off fixes) → use MCP tool `execute_sql`. Do **not** use it for DDL that should be versioned.
-- **Schema changes that should be migrations:** Apply a new migration (DDL) via MCP → use `apply_migration` (name + query). Prefer this when you want the change recorded as a migration in the project.
-- **Discover schema:** List tables, list migrations, list extensions → use MCP `list_tables`, `list_migrations`, `list_extensions`.
-- **Types:** Generate TypeScript types from the DB → use MCP `generate_typescript_types`.
-- **Edge Functions:** List/get details/logs → `list_edge_functions`, `get_edge_function`, `get_logs`. **Deploy an Edge Function** → use MCP `deploy_edge_function` (provide `name`, `entrypoint_path`, `verify_jwt`, and `files` from the repo). Do not tell the user to run `supabase functions deploy`; the AI deploys via MCP.
-- **Branches:** Create/branch/merge/reset/delete DB branches → use MCP `create_branch`, etc.
+## 1. Studio (schema + data)
 
-**Config:** `.cursor/mcp.json` → server `project-0-FuelBot-supabase` (project ref `feenwusofmhnpuahekvu`). No API keys in MCP; auth is OAuth via Cursor.
+**Use Studio when:** Applying migrations, browsing tables, running SQL, checking data.
 
-## 2. Supabase CLI (terminal)
+- **SQL editor:** `https://studio.fuelbot.lucas-dev-server.tech/project/default/sql/new`
+- **Versioned migrations:** SQL files in [`supabase/migrations/`](../../supabase/migrations/) — paste into Studio and run (or use combined files like `RUN_IN_STUDIO_*.sql`).
+- Do **not** tell the user to use Supabase Cloud dashboard or Cloud MCP.
 
-**Use the CLI when:** You need versioned schema, local dev, or deploying functions from the repo.
+## 2. App connection (React + local scripts)
 
-- **Apply migrations from repo to remote:** `supabase db push` (after `supabase link --project-ref feenwusofmhnpuahekvu`).
-- **Pull remote schema into repo:** `supabase db pull` (generates migration files).
-- **Deploy Edge Functions (fallback):** If MCP deploy is unavailable, `supabase functions deploy <name>` in terminal. Prefer MCP `deploy_edge_function` from Cursor.
-- **Local Supabase (Docker):** `supabase start`; local MCP at `http://localhost:54321/mcp` if you add it to `.cursor/mcp.json`.
-- **Link project (one-time):** `supabase login` then `supabase link --project-ref feenwusofmhnpuahekvu`.
+**Use env + `@supabase/supabase-js` when:** Writing or changing application code.
 
-Use the CLI for **reproducible from repo** (e.g. `db push`, `db pull`, `supabase start`). Use MCP for **interactive** work from Cursor: DB queries, one-off migrations, generating types, and **deploying Edge Functions**.
+- **Frontend (Vercel + local):** `VITE_SUPABASE_URL=https://fuelbot.lucas-dev-server.tech` and `VITE_SUPABASE_ANON_KEY`
+- **Local scripts/imports only:** `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` — never in Vercel client bundle
 
-## 3. Direct app connection to Supabase (code + env)
+## 3. Vercel
 
-**Use the app connection when:** Writing or changing **application code** that talks to Supabase (frontend or server).
+**Use Vercel for:** Hosting the frontend.
 
-- **Frontend:** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env` (and in Vercel env). Use `@supabase/supabase-js` with these (e.g. `createClient(url, anonKey)`).
-- **Server / Edge Functions / scripts that need admin:** `SUPABASE_SERVICE_ROLE_KEY` (never in client). Use for bypassing RLS (e.g. imports, admin actions).
+- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the **VPS** values
+- `SUPABASE_SERVICE_ROLE_KEY` is **not** required on Vercel for the static app
 
-Do **not** add a separate “direct DB” connection (e.g. raw Postgres URL) unless the project explicitly introduces one. The **direct connection** is the existing Supabase client + env; use it for all app and script code.
+## 4. Edge Functions (VPS)
 
-## 4. Vercel
-
-**Use Vercel for:** Hosting the frontend and deployment-related config.
-
-- **Deploy:** Push to connected repo or `vercel` CLI; build uses `package.json` scripts and `vercel.json` (rewrites, headers).
-- **Env vars:** Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (and any other `VITE_*`) in Vercel so the built app has the same Supabase connection as local.
-
-We use the **existing** Vercel connection for the project; no extra “connection” setup beyond env and deploy.
+Legacy functions live in [`supabase/functions/`](../../supabase/functions/). Deploy/run on the **VPS stack**, not Supabase Cloud.
 
 ## Summary
 
 | Task | Use |
 |------|-----|
-| Ad-hoc SQL, list tables/migrations, generate types, apply one-off migration, **deploy Edge Functions** | **Supabase MCP** (AI must use it) |
-| `db push` / `db pull`, `supabase start` | **Supabase CLI** |
-| App code (React, Edge Functions, scripts) talking to Supabase | **App connection** (env + `@supabase/supabase-js`) |
-| Deploy frontend, set build/env | **Vercel** |
+| Apply migration DDL, inspect tables, ad-hoc SQL | **Studio** (`studio.fuelbot.lucas-dev-server.tech`) |
+| React app queries / auth / RLS | **App env** (`VITE_SUPABASE_*`) |
+| Import scripts, admin bypass RLS | **Local** `SUPABASE_SERVICE_ROLE_KEY` |
+| Deploy frontend | **Vercel** |
 
-Use the connections and CLIs we already have; don’t introduce new DB URLs or clients unless the project adds them.
+Run `npm run audit:supabase` to verify env files point at the VPS API URL.

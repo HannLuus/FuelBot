@@ -14,6 +14,8 @@ import { BenefitsStationPage } from '@/pages/Benefits/BenefitsStationPage'
 import { BenefitsFleetPage } from '@/pages/Benefits/BenefitsFleetPage'
 import { B2BPage } from '@/pages/B2B/B2BPage'
 import { EarnPage } from '@/pages/Earn/EarnPage'
+import { GaragePage } from '@/pages/Garage/GaragePage'
+import { VehicleDetailPage } from '@/pages/Garage/VehicleDetailPage'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/Landing/LandingPage'
@@ -83,6 +85,8 @@ export default function App() {
           <Route element={<RequireAuth />}>
             <Route path="/earn" element={<EarnPage />} />
             <Route path="/inbox" element={<InboxPage />} />
+            <Route path="/garage" element={<GaragePage />} />
+            <Route path="/garage/:vehicleId" element={<VehicleDetailPage />} />
           </Route>
           <Route element={<RequireFleetContext allowOnboarding />}>
             <Route path="/b2b" element={<B2BPage />} />

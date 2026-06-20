@@ -357,6 +357,35 @@ export function LandingPage() {
           </p>
         </section>
 
+        <section className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-6 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wide text-blue-800">
+            {t('landing.fleetEfficiencyFreeBadge')}
+          </p>
+          <h2 className="mt-1 text-lg font-semibold text-gray-900">
+            {t('landing.fleetEfficiencyTitle')}
+          </h2>
+          <p className="mt-2 text-gray-700">{t('landing.fleetEfficiencyBody')}</p>
+          <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-gray-700">
+            <li>{t('landing.fleetEfficiencyPoint1')}</li>
+            <li>{t('landing.fleetEfficiencyPoint2')}</li>
+            <li>{t('landing.fleetEfficiencyPoint3')}</li>
+          </ul>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              to="/auth?redirect=/garage"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white active:bg-blue-700"
+            >
+              {t('landing.fleetEfficiencyCta')}
+            </Link>
+            <Link
+              to="/garage"
+              className="inline-flex min-h-[44px] items-center rounded-xl border border-blue-300 bg-white px-4 text-sm font-semibold text-blue-700 active:bg-blue-50"
+            >
+              {t('garage.openTool')}
+            </Link>
+          </div>
+        </section>
+
         <section className="rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900">{t('landing.fleetTitle')}</h2>
           <p className="mt-2 text-gray-700">{t('landing.fleetBody')}</p>

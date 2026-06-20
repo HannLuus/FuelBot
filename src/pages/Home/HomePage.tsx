@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { MapPin, RefreshCw, X, Trophy, Lightbulb } from 'lucide-react'
+import { MapPin, RefreshCw, X, Trophy, Lightbulb, Gauge } from 'lucide-react'
 import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
@@ -42,6 +42,9 @@ export function HomePage() {
   const { filters } = useFilterStore()
   const [myStats, setMyStats] = useState<MyStats | null>(null)
   const [suggestOpen, setSuggestOpen] = useState(false)
+  const [garageTeaserDismissed, setGarageTeaserDismissed] = useState(
+    () => localStorage.getItem('fuelbot_garage_teaser_dismissed') === '1',
+  )
 
   useEffect(() => {
     if (!user) return
@@ -106,6 +109,30 @@ export function HomePage() {
           <Link to="/leaderboard" className="shrink-0 font-semibold text-amber-900 underline">
             {t('nav.leaderboard')}
           </Link>
+        </div>
+      )}
+
+      {user && !garageTeaserDismissed && (
+        <div className="shrink-0 flex items-start gap-2 border-b border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-900">
+          <Gauge className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" />
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">{t('home.garageTeaserTitle')}</p>
+            <p className="mt-0.5 text-blue-800">{t('home.garageTeaserBody')}</p>
+            <Link to="/garage" className="mt-1 inline-block font-semibold underline">
+              {t('home.garageTeaserCta')}
+            </Link>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.setItem('fuelbot_garage_teaser_dismissed', '1')
+              setGarageTeaserDismissed(true)
+            }}
+            className="flex shrink-0 items-center justify-center rounded-full p-1 text-blue-800 active:bg-blue-100"
+            aria-label={t('common.close')}
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 

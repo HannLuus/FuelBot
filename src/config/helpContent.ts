@@ -7,6 +7,7 @@ export const HELP_GUIDE_SLUGS = [
   'stationRegister',
   'stationClaim',
   'stationPayment',
+  'garageEfficiency',
   'b2bAccess',
   'earnReferral',
 ] as const
@@ -64,6 +65,7 @@ export const FAQ_SECTIONS: {
     sectionId: 'b2b',
     titleKey: 'help.faqGroups.b2bTitle',
     items: [
+      { anchorId: 'faq-b2b-efficiency', qKey: 'help.faq.b2b.q0', aKey: 'help.faq.b2b.a0' },
       { anchorId: 'faq-b2b-what', qKey: 'help.faq.b2b.q1', aKey: 'help.faq.b2b.a1' },
       { anchorId: 'faq-b2b-pending', qKey: 'help.faq.b2b.q2', aKey: 'help.faq.b2b.a2' },
       { anchorId: 'faq-b2b-national', qKey: 'help.faq.b2b.q3', aKey: 'help.faq.b2b.a3' },
@@ -177,6 +179,22 @@ export const GUIDE_CONFIG: GuideConfig[] = [
     troubleshootKeys: ['help.guides.stationPayment.t1', 'help.guides.stationPayment.t2'],
     relatedBenefitsPath: '/benefits/station-owners',
     relatedBenefitsLabelKey: 'help.guides.stationPayment.related',
+  },
+  {
+    slug: 'garageEfficiency',
+    anchorId: 'guide-garageEfficiency',
+    titleKey: 'help.guides.garageEfficiency.title',
+    prereqKey: 'help.guides.garageEfficiency.prereq',
+    stepKeys: [
+      'help.guides.garageEfficiency.s1',
+      'help.guides.garageEfficiency.s2',
+      'help.guides.garageEfficiency.s3',
+      'help.guides.garageEfficiency.s4',
+      'help.guides.garageEfficiency.s5',
+    ],
+    troubleshootKeys: ['help.guides.garageEfficiency.t1', 'help.guides.garageEfficiency.t2'],
+    relatedBenefitsPath: '/benefits/fleet-owners',
+    relatedBenefitsLabelKey: 'help.guides.garageEfficiency.related',
   },
   {
     slug: 'b2bAccess',

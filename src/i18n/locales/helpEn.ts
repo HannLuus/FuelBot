@@ -17,6 +17,7 @@ export const helpEn = {
     'authInline': 'Help with sign-in',
     'stationOwner': 'Station owner help',
     'b2bInline': 'Fleet & route help',
+    'garageInline': 'Fuel efficiency guide',
     'earnInline': 'Referral & rewards help',
     'reportInline': 'Full reporting guide',
     'benefitsCta': 'Step-by-step help'
@@ -67,6 +68,8 @@ export const helpEn = {
       'a4': 'Always use the amounts shown on the payment screen in the app. We do not put fixed prices in help text because they can change.'
     },
     'b2b': {
+      'q0': 'Is fuel efficiency tracking free?',
+      'a0': 'Yes. My Fleet lets any signed-in transport company log fill-ups and see L/100km per truck. Peer benchmarks are anonymized. Route/national map access is a separate paid plan.',
       'q1': 'What is fleet / route access?',
       'a1': 'Paid plans can unlock route corridors or nationwide map views for planning. See the Benefits for fleet owners page for what is included.',
       'q2': 'Why does it say payment under review?',
@@ -151,6 +154,18 @@ export const helpEn = {
       's3': 'Pending means verification — paid map features unlock after confirmation.',
       's4': 'When active, use Map with fleet filters allowed by your plan.',
       't1': 'Unclear status? Check Route access or contact us with your account email.',
+      'related': 'Benefits for fleet owners'
+    },
+    'garageEfficiency': {
+      'title': 'Fuel efficiency per truck (free)',
+      'prereq': 'Sign in — no paid subscription required.',
+      's1': 'Open My Fleet from the bottom navigation or user menu.',
+      's2': 'Add a vehicle: manufacturer, model, year, fuel type. Nickname and region are optional but help you find it later.',
+      's3': 'After each refuel, open the vehicle and Add fill-up: date, odometer (km), liters. Full-tank fills give the best L/100km.',
+      's4': 'After two or more full-tank intervals, your average L/100km appears. Peer benchmarks show when enough anonymized data exists.',
+      's5': 'Route/national map access is separate and paid — use My Fleet first to see which trucks burn too much fuel.',
+      't1': 'Wrong odometer or partial fills can skew results — edit or delete a bad fill-up from the vehicle page.',
+      't2': 'Plates are private and never shared in benchmarks.',
       'related': 'Benefits for fleet owners'
     },
     'earnReferral': {

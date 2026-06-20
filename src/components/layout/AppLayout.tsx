@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift, Mail, CircleHelp, Trophy } from 'lucide-react'
+import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Gift, Mail, CircleHelp, Trophy, Gauge } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
@@ -38,6 +38,7 @@ export function AppLayout() {
     { to: '/home', label: t('nav.nearby'), icon: List, end: true },
     { to: '/map', label: t('nav.map'), icon: Map },
     ...(user ? [{ to: '/inbox', label: t('nav.inbox'), icon: Mail }] : []),
+    ...(user ? [{ to: '/garage', label: t('nav.garage'), icon: Gauge }] : []),
     ...(activeRole === 'general' ? [{ to: '/earn', label: t('nav.earn'), icon: Gift }] : []),
     ...(activeRole === 'fleet' ? [{ to: '/b2b', label: t('nav.routeAccess'), icon: Truck }] : []),
     ...(activeRole === 'station' ? [{ to: '/station', label: t('nav.station'), icon: Fuel }] : []),
@@ -259,6 +260,17 @@ export function AppLayout() {
                 </Link>
               )}
 
+              {user && (
+                <Link
+                  to="/garage"
+                  onClick={() => setSheetOpen(false)}
+                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+                >
+                  <Gauge className="h-5 w-5 shrink-0 text-gray-700" />
+                  <span>{t('garage.navLabel')}</span>
+                </Link>
+              )}
+
               {user && availableRoles.length > 1 && (
                 <div className="px-3 py-4">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
@@ -288,7 +300,7 @@ export function AppLayout() {
                                 navigate('/station')
                                 break
                               case 'fleet':
-                                navigate('/b2b')
+                                navigate('/garage')
                                 break
                               case 'admin':
                                 navigate('/admin')

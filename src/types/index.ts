@@ -221,3 +221,76 @@ export interface StationFilters {
   /** When true, show only owner-verified stations (trusted locations). */
   verifiedOnly: boolean
 }
+
+// ─── Fleet fuel-efficiency benchmark ──────────────────────────────────────────
+
+/** Generic asset class. Trucks first; generators/other diesel machines fit later. */
+export type AssetType = 'TRUCK' | 'GENERATOR' | 'OTHER'
+
+export interface FleetVehicle {
+  id: string
+  owner_user_id: string
+  asset_type: AssetType
+  /** Optional nickname / internal identifier (e.g. "Truck #7"). */
+  label: string | null
+  manufacturer: string | null
+  model: string | null
+  variant: string | null
+  year: number | null
+  fuel_code: FuelCode
+  engine_size_l: number | null
+  tank_capacity_l: number | null
+  gvw_class: string | null
+  body_type: string | null
+  axle_config: string | null
+  /** Sensitive; optional. Never exposed in benchmarks. */
+  plate: string | null
+  /** Operating region, used for benchmark grouping. */
+  region: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface FuelLog {
+  id: string
+  vehicle_id: string
+  owner_user_id: string
+  filled_at: string
+  odometer_km: number
+  liters: number
+  is_full_tank: boolean
+  price_paid_mmk: number | null
+  station_id: string | null
+  note: string | null
+  created_at: string
+}
+
+/** Result of get_vehicle_efficiency RPC. */
+export interface VehicleEfficiency {
+  has_sufficient_data: boolean
+  samples_count: number
+  avg_l_per_100km: number | null
+  last_l_per_100km: number | null
+  best_l_per_100km: number | null
+  total_distance_km: number | null
+}
+
+/** Result of get_fleet_benchmark RPC (anonymized; null until enough peer data). */
+export interface FleetBenchmark {
+  has_sufficient_data: boolean
+  peer_vehicles_count: number
+  peer_owners_count: number
+  avg_l_per_100km: number | null
+  p25_l_per_100km: number | null
+  p75_l_per_100km: number | null
+}
+
+/** Per-vehicle row from get_my_fleet_efficiency_summary RPC. */
+export interface FleetEfficiencySummary {
+  vehicle_id: string
+  has_sufficient_data: boolean
+  samples_count: number
+  avg_l_per_100km: number | null
+  last_l_per_100km: number | null
+}

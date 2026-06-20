@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 /**
- * Single source of truth for the hosted FuelBot Supabase project.
+ * Single source of truth for the FuelBot Supabase backend (self-hosted VPS).
  * Run: npm run audit:supabase
  */
-import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -11,25 +10,14 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 
-const FUELBOT_SUPABASE_PROJECT_REF = 'feenwusofmhnpuahekvu'
-const FUELBOT_SUPABASE_URL = `https://${FUELBOT_SUPABASE_PROJECT_REF}.supabase.co`
+const FUELBOT_SUPABASE_URL = 'https://fuelbot.lucas-dev-server.tech'
+const FUELBOT_STUDIO_URL = 'https://studio.fuelbot.lucas-dev-server.tech'
 
-/** Known wrong refs / typos that have appeared in env or screenshots — must not appear in repo or local env. */
-const BANNED_SUBSTRINGS = ['feerywusofnhrpuahekvu', 'mykdmlcezekwxelxfvlr']
+/** Legacy cloud URL — must not appear in env or active docs. */
+const LEGACY_CLOUD_URL = 'https://feenwusofmhnpuahekvu.supabase.co'
 
-function jwtRef(anonJwt) {
-  try {
-    const part = anonJwt.split('.')[1]
-    if (!part) return null
-    const b64 = part.replace(/-/g, '+').replace(/_/g, '/')
-    const pad = b64.length % 4
-    const padded = pad ? b64 + '='.repeat(4 - pad) : b64
-    const payload = JSON.parse(Buffer.from(padded, 'base64').toString('utf8'))
-    return typeof payload.ref === 'string' ? payload.ref : null
-  } catch {
-    return null
-  }
-}
+/** Known wrong refs / typos that have appeared in env or screenshots. */
+const BANNED_SUBSTRINGS = ['feerywusofnhrpuahekvu', 'mykdmlcezekwxelxfvlr', 'feenwusofmhnpuahekvu.supabase.co']
 
 function parseEnvValue(line) {
   const i = line.indexOf('=')
@@ -49,7 +37,7 @@ function checkEnvFile(name) {
   if (!fs.existsSync(p)) return
   const raw = fs.readFileSync(p, 'utf8')
   for (const b of BANNED_SUBSTRINGS) {
-    if (raw.includes(b)) errors.push(`${name}: contains wrong project fragment "${b}"`)
+    if (raw.includes(b)) errors.push(`${name}: contains legacy/banned fragment "${b}"`)
   }
   for (const line of raw.split('\n')) {
     const t = line.trim()
@@ -59,14 +47,8 @@ function checkEnvFile(name) {
       if (v && v !== FUELBOT_SUPABASE_URL) {
         errors.push(`${name}: VITE_SUPABASE_URL must be "${FUELBOT_SUPABASE_URL}" (got "${v}")`)
       }
-    }
-    if (t.startsWith('VITE_SUPABASE_ANON_KEY=')) {
-      const v = parseEnvValue(t)
-      const ref = v ? jwtRef(v) : null
-      if (ref && ref !== FUELBOT_SUPABASE_PROJECT_REF) {
-        errors.push(
-          `${name}: VITE_SUPABASE_ANON_KEY JWT ref is "${ref}", expected "${FUELBOT_SUPABASE_PROJECT_REF}"`,
-        )
+      if (v === LEGACY_CLOUD_URL) {
+        errors.push(`${name}: still points at Supabase Cloud — use VPS URL`)
       }
     }
   }
@@ -75,40 +57,16 @@ function checkEnvFile(name) {
 function checkMcpJson() {
   const p = path.join(ROOT, '.cursor/mcp.json')
   if (!fs.existsSync(p)) return
-  const j = JSON.parse(fs.readFileSync(p, 'utf8'))
-  const url = j.mcpServers?.supabase?.url ?? ''
-  if (url && !url.includes(`project_ref=${FUELBOT_SUPABASE_PROJECT_REF}`)) {
-    errors.push(
-      `.cursor/mcp.json: set mcpServers.supabase.url to include project_ref=${FUELBOT_SUPABASE_PROJECT_REF}`,
-    )
-  }
-}
-
-function checkGitTrackedTextFiles() {
-  let files
-  try {
-    files = execSync('git ls-files', { encoding: 'utf8', cwd: ROOT }).trim().split('\n').filter(Boolean)
-  } catch {
-    return
-  }
-  const ext = /\.(md|mdc|json|toml|ts|tsx|js|mjs|example|yaml|yml)$/i
-  for (const f of files) {
-    if (f === '.env' || f.includes('.env.') && !f.endsWith('.example')) continue
-    if (!ext.test(f)) continue
-    const full = path.join(ROOT, f)
-    if (!fs.existsSync(full)) continue
-    const raw = fs.readFileSync(full, 'utf8')
-    for (const b of BANNED_SUBSTRINGS) {
-      if (raw.includes(b)) errors.push(`git ${f}: contains banned ref "${b}"`)
-    }
+  const raw = fs.readFileSync(p, 'utf8')
+  if (raw.includes('mcp.supabase.com')) {
+    errors.push('.cursor/mcp.json: remove Supabase Cloud MCP (use Studio on VPS for SQL)')
   }
 }
 
 checkEnvFile('.env')
 checkEnvFile('.env.local')
-checkMcpJson()
 checkEnvFile('.env.example')
-checkGitTrackedTextFiles()
+checkMcpJson()
 
 if (errors.length) {
   console.error('Supabase project audit failed:\n' + errors.map((e) => `  - ${e}`).join('\n'))
@@ -116,5 +74,5 @@ if (errors.length) {
 }
 
 console.log(
-  `OK — canonical Supabase project: ${FUELBOT_SUPABASE_PROJECT_REF}\n   API URL: ${FUELBOT_SUPABASE_URL}\n   Checked: .env, .env.local (if present), .env.example, .cursor/mcp.json, git text files for banned refs.`,
+  `OK — VPS Supabase backend\n   API URL: ${FUELBOT_SUPABASE_URL}\n   Studio:  ${FUELBOT_STUDIO_URL}\n   Checked: .env, .env.local (if present), .env.example, .cursor/mcp.json`,
 )

@@ -2,7 +2,7 @@
 
 Real-time fuel availability and queue times at nearby stations. Built for Myanmar (first market), designed to expand globally.
 
-**Supabase project:** `feenwusofmhnpuahekvu`
+**Backend:** Self-hosted Supabase on VPS — API `https://fuelbot.lucas-dev-server.tech`, Studio `https://studio.fuelbot.lucas-dev-server.tech` ([setup](docs/SUPABASE_SETUP.md))
 
 ---
 
@@ -31,7 +31,7 @@ For non-trivial work (database changes, Edge Functions, auth/RLS, payments, majo
 cp .env.example .env
 ```
 
-Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the Supabase dashboard.
+Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from Studio on the VPS ([docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)).
 
 Also configure:
 
@@ -117,7 +117,7 @@ To discover and add fuel stations by region (Denko, BOC, PT Power, Max Energy, A
 
 ## Database
 
-All migrations are applied to the remote Supabase project. Key tables:
+Apply migrations via **Studio SQL editor** ([docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)). Key tables:
 
 | Table | Purpose |
 |---|---|
@@ -132,6 +132,8 @@ All migrations are applied to the remote Supabase project. Key tables:
 | `subscriptions` | Station subscription tiers |
 | `alerts_log` | Dispatched alert records |
 | `b2b_subscriptions` | Paid B2B entitlements (national view, route view) |
+| `fleet_vehicles` | Transport company trucks/machines (free fuel-efficiency tool) |
+| `fuel_logs` | Manual fill-up logs (odometer + liters) |
 | `routes` | Predefined routes for transport companies (corridor view) |
 
 **B2B (national / route view):** Nationwide and route-scoped station data are gated. Only users with an active row in `b2b_subscriptions` (and `valid_until > now()`) see "All Myanmar" or the route selector. Migrations are applied to the remote project. Demo data is in place: log in as **hann.mandalay@gmail.com** to see the "All Myanmar" pill and the **Yangon–Mandalay** route in the filter bar. To add more demo users or routes, see `supabase/seeds/seed-b2b-demo.sql` and insert into `b2b_subscriptions` (and `routes`) with the user's `auth.users.id`.
