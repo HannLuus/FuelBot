@@ -21,7 +21,7 @@ $$;
 CREATE TABLE IF NOT EXISTS public.fleet_vehicles (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_user_id   uuid NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
-  asset_type      text NOT NULL DEFAULT 'TRUCK',
+  asset_type      text NOT NULL DEFAULT 'CAR',
   label           text,
   manufacturer    text,
   model           text,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.fleet_vehicles (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT fleet_vehicles_asset_type_check
-    CHECK (asset_type = ANY (ARRAY['TRUCK', 'GENERATOR', 'OTHER'])),
+    CHECK (asset_type = ANY (ARRAY['CAR', 'MOTORCYCLE', 'VAN', 'PICKUP', 'BUS', 'TRUCK', 'GENERATOR', 'OTHER'])),
   CONSTRAINT fleet_vehicles_fuel_code_check
     CHECK (fuel_code = ANY (ARRAY['RON92', 'RON95', 'DIESEL', 'PREMIUM_DIESEL'])),
   CONSTRAINT fleet_vehicles_year_check

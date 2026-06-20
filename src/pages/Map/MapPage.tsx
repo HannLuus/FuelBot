@@ -19,7 +19,6 @@ import {
   QUEUE_LABEL,
   REPORTER_ROLE_LABEL,
 } from '@/lib/fuelUtils'
-import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { getBrandInitial, getBrandLogoUrl } from '@/lib/brandLogos'
 import { SuggestStationSheet } from '@/components/station/SuggestStationSheet'
 import { Button } from '@/components/ui/Button'
@@ -41,9 +40,6 @@ const STATUS_HEX: Record<string, string> = {
 }
 
 const MARKER_SIZE = 22
-
-/** After "my location" flyTo, skip national/route fitBounds so it does not immediately zoom out. */
-const MANUAL_RECENTER_SUPPRESS_FIT_MS = 3500
 
 function makeMarkerIcon(color: string, unverified = false, selected = false): L.DivIcon {
   const size = selected ? MARKER_SIZE + 6 : MARKER_SIZE
@@ -124,7 +120,7 @@ export function MapPage() {
   /** True after user taps "my location" — recenters even when lat/lng match persisted GPS (user may have panned away). */
   const pendingRecenterRef = useRef(false)
   const prevUserLocationRef = useRef<{ lat: number; lng: number } | null>(null)
-  /** After we center on the user, skip auto fitBounds briefly so national/route view does not undo flyTo. */
+  /** After we center on the user, skip automatic viewport changes briefly. */
   const lastManualRecenterAtRef = useRef(0)
   const navigate = useNavigate()
   const {
@@ -147,12 +143,7 @@ export function MapPage() {
 
   const effectiveLat = lat ?? YANGON_LAT
   const effectiveLng = lng ?? YANGON_LNG
-  const effectiveRadius =
-    filters.maxDistanceKm >= WHOLE_COUNTRY_KM
-      ? filters.maxDistanceKm
-      : lat !== null
-        ? filters.maxDistanceKm
-        : 25
+  const effectiveRadius = lat !== null ? filters.maxDistanceKm : 25
 
   useEffect(() => {
     if (typeof document === 'undefined') return
@@ -170,7 +161,6 @@ export function MapPage() {
     lat: effectiveLat,
     lng: effectiveLng,
     maxDistanceKm: effectiveRadius,
-    selectedRouteId: filters.selectedRouteId,
     fuelTypes: filters.fuelTypes,
     statusFilter: filters.statusFilter,
   })
@@ -396,19 +386,6 @@ export function MapPage() {
     setSuggestLat(null)
     setSuggestLng(null)
   }
-
-  // When showing whole country or a route, fit map bounds to all stations (and user location)
-  const isNationalView = filters.maxDistanceKm >= WHOLE_COUNTRY_KM
-  const isRouteView = !!filters.selectedRouteId
-  useEffect(() => {
-    if (!mapRef.current || (!isNationalView && !isRouteView) || filteredStations.length === 0) return
-    if (Date.now() - lastManualRecenterAtRef.current < MANUAL_RECENTER_SUPPRESS_FIT_MS) return
-    const bounds = L.latLngBounds(
-      filteredStations.map((s) => [s.lat, s.lng] as L.LatLngTuple),
-    )
-    if (lat != null && lng != null) bounds.extend([lat, lng])
-    mapRef.current.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 })
-  }, [isNationalView, isRouteView, filteredStations, lat, lng])
 
   function handleMyLocation() {
     pendingRecenterRef.current = true

@@ -2,26 +2,54 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  Truck,
+  Bike,
+  Bus,
+  Car,
   Plus,
   ChevronRight,
   Gauge,
   ClipboardList,
   BarChart3,
   Users,
-  Map,
+  Package,
+  Truck,
+  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
 import { useFleetVehicles, type VehicleInput } from '@/hooks/useFleetVehicles'
-import type { FleetVehicle } from '@/types'
+import type { AssetType, FleetVehicle } from '@/types'
 import { VehicleForm } from './VehicleForm'
 
 function vehicleTitle(v: FleetVehicle, fallback: string): string {
   if (v.label?.trim()) return v.label
   const parts = [v.manufacturer, v.model, v.variant].filter(Boolean)
   return parts.length > 0 ? parts.join(' ') : fallback
+}
+
+function vehicleIconForType(type: AssetType) {
+  switch (type) {
+    case 'CAR':
+      return Car
+    case 'MOTORCYCLE':
+      return Bike
+    case 'VAN':
+    case 'PICKUP':
+      return Package
+    case 'BUS':
+      return Bus
+    case 'TRUCK':
+      return Truck
+    case 'GENERATOR':
+      return Zap
+    case 'OTHER':
+      return Gauge
+    default: {
+      const exhaustive: never = type
+      return exhaustive
+    }
+  }
 }
 
 export function GaragePage() {
@@ -36,7 +64,7 @@ export function GaragePage() {
   if (!user) {
     return (
       <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-        <Truck className="mb-4 h-12 w-12 text-gray-700" />
+        <Car className="mb-4 h-12 w-12 text-gray-700" />
         <h2 className="text-lg font-semibold text-gray-900">{t('garage.title')}</h2>
         <p className="mt-2 text-sm text-gray-700">{t('garage.signInRequired')}</p>
         <Button className="mt-4" onClick={() => navigate('/auth?redirect=/garage')}>
@@ -141,6 +169,7 @@ export function GaragePage() {
               {vehicles.map((v) => {
                 const summary = efficiencyByVehicleId[v.id]
                 const avg = summary?.avg_l_per_100km
+                const VehicleIcon = vehicleIconForType(v.asset_type)
                 return (
                   <li key={v.id}>
                     <Link
@@ -148,7 +177,7 @@ export function GaragePage() {
                       className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm active:bg-gray-50"
                     >
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100">
-                        <Truck className="h-5 w-5 text-blue-600" />
+                        <VehicleIcon className="h-5 w-5 text-blue-600" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-gray-900">
@@ -174,24 +203,6 @@ export function GaragePage() {
               })}
             </ul>
           )}
-        </section>
-
-        <section className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white">
-              <Map className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-gray-900">{t('garage.paidUpsellTitle')}</h2>
-              <p className="mt-1 text-xs text-gray-700">{t('garage.paidUpsellBody')}</p>
-              <Link
-                to="/b2b"
-                className="mt-2 inline-block text-sm font-semibold text-blue-600 underline"
-              >
-                {t('garage.paidUpsellCta')}
-              </Link>
-            </div>
-          </div>
         </section>
 
         <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4">

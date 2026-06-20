@@ -198,22 +198,28 @@ export interface StationFilters {
   fuelTypes: FuelCode[]
   statusFilter: StatusFilter
   maxDistanceKm: number
-  /** When set, B2B route view is active and stations are filtered to this route. */
-  selectedRouteId: string | null
   /** When true, show only owner-verified stations (trusted locations). */
   verifiedOnly: boolean
 }
 
 // ─── Fleet fuel-efficiency benchmark ──────────────────────────────────────────
 
-/** Generic asset class. Trucks first; generators/other diesel machines fit later. */
-export type AssetType = 'TRUCK' | 'GENERATOR' | 'OTHER'
+/** Generic fleet asset class for fuel-efficiency tracking. */
+export type AssetType =
+  | 'CAR'
+  | 'MOTORCYCLE'
+  | 'VAN'
+  | 'PICKUP'
+  | 'BUS'
+  | 'TRUCK'
+  | 'GENERATOR'
+  | 'OTHER'
 
 export interface FleetVehicle {
   id: string
   owner_user_id: string
   asset_type: AssetType
-  /** Optional nickname / internal identifier (e.g. "Truck #7"). */
+  /** Optional nickname / internal identifier (e.g. "Sales Car #2"). */
   label: string | null
   manufacturer: string | null
   model: string | null

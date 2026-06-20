@@ -76,8 +76,8 @@ export function AdminInboxPanel() {
   const [replyBody, setReplyBody] = useState('')
 
   const [bulkSegment, setBulkSegment] = useState<
-    'everyone' | 'all_station_owners' | 'paid_station_owners' | 'all_b2b' | 'active_b2b' | 'normal_users_only'
-  >('all_b2b')
+    'everyone' | 'all_station_owners' | 'paid_station_owners' | 'normal_users_only'
+  >('everyone')
   const [bulkSubject, setBulkSubject] = useState('')
   const [bulkBody, setBulkBody] = useState('')
   const [bulkMax, setBulkMax] = useState(500)
@@ -298,8 +298,6 @@ export function AdminInboxPanel() {
             >
               <option value="everyone">{t('admin.inboxSegmentEveryone')}</option>
               <option value="all_station_owners">{t('admin.inboxSegmentAllOwners')}</option>
-              <option value="active_b2b">{t('admin.inboxSegmentActiveB2b')}</option>
-              <option value="all_b2b">{t('admin.inboxSegmentAllB2b')}</option>
               <option value="normal_users_only">{t('admin.inboxSegmentNormalUsersOnly')}</option>
               <option value="paid_station_owners">{t('admin.inboxSegmentPaidOwners')}</option>
             </select>

@@ -71,40 +71,9 @@ export function BenefitsFleetPage() {
             <h2 className="text-lg font-semibold text-gray-900">
               {t('benefits.fleetOwners.sectionWhatYouGet')}
             </h2>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-gray-700">
-              <li>{t('benefits.fleetOwners.nationalView')}</li>
-              <li>{t('benefits.fleetOwners.routeView')}</li>
-              <li>{t('benefits.fleetOwners.planRoutes')}</li>
-              <li>{t('benefits.fleetOwners.avoidEmpty')}</li>
-              <li>{t('benefits.fleetOwners.oneAccount')}</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-gray-900">
-              {t('benefits.fleetOwners.sectionComparedToStations')}
-            </h2>
-            <p className="mt-2 text-gray-700">{t('benefits.fleetOwners.sectionNotStationProgram')}</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-gray-900">
-              {t('benefits.fleetOwners.sectionCost')}
-            </h2>
-            <p className="mt-2 text-gray-700">
-              {t('benefits.fleetOwners.pricingNote')}
-            </p>
+            <p className="mt-2 text-gray-700">{t('benefits.fleetOwners.sectionFreeTool')}</p>
           </section>
         </div>
-
-        <p className="mt-8">
-          <Link
-            to="/b2b"
-            className="font-medium text-blue-600 underline active:text-blue-800"
-          >
-            {t('landing.fleetContactCta')}
-          </Link>
-        </p>
 
         <p className="mt-4 text-sm text-gray-700">
           {t('benefits.fleetOwners.alsoSeeStations')}{' '}

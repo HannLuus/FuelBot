@@ -85,18 +85,3 @@ export function RequireStationContext({ allowOnboarding = false }: { allowOnboar
   return <Outlet />
 }
 
-export function RequireFleetContext({ allowOnboarding = false }: { allowOnboarding?: boolean }) {
-  const { user, loading } = useAuthStore()
-  const { hasFleetAccess, loading: roleLoading } = useRoleAccess()
-
-  if (loading || roleLoading) {
-    return null
-  }
-  if (!user) {
-    return <Navigate to="/auth?redirect=/b2b" replace />
-  }
-  if (!hasFleetAccess && !allowOnboarding) {
-    return <Navigate to="/home" replace />
-  }
-  return <Outlet />
-}

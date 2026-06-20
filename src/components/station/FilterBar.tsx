@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef, useId } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { clsx } from 'clsx'
 import { Menu } from 'lucide-react'
 import { useFilterStore } from '@/stores/filterStore'
-import { useB2BEntitlements } from '@/hooks/useB2BEntitlements'
 import { FUEL_CODES, FUEL_DISPLAY } from '@/lib/fuelUtils'
-import { DISTANCE_OPTIONS_KM, WHOLE_COUNTRY_KM } from '@/lib/constants'
+import { DISTANCE_OPTIONS_KM } from '@/lib/constants'
 import type { FuelCode, StatusFilter } from '@/types'
 
 const STATUS_OPTIONS: { value: StatusFilter; labelKey: string }[] = [
@@ -23,11 +22,9 @@ const DISTANCE_LABEL_KEYS: Record<number, string> = {
 export function FilterBar() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language as 'en' | 'my'
-  const { filters, setFuelTypes, setStatusFilter, setMaxDistance, setSelectedRouteId, setVerifiedOnly } = useFilterStore()
-  const { hasNationalView, routes } = useB2BEntitlements()
+  const { filters, setFuelTypes, setStatusFilter, setMaxDistance, setVerifiedOnly } = useFilterStore()
   const [filterMenuOpen, setFilterMenuOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const routeSelectId = useId()
 
   useEffect(() => {
     if (!filterMenuOpen) return
@@ -48,19 +45,6 @@ export function FilterBar() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [filterMenuOpen])
-
-  useEffect(() => {
-    if (filters.selectedRouteId != null && !routes.some((route) => route.id === filters.selectedRouteId)) {
-      setSelectedRouteId(null)
-    }
-  }, [filters.selectedRouteId, routes, setSelectedRouteId])
-
-  useEffect(() => {
-    const usingWholeCountry = filters.maxDistanceKm >= WHOLE_COUNTRY_KM && !filters.selectedRouteId
-    if (!hasNationalView && usingWholeCountry) {
-      setMaxDistance(25)
-    }
-  }, [filters.maxDistanceKm, filters.selectedRouteId, hasNationalView, setMaxDistance])
 
   /** One fuel at a time (typical driver has one vehicle). Tap active pill again to show all types. */
   function toggleFuelType(code: FuelCode) {
@@ -111,9 +95,6 @@ export function FilterBar() {
         {t('home.filters.verifiedOnly')}
       </button>
 
-      {/* Divider */}
-      <div className="shrink-0 h-5 w-px bg-gray-200 mx-1" />
-
       {/* Distance */}
       {DISTANCE_OPTIONS_KM.map((km) => {
         const active = filters.maxDistanceKm === km
@@ -133,46 +114,6 @@ export function FilterBar() {
           </button>
         )
       })}
-
-      {/* B2B: All Myanmar */}
-      <button
-        type="button"
-        title={!hasNationalView ? t('home.filters.wholeCountryB2BOnly') : undefined}
-        disabled={!hasNationalView}
-        onClick={() => {
-          if (!hasNationalView) return
-          setSelectedRouteId(null)
-          setMaxDistance(WHOLE_COUNTRY_KM)
-        }}
-        className={clsx(
-          'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-          !hasNationalView && 'cursor-not-allowed opacity-70',
-          hasNationalView && filters.maxDistanceKm >= WHOLE_COUNTRY_KM && !filters.selectedRouteId
-            ? 'bg-amber-600 text-white active:bg-amber-700'
-            : hasNationalView
-              ? 'bg-gray-100 text-gray-700 active:bg-gray-200'
-              : 'bg-gray-100 text-gray-400',
-        )}
-      >
-        {t('home.filters.wholeCountry')}
-      </button>
-
-      {/* B2B: Route selector */}
-      {routes.length > 0 && (
-        <select
-          value={filters.selectedRouteId ?? ''}
-          onChange={(e) => setSelectedRouteId(e.target.value || null)}
-          className="shrink-0 rounded-full border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
-          aria-label={t('home.filters.selectRoute')}
-        >
-          <option value="">{t('home.filters.selectRoute')}</option>
-          {routes.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-      )}
     </>
   )
 
@@ -202,7 +143,7 @@ export function FilterBar() {
         {/* Divider */}
         <div className="shrink-0 h-5 w-px bg-gray-200 mx-1" />
 
-        {/* Desktop: status + verified + distance + B2B inline */}
+        {/* Desktop: status, verified, and distance filters */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
           {statusAndMoreFilters}
         </div>
@@ -294,50 +235,6 @@ export function FilterBar() {
                     )
                   })}
                 </div>
-                {/* All Myanmar */}
-                <button
-                  type="button"
-                  role="menuitem"
-                  title={!hasNationalView ? t('home.filters.wholeCountryB2BOnly') : undefined}
-                  disabled={!hasNationalView}
-                  onClick={() => {
-                    if (!hasNationalView) return
-                    setSelectedRouteId(null)
-                    setMaxDistance(WHOLE_COUNTRY_KM)
-                  }}
-                  className={clsx(
-                    'w-full rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors',
-                    !hasNationalView && 'cursor-not-allowed opacity-70',
-                    hasNationalView && filters.maxDistanceKm >= WHOLE_COUNTRY_KM && !filters.selectedRouteId
-                      ? 'bg-amber-600 text-white active:bg-amber-700'
-                      : hasNationalView
-                        ? 'bg-gray-100 text-gray-700 active:bg-gray-200'
-                        : 'bg-gray-100 text-gray-400',
-                  )}
-                >
-                  {t('home.filters.wholeCountry')}
-                </button>
-                {/* Route */}
-                {routes.length > 0 && (
-                  <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-700" htmlFor={routeSelectId}>
-                      {t('home.filters.selectRoute')}
-                    </label>
-                    <select
-                      id={routeSelectId}
-                      value={filters.selectedRouteId ?? ''}
-                      onChange={(e) => setSelectedRouteId(e.target.value || null)}
-                      className="w-full rounded-lg border border-gray-200 bg-gray-100 px-2.5 py-2 text-sm font-medium text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    >
-                      <option value="">{t('home.filters.selectRoute')}</option>
-                      {routes.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
           </div>
         </div>
       )}

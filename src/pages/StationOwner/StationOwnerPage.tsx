@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -92,9 +92,6 @@ export function StationOwnerPage() {
   const { user, session } = useAuthStore()
   const navigate = useNavigate()
   const [myStation, setMyStation] = useState<Station | null>(null)
-  const [routeBundleValidUntil, setRouteBundleValidUntil] = useState<string | null>(null)
-  /** Bumps every minute so we re-check `routeBundleValidUntil` against wall clock (matches DB `> now()` after the instant passes). */
-  const [stationBundleClockTick, setStationBundleClockTick] = useState(0)
   const [currentStatus, setCurrentStatus] = useState<StationCurrentStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [posting, setPosting] = useState(false)
@@ -176,57 +173,7 @@ export function StationOwnerPage() {
   }, [myStation])
   const showPlanSelection = !myStation || ownerPortalState === 'draft'
 
-  const refreshRouteBundleValidUntil = useCallback(async () => {
-    if (!user?.id) {
-      setRouteBundleValidUntil(null)
-      return
-    }
-    const { data, error } = await supabase.rpc('station_owner_route_bundle_valid_until')
-    if (error) {
-      setRouteBundleValidUntil(null)
-      return
-    }
-    const raw = data as unknown
-    if (raw == null) {
-      setRouteBundleValidUntil(null)
-      return
-    }
-    const pick = Array.isArray(raw) ? raw[0] : raw
-    if (pick == null) {
-      setRouteBundleValidUntil(null)
-      return
-    }
-    setRouteBundleValidUntil(typeof pick === 'string' ? pick : String(pick))
-  }, [user?.id])
-
   useEffect(() => {
-    const intervalId = window.setInterval(() => setStationBundleClockTick((n) => n + 1), 60_000)
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') void refreshRouteBundleValidUntil()
-    }
-    document.addEventListener('visibilitychange', onVisible)
-    return () => {
-      window.clearInterval(intervalId)
-      document.removeEventListener('visibilitychange', onVisible)
-    }
-  }, [refreshRouteBundleValidUntil])
-
-  /**
-   * Route bundle window from RPC (`station_owner_route_bundle_valid_until`) and still in the future.
-   * Subscription end on the server uses Postgres `make_interval(months => …)`; if you ever compute the
-   * same end in the client, use `addCalendarMonthsUtc` from `@/lib/calendarInterval` — not `Date#setUTCMonth`
-   * (JS overflows end-of-month; Postgres clamps to the last day of the target month).
-   */
-  const stationRouteBundleActive = useMemo(() => {
-    void stationBundleClockTick
-    if (routeBundleValidUntil == null) return false
-    const endMs = new Date(routeBundleValidUntil).getTime()
-    if (Number.isNaN(endMs)) return false
-    return endMs > Date.now()
-  }, [routeBundleValidUntil, stationBundleClockTick])
-
-  useEffect(() => {
-    setRouteBundleValidUntil(null)
     if (!user) return
     void loadMyStation()
   // eslint-disable-next-line react-hooks/exhaustive-deps -- loadMyStation should rerun only when authenticated user identity changes
@@ -399,7 +346,6 @@ export function StationOwnerPage() {
       .maybeSingle()
     if (error) {
       setLoading(false)
-      await refreshRouteBundleValidUntil()
       return
     }
     setMyStation(data ?? null)
@@ -419,7 +365,6 @@ export function StationOwnerPage() {
       setCurrentStatus(null)
     }
     setLoading(false)
-    await refreshRouteBundleValidUntil()
   }
 
   async function loadCurrentStatus(stationId: string) {
@@ -1299,7 +1244,7 @@ export function StationOwnerPage() {
               </div>
             )}
 
-            {/* Pay via — same section as B2B: instructions, QR, phone */}
+            {/* Pay via — shared payment instructions, QR, and phone */}
             {!myStation.is_verified && !myStation.payment_reported_at && (
               <section className="rounded-2xl border border-gray-200 bg-white p-4">
                 <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.payVia')}</h2>
@@ -1336,7 +1281,7 @@ export function StationOwnerPage() {
               </section>
             )}
 
-            {/* Payment details — same section as B2B: method, reference, screenshot, submit */}
+            {/* Payment details — method, reference, screenshot, and submit */}
             {!myStation.is_verified && !myStation.payment_reported_at && (
               <section className="rounded-2xl border border-gray-200 bg-white p-4">
                 <h2 className="text-sm font-bold text-gray-900 mb-3">{t('b2b.paymentDetails')}</h2>
@@ -1428,13 +1373,6 @@ export function StationOwnerPage() {
                 <p className="mt-2 text-xs text-gray-700">
                   {currentStatus.last_updated_at ? formatRelativeTime(currentStatus.last_updated_at) : '—'} · {QUEUE_LABEL[currentStatus.queue_bucket_computed ?? 'NONE'][lang]}
                 </p>
-              </div>
-            )}
-
-            {stationRouteBundleActive && (
-              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-                <p className="font-semibold text-blue-900">{t('stationOwner.includedRoutePlanningTitle')}</p>
-                <p className="mt-1 text-xs text-blue-800">{t('stationOwner.includedRoutePlanningBody')}</p>
               </div>
             )}
 

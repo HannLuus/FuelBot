@@ -1,4 +1,4 @@
-import type { DemoFleetReport, DemoFleetTruck } from './demoFleetReportData'
+import type { DemoFleetReport, DemoFleetVehicle } from './demoFleetReportData'
 
 function escapeCsv(value: string | number): string {
   const str = String(value)
@@ -8,28 +8,30 @@ function escapeCsv(value: string | number): string {
   return str
 }
 
-function truckRow(t: DemoFleetTruck): string {
+function vehicleRow(v: DemoFleetVehicle): string {
   return [
-    t.label,
-    t.manufacturer,
-    t.model,
-    t.year,
-    t.driver,
-    t.region,
-    t.distanceKm,
-    t.liters,
-    t.costMmk,
-    t.lPer100km.toFixed(1),
-    t.status,
+    v.label,
+    v.vehicleType,
+    v.manufacturer,
+    v.model,
+    v.year,
+    v.driver,
+    v.region,
+    v.distanceKm,
+    v.liters,
+    v.costMmk,
+    v.lPer100km.toFixed(1),
+    v.status,
   ]
     .map(escapeCsv)
     .join(',')
 }
 
 export function buildFleetReportCsv(report: DemoFleetReport): string {
-  const { summary, trucks } = report
+  const { summary, vehicles } = report
   const header = [
-    'Truck',
+    'Vehicle',
+    'Type',
     'Manufacturer',
     'Model',
     'Year',
@@ -43,17 +45,17 @@ export function buildFleetReportCsv(report: DemoFleetReport): string {
   ].join(',')
 
   const meta = [
-    `# Fleet fuel report (sample)`,
+    '# Fleet fuel report (sample)',
     `# Fleet: ${summary.fleetName}`,
     `# Period: ${summary.periodLabel}`,
-    `# Trucks: ${summary.truckCount}`,
+    `# Vehicles: ${summary.vehicleCount}`,
     `# Total distance (km): ${summary.totalDistanceKm}`,
     `# Total liters: ${summary.totalLiters}`,
     `# Total cost (MMK): ${summary.totalCostMmk}`,
     `# Fleet average (L/100km): ${summary.fleetAvgLPer100km.toFixed(1)}`,
     '',
     header,
-    ...trucks.map(truckRow),
+    ...vehicles.map(vehicleRow),
   ]
 
   return meta.join('\n')

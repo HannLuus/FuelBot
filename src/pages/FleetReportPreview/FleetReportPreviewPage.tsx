@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft,
+  Car,
   Download,
   Printer,
-  Truck,
   TrendingDown,
   TrendingUp,
   Minus,
@@ -14,16 +14,16 @@ import {
   Shield,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { getDemoFleetReport, type DemoFleetTruck, type FleetTruckStatus } from './demoFleetReportData'
+import { getDemoFleetReport, type DemoFleetVehicle, type FleetVehicleStatus } from './demoFleetReportData'
 import { buildFleetReportCsv, downloadCsv } from './fleetReportCsv'
 
 function formatMmk(value: number): string {
   return value.toLocaleString('en-US')
 }
 
-function StatusBadge({ status }: { status: FleetTruckStatus }) {
+function StatusBadge({ status }: { status: FleetVehicleStatus }) {
   const { t } = useTranslation()
-  const config: Record<FleetTruckStatus, { icon: typeof TrendingDown; className: string; label: string }> = {
+  const config: Record<FleetVehicleStatus, { icon: typeof TrendingDown; className: string; label: string }> = {
     better: {
       icon: TrendingDown,
       className: 'bg-green-100 text-green-800',
@@ -49,43 +49,43 @@ function StatusBadge({ status }: { status: FleetTruckStatus }) {
   )
 }
 
-function TruckCard({ truck }: { truck: DemoFleetTruck }) {
+function VehicleCard({ vehicle }: { vehicle: DemoFleetVehicle }) {
   const { t } = useTranslation()
   return (
     <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm print:break-inside-avoid">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-base font-bold text-gray-900">{truck.label}</p>
+          <p className="text-base font-bold text-gray-900">{vehicle.label}</p>
           <p className="text-sm text-gray-700">
-            {truck.manufacturer} {truck.model} · {truck.year}
+            {vehicle.vehicleType} · {vehicle.manufacturer} {vehicle.model} · {vehicle.year}
           </p>
           <p className="mt-0.5 text-xs text-gray-600">
-            {truck.driver} · {truck.region}
+            {vehicle.driver} · {vehicle.region}
           </p>
         </div>
-        <StatusBadge status={truck.status} />
+        <StatusBadge status={vehicle.status} />
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
         <div>
           <dt className="text-xs text-gray-600">{t('fleetReport.colDistance')}</dt>
           <dd className="font-semibold text-gray-900">
-            {truck.distanceKm.toLocaleString()} {t('garage.km')}
+            {vehicle.distanceKm.toLocaleString()} {t('garage.km')}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-gray-600">{t('fleetReport.colLiters')}</dt>
           <dd className="font-semibold text-gray-900">
-            {truck.liters.toLocaleString()} {t('garage.litersShort')}
+            {vehicle.liters.toLocaleString()} {t('garage.litersShort')}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-gray-600">{t('fleetReport.colCost')}</dt>
-          <dd className="font-semibold text-gray-900">{formatMmk(truck.costMmk)} MMK</dd>
+          <dd className="font-semibold text-gray-900">{formatMmk(vehicle.costMmk)} MMK</dd>
         </div>
         <div>
           <dt className="text-xs text-gray-600">{t('fleetReport.colEfficiency')}</dt>
           <dd className="font-semibold text-blue-900">
-            {truck.lPer100km.toFixed(1)} {t('garage.lPer100km')}
+            {vehicle.lPer100km.toFixed(1)} {t('garage.lPer100km')}
           </dd>
         </div>
       </dl>
@@ -96,7 +96,7 @@ function TruckCard({ truck }: { truck: DemoFleetTruck }) {
 export function FleetReportPreviewPage() {
   const { t } = useTranslation()
   const report = getDemoFleetReport()
-  const { summary, trucks, likeForLike, peerBenchmark, manufacturerInsight } = report
+  const { summary, vehicles, likeForLike, peerBenchmark, manufacturerInsight } = report
 
   function handlePrint() {
     window.print()
@@ -171,8 +171,8 @@ export function FleetReportPreviewPage() {
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="rounded-xl bg-blue-50 p-3">
-              <p className="text-xs text-blue-800">{t('fleetReport.snapshotTrucks')}</p>
-              <p className="text-2xl font-bold text-blue-900">{summary.truckCount}</p>
+              <p className="text-xs text-blue-800">{t('fleetReport.snapshotVehicles')}</p>
+              <p className="text-2xl font-bold text-blue-900">{summary.vehicleCount}</p>
             </div>
             <div className="rounded-xl bg-gray-50 p-3">
               <p className="text-xs text-gray-600">{t('fleetReport.snapshotDistance')}</p>
@@ -203,29 +203,29 @@ export function FleetReportPreviewPage() {
             <div className="rounded-xl border border-green-200 bg-green-50 p-3">
               <p className="text-xs font-medium text-green-800">{t('fleetReport.bestPerformer')}</p>
               <p className="mt-1 font-semibold text-green-900">
-                {summary.bestTruck.label} — {summary.bestTruck.lPer100km.toFixed(1)} {t('garage.lPer100km')}
+                {summary.bestVehicle.label} — {summary.bestVehicle.lPer100km.toFixed(1)} {t('garage.lPer100km')}
               </p>
             </div>
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs font-medium text-amber-800">{t('fleetReport.worstPerformer')}</p>
               <p className="mt-1 font-semibold text-amber-900">
-                {summary.worstTruck.label} — {summary.worstTruck.lPer100km.toFixed(1)} {t('garage.lPer100km')}
+                {summary.worstVehicle.label} — {summary.worstVehicle.lPer100km.toFixed(1)} {t('garage.lPer100km')}
               </p>
             </div>
           </div>
         </section>
 
-        {/* Truck list */}
+        {/* Vehicle list */}
         <section className="mt-6">
           <div className="mb-3 flex items-center gap-2">
-            <Truck className="h-5 w-5 text-gray-700" aria-hidden />
-            <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('fleetReport.truckListTitle')}</h2>
+            <Car className="h-5 w-5 text-gray-700" aria-hidden />
+            <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('fleetReport.vehicleListTitle')}</h2>
           </div>
-          <p className="mb-4 text-base text-gray-700">{t('fleetReport.truckListBody')}</p>
+          <p className="mb-4 text-base text-gray-700">{t('fleetReport.vehicleListBody')}</p>
           <ul className="space-y-3">
-            {trucks.map((truck) => (
-              <li key={truck.id}>
-                <TruckCard truck={truck} />
+            {vehicles.map((vehicle) => (
+              <li key={vehicle.id}>
+                <VehicleCard vehicle={vehicle} />
               </li>
             ))}
           </ul>
@@ -242,16 +242,16 @@ export function FleetReportPreviewPage() {
                   {t(`fleetReport.likeForLikeGroups.${group.groupId}.label`)}
                 </h3>
                 <ul className="mt-2 space-y-2">
-                  {group.trucks.map((truck) => (
+                  {group.vehicles.map((vehicle) => (
                     <li
-                      key={truck.id}
+                      key={vehicle.id}
                       className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm"
                     >
                       <span className="font-medium text-gray-900">
-                        {truck.label} ({truck.driver})
+                        {vehicle.label} ({vehicle.driver})
                       </span>
                       <span className="font-semibold text-blue-900">
-                        {truck.lPer100km.toFixed(1)} {t('garage.lPer100km')}
+                        {vehicle.lPer100km.toFixed(1)} {t('garage.lPer100km')}
                       </span>
                     </li>
                   ))}

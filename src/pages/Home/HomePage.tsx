@@ -6,7 +6,6 @@ import { useLocationStore } from '@/stores/locationStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useNearbyStations } from '@/hooks/useNearbyStations'
 import { useAuthStore } from '@/stores/authStore'
-import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import { isStationVerified } from '@/lib/fuelUtils'
 import { StationCard } from '@/components/station/StationCard'
 import { FilterBar } from '@/components/station/FilterBar'
@@ -55,15 +54,12 @@ export function HomePage() {
   // Use user location when available, fall back to Yangon so the list is never empty
   const effectiveLat = lat ?? YANGON_LAT
   const effectiveLng = lng ?? YANGON_LNG
-  // National view always uses selected radius; otherwise when no location use 25 km fallback
-  const effectiveRadius =
-    filters.maxDistanceKm >= WHOLE_COUNTRY_KM ? filters.maxDistanceKm : lat !== null ? filters.maxDistanceKm : 25
+  const effectiveRadius = lat !== null ? filters.maxDistanceKm : 25
 
   const { stations, loading, error, refresh } = useNearbyStations({
     lat: effectiveLat,
     lng: effectiveLng,
     maxDistanceKm: effectiveRadius,
-    selectedRouteId: filters.selectedRouteId,
     fuelTypes: filters.fuelTypes,
     statusFilter: filters.statusFilter,
   })
@@ -189,11 +185,6 @@ export function HomePage() {
         {/* Station list */}
         {!error && (
           <div className="space-y-3 p-4">
-            {filters.maxDistanceKm >= WHOLE_COUNTRY_KM && filteredStations.length > 0 && (
-              <p className="text-xs text-gray-500 pb-1">
-                {t('home.showingAllStations')}
-              </p>
-            )}
             {!loading && filteredStations.length === 0 && !locLoading && (
               <div className="py-12 text-center">
                 <p className="text-gray-700">{t('home.noStations')}</p>

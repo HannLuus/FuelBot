@@ -8,7 +8,6 @@ export const HELP_GUIDE_SLUGS = [
   'stationClaim',
   'stationPayment',
   'garageEfficiency',
-  'b2bAccess',
 ] as const
 
 export type HelpGuideSlug = (typeof HELP_GUIDE_SLUGS)[number]
@@ -58,16 +57,6 @@ export const FAQ_SECTIONS: {
       { anchorId: 'faq-station-register', qKey: 'help.faq.station.q2', aKey: 'help.faq.station.a2' },
       { anchorId: 'faq-station-claim', qKey: 'help.faq.station.q3', aKey: 'help.faq.station.a3' },
       { anchorId: 'faq-station-pay', qKey: 'help.faq.station.q4', aKey: 'help.faq.station.a4' },
-    ],
-  },
-  {
-    sectionId: 'b2b',
-    titleKey: 'help.faqGroups.b2bTitle',
-    items: [
-      { anchorId: 'faq-b2b-efficiency', qKey: 'help.faq.b2b.q0', aKey: 'help.faq.b2b.a0' },
-      { anchorId: 'faq-b2b-what', qKey: 'help.faq.b2b.q1', aKey: 'help.faq.b2b.a1' },
-      { anchorId: 'faq-b2b-pending', qKey: 'help.faq.b2b.q2', aKey: 'help.faq.b2b.a2' },
-      { anchorId: 'faq-b2b-national', qKey: 'help.faq.b2b.q3', aKey: 'help.faq.b2b.a3' },
     ],
   },
 ]
@@ -186,20 +175,5 @@ export const GUIDE_CONFIG: GuideConfig[] = [
     troubleshootKeys: ['help.guides.garageEfficiency.t1', 'help.guides.garageEfficiency.t2'],
     relatedBenefitsPath: '/benefits/fleet-owners',
     relatedBenefitsLabelKey: 'help.guides.garageEfficiency.related',
-  },
-  {
-    slug: 'b2bAccess',
-    anchorId: 'guide-b2bAccess',
-    titleKey: 'help.guides.b2bAccess.title',
-    prereqKey: 'help.guides.b2bAccess.prereq',
-    stepKeys: [
-      'help.guides.b2bAccess.s1',
-      'help.guides.b2bAccess.s2',
-      'help.guides.b2bAccess.s3',
-      'help.guides.b2bAccess.s4',
-    ],
-    troubleshootKeys: ['help.guides.b2bAccess.t1'],
-    relatedBenefitsPath: '/benefits/fleet-owners',
-    relatedBenefitsLabelKey: 'help.guides.b2bAccess.related',
   },
 ]

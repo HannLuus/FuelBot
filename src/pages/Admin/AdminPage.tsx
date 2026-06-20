@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { FunctionsHttpError } from '@supabase/supabase-js'
-import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Lightbulb, MapPin, Wifi, Upload, Menu, Mail, Megaphone } from 'lucide-react'
+import { Flag, Store, ShieldAlert, CreditCard, Camera, Settings, Lightbulb, MapPin, Upload, Menu, Mail, Megaphone } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSupabaseApiHostname } from '@/lib/supabaseHost'
 import { useAuthStore } from '@/stores/authStore'
@@ -76,7 +76,7 @@ function StorageFileButton({ bucket, path, label }: { bucket: string; path: stri
   )
 }
 
-type Tab = 'flagged' | 'registrations' | 'claims' | 'payment' | 'sponsors' | 'suggestions' | 'b2b' | 'inbox'
+type Tab = 'flagged' | 'registrations' | 'claims' | 'payment' | 'sponsors' | 'suggestions' | 'pricing' | 'inbox'
 
 interface StationSuggestion {
   id: string
@@ -89,23 +89,6 @@ interface StationSuggestion {
   suggested_by: string | null
   status: 'pending' | 'approved' | 'rejected'
   station_id?: string | null
-  created_at: string
-}
-
-interface PendingB2BRow {
-  id: string
-  user_id: string
-  plan_type: string
-  valid_until: string
-  payment_method: string | null
-  payment_reference: string | null
-  screenshot_path: string | null
-  duration_months: number | null
-  price_list_mmk: number | null
-  price_promo_mmk: number | null
-  price_paid_mmk: number | null
-  promo_applied: boolean | null
-  promo_percent: number | null
   created_at: string
 }
 
@@ -173,7 +156,6 @@ export function AdminPage() {
   const [claims, setClaims] = useState<AdminClaimRow[]>([])
   const [registrations, setRegistrations] = useState<Station[]>([])
   const [suggestions, setSuggestions] = useState<StationSuggestion[]>([])
-  const [pendingB2B, setPendingB2B] = useState<PendingB2BRow[]>([])
   const [loading, setLoading] = useState(true)
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [rejectingStation, setRejectingStation] = useState<Station | null>(null)
@@ -225,8 +207,8 @@ export function AdminPage() {
     { key: 'claims' as Tab, label: t('admin.stationClaims'), icon: Store, badge: claims.length, badgeClass: 'bg-orange-500', activeClass: 'text-blue-600' },
     { key: 'suggestions' as Tab, label: t('admin.suggestionsTab'), icon: Lightbulb, badge: suggestions.length, badgeClass: 'bg-amber-500', activeClass: 'text-amber-600' },
     { key: 'payment' as Tab, label: t('admin.paymentSettings'), icon: Settings, badge: 0, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
+    { key: 'pricing' as Tab, label: t('admin.subscriptionPricingTab'), icon: CreditCard, badge: 0, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
     { key: 'sponsors' as Tab, label: t('admin.sponsorsTab'), icon: Megaphone, badge: 0, badgeClass: 'bg-green-600', activeClass: 'text-green-600' },
-    { key: 'b2b' as Tab, label: 'B2B', icon: Wifi, badge: pendingB2B.length, badgeClass: 'bg-blue-500', activeClass: 'text-blue-600' },
     {
       key: 'inbox' as Tab,
       label: t('admin.inboxTab'),
@@ -293,7 +275,7 @@ export function AdminPage() {
   }, [tab])
 
   useEffect(() => {
-    if (tab !== 'b2b') return
+    if (tab !== 'pricing') return
     setB2BPricingLoading(true)
     void (async () => {
       try {
@@ -399,7 +381,7 @@ export function AdminPage() {
     if (!isAdmin) return
     setLoading(true)
     setError(null)
-    const [flaggedRes, claimsRes, registrationsRes, suggestionsRes, b2bRes] = await Promise.all([
+    const [flaggedRes, claimsRes, registrationsRes, suggestionsRes] = await Promise.all([
       supabase
         .from('station_status_reports')
         .select('*')
@@ -422,11 +404,6 @@ export function AdminPage() {
         .select('*')
         .eq('status', 'pending')
         .order('created_at', { ascending: false }),
-      supabase
-        .from('b2b_subscriptions')
-        .select('id, user_id, plan_type, valid_until, payment_method, payment_reference, screenshot_path, duration_months, price_list_mmk, price_promo_mmk, price_paid_mmk, promo_applied, promo_percent, created_at')
-        .eq('status', 'PENDING')
-        .order('created_at', { ascending: false }),
     ])
     setFlagged(flaggedRes.data ?? [])
     const claimsData = ((claimsRes.data ?? []) as unknown as Array<AdminClaimRow & { stations?: AdminClaimRow['stations'] | AdminClaimRow['stations'][] }>)
@@ -437,26 +414,7 @@ export function AdminPage() {
     setClaims(claimsData)
     setRegistrations((registrationsRes.data ?? []) as Station[])
     setSuggestions((suggestionsRes.data ?? []) as StationSuggestion[])
-    setPendingB2B((b2bRes.data ?? []) as PendingB2BRow[])
     setLoading(false)
-  }
-
-  async function confirmB2B(subscriptionId: string, action: 'confirm' | 'reject') {
-    setWorkingId(subscriptionId)
-    setError(null)
-    try {
-      const { data, error: fnErr } = await invokeAdminEdgeFunction('admin-confirm-b2b', {
-        subscription_id: subscriptionId,
-        action,
-      })
-      if (fnErr) throw fnErr
-      if (data?.error) throw new Error(data.error)
-      await loadAll()
-    } catch (err) {
-      setError(formatAdminActionError(err, t))
-    } finally {
-      setWorkingId(null)
-    }
   }
 
   async function dismissReport(id: string) {
@@ -1024,7 +982,7 @@ export function AdminPage() {
           )
         ) : tab === 'inbox' ? (
           <AdminInboxPanel />
-        ) : tab === 'b2b' ? (
+        ) : tab === 'pricing' ? (
           <div className="space-y-4">
             {b2bPricingLoading ? (
               <div className="flex justify-center py-4">
@@ -1080,66 +1038,6 @@ export function AdminPage() {
               </div>
             )}
 
-            {pendingB2B.length === 0 ? (
-              <p className="py-12 text-center text-gray-700">No pending B2B subscriptions.</p>
-            ) : (
-              <div className="space-y-3">
-              {pendingB2B.map((sub) => (
-                <div key={sub.id} className="rounded-xl border border-gray-200 bg-white p-4">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {sub.plan_type === 'national_view' ? 'National View' : 'Route Access'}
-                  </p>
-                  <p className="text-xs text-gray-700">User: {sub.user_id.slice(0, 8)}…</p>
-                  <p className="text-xs text-gray-700">
-                    Valid until: {new Date(sub.valid_until).toLocaleDateString()}
-                  </p>
-                  {sub.payment_method && (
-                    <p className="text-xs text-gray-700">Method: {sub.payment_method}</p>
-                  )}
-                  {sub.payment_reference && (
-                    <p className="text-xs text-gray-700">Reference: {sub.payment_reference}</p>
-                  )}
-                  {sub.duration_months && (
-                    <p className="text-xs text-gray-700">Duration: {sub.duration_months} months</p>
-                  )}
-                  {sub.price_paid_mmk ? (
-                    <p className="text-xs text-gray-700">
-                      Price paid: {sub.price_paid_mmk.toLocaleString('en-US')} MMK
-                      {sub.promo_applied ? ` (promo ${Number(sub.promo_percent ?? 0)}% off)` : ''}
-                    </p>
-                  ) : null}
-                  {sub.screenshot_path && (
-                    <StorageFileButton
-                      bucket="b2b-payment-screenshots"
-                      path={sub.screenshot_path}
-                      label="View payment screenshot"
-                    />
-                  )}
-                  <p className="mt-1 text-xs text-gray-700">
-                    Submitted: {new Date(sub.created_at).toLocaleDateString()}
-                  </p>
-                  <div className="mt-3 flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      loading={workingId === sub.id}
-                      onClick={() => void confirmB2B(sub.id, 'confirm')}
-                    >
-                      Confirm Payment
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      loading={workingId === sub.id}
-                      onClick={() => void confirmB2B(sub.id, 'reject')}
-                    >
-                      Reject
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              </div>
-            )}
           </div>
         ) : claims.length === 0 ? (
           <p className="py-12 text-center text-gray-700">{t('admin.noClaims')}</p>

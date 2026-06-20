@@ -3,15 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { haversineDistanceMetres, isStationVisible } from '@/lib/fuelUtils'
-import { WHOLE_COUNTRY_KM } from '@/lib/constants'
 import type { StationWithStatus, FuelCode, StatusFilter } from '@/types'
 
 interface UseNearbyStationsArgs {
   lat: number
   lng: number
   maxDistanceKm: number
-  /** When set, B2B route view: fetch stations along this route only. */
-  selectedRouteId: string | null
   fuelTypes: FuelCode[]
   statusFilter: StatusFilter
 }
@@ -27,7 +24,6 @@ export function useNearbyStations({
   lat,
   lng,
   maxDistanceKm,
-  selectedRouteId,
   fuelTypes,
   statusFilter,
 }: UseNearbyStationsArgs): UseNearbyStationsResult {
@@ -45,43 +41,18 @@ export function useNearbyStations({
     setError(null)
 
     try {
-      let results: StationWithStatus[]
-
-      if (selectedRouteId) {
-        // B2B route view: RPC checks entitlement server-side
-        const { data, error: dbError } = await supabase.rpc('get_stations_along_route', {
-          p_route_id: selectedRouteId,
-        })
-        if (dbError) throw dbError
-        const raw = (data ?? []) as (StationWithStatus & { distance_m?: number })[]
-        results = raw.map((row) => ({
+      const { data, error: dbError } = await supabase.rpc('get_nearby_stations', {
+        user_lat: lat,
+        user_lng: lng,
+        radius_km: maxDistanceKm,
+      })
+      if (dbError) throw dbError
+      let results: StationWithStatus[] = ((data ?? []) as (StationWithStatus & { distance_m: number })[]).map(
+        (row: StationWithStatus & { distance_m: number }) => ({
           ...row,
-          distance_m: haversineDistanceMetres(lat, lng, row.lat, row.lng),
-        }))
-      } else if (maxDistanceKm >= WHOLE_COUNTRY_KM) {
-        // B2B national view: RPC checks entitlement server-side
-        const { data, error: dbError } = await supabase.rpc('get_all_stations_national')
-        if (dbError) throw dbError
-        const raw = (data ?? []) as (StationWithStatus & { distance_m?: number })[]
-        results = raw.map((row) => ({
-          ...row,
-          distance_m: haversineDistanceMetres(lat, lng, row.lat, row.lng),
-        }))
-      } else {
-        // Radius-based: existing PostGIS RPC
-        const { data, error: dbError } = await supabase.rpc('get_nearby_stations', {
-          user_lat: lat,
-          user_lng: lng,
-          radius_km: maxDistanceKm,
-        })
-        if (dbError) throw dbError
-        results = (data ?? []).map(
-          (row: StationWithStatus & { distance_m: number }) => ({
-            ...row,
-            distance_m: row.distance_m,
-          }),
-        )
-      }
+          distance_m: row.distance_m,
+        }),
+      )
 
       // Client-side fuel type filter
       if (fuelTypes.length > 0) {
@@ -115,7 +86,7 @@ export function useNearbyStations({
     } finally {
       if (thisFetchId === fetchIdRef.current) setLoading(false)
     }
-  }, [fuelTypes, lat, lng, maxDistanceKm, selectedRouteId, statusFilter, t])
+  }, [fuelTypes, lat, lng, maxDistanceKm, statusFilter, t])
 
   useEffect(() => {
     void fetchStations()
@@ -126,7 +97,7 @@ export function useNearbyStations({
   stationsRef.current = stations
 
   // Realtime subscription only when logged in. Performs surgical in-place status update instead of
-  // a full refetch so B2B national view users don't re-download hundreds of stations on every change.
+  // a full refetch on every change.
   const user = useAuthStore((s) => s.user)
   useEffect(() => {
     if (!user) return

@@ -267,31 +267,6 @@ export function LandingPage() {
         </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">{t('landing.fleetTitle')}</h2>
-          <p className="mt-2 text-gray-700">{t('landing.fleetBody')}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link
-              to="/auth"
-              className="inline-flex min-h-[44px] items-center rounded-xl bg-gray-100 px-4 text-sm font-semibold text-gray-800 active:bg-gray-200"
-            >
-              {t('landing.fleetSignIn')}
-            </Link>
-            <Link
-              to="/b2b"
-              className="inline-flex min-h-[44px] items-center rounded-xl border border-gray-300 bg-white px-4 text-sm font-semibold text-blue-600 active:bg-gray-50"
-            >
-              {t('landing.fleetContactCta')}
-            </Link>
-            <Link
-              to="/benefits/fleet-owners"
-              className="inline-flex min-h-[44px] items-center rounded-xl px-4 text-sm font-medium text-gray-700 underline active:bg-gray-100"
-            >
-              {t('landing.benefitsFleetCta')}
-            </Link>
-          </div>
-        </section>
-
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900">{t('landing.heroTitle')}</h2>
           <p className="mt-1 text-sm text-gray-700">{t('landing.heroSubtitle')}</p>
           {recognitions.length === 0 ? (

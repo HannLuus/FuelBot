@@ -4,8 +4,18 @@ import { Button } from '@/components/ui/Button'
 import type { AssetType, FleetVehicle, FuelCode } from '@/types'
 import type { VehicleInput } from '@/hooks/useFleetVehicles'
 
-const ASSET_TYPES: AssetType[] = ['TRUCK', 'GENERATOR', 'OTHER']
+const ASSET_TYPES: AssetType[] = [
+  'CAR',
+  'MOTORCYCLE',
+  'VAN',
+  'PICKUP',
+  'BUS',
+  'TRUCK',
+  'GENERATOR',
+  'OTHER',
+]
 const FUEL_CODES: FuelCode[] = ['DIESEL', 'PREMIUM_DIESEL', 'RON92', 'RON95']
+const COMMERCIAL_DETAIL_TYPES: AssetType[] = ['VAN', 'PICKUP', 'BUS', 'TRUCK']
 
 const inputClass =
   'w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
@@ -33,7 +43,7 @@ function strOrNull(value: string): string | null {
 
 export function VehicleForm({ initial, submitting, error, onSubmit, onCancel }: VehicleFormProps) {
   const { t } = useTranslation()
-  const [assetType, setAssetType] = useState<AssetType>(initial?.asset_type ?? 'TRUCK')
+  const [assetType, setAssetType] = useState<AssetType>(initial?.asset_type ?? 'CAR')
   const [label, setLabel] = useState(initial?.label ?? '')
   const [manufacturer, setManufacturer] = useState(initial?.manufacturer ?? '')
   const [model, setModel] = useState(initial?.model ?? '')
@@ -52,7 +62,7 @@ export function VehicleForm({ initial, submitting, error, onSubmit, onCancel }: 
   const [plate, setPlate] = useState(initial?.plate ?? '')
   const [region, setRegion] = useState(initial?.region ?? '')
 
-  const isTruck = assetType === 'TRUCK'
+  const showsCommercialDetails = COMMERCIAL_DETAIL_TYPES.includes(assetType)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -66,9 +76,9 @@ export function VehicleForm({ initial, submitting, error, onSubmit, onCancel }: 
       fuel_code: fuelCode,
       engine_size_l: numOrNull(engineSize),
       tank_capacity_l: numOrNull(tankCapacity),
-      gvw_class: isTruck ? strOrNull(gvwClass) : null,
-      body_type: isTruck ? strOrNull(bodyType) : null,
-      axle_config: isTruck ? strOrNull(axleConfig) : null,
+      gvw_class: showsCommercialDetails ? strOrNull(gvwClass) : null,
+      body_type: showsCommercialDetails ? strOrNull(bodyType) : null,
+      axle_config: showsCommercialDetails ? strOrNull(axleConfig) : null,
       plate: strOrNull(plate),
       region: strOrNull(region),
       is_active: initial?.is_active ?? true,
@@ -233,7 +243,7 @@ export function VehicleForm({ initial, submitting, error, onSubmit, onCancel }: 
         </div>
       </div>
 
-      {isTruck && (
+      {showsCommercialDetails && (
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label htmlFor="vehicle-gvw" className={labelClass}>

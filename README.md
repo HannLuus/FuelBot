@@ -129,7 +129,7 @@ Apply migrations via **Studio SQL editor** ([docs/SUPABASE_SETUP.md](docs/SUPABA
 | `subscriptions` | Station subscription tiers |
 | `alerts_log` | Dispatched alert records |
 | `b2b_subscriptions` | Paid B2B entitlements (national view, route view) |
-| `fleet_vehicles` | Transport company trucks/machines (free fuel-efficiency tool) |
+| `fleet_vehicles` | Company fleet vehicles/assets (free fuel-efficiency tool) |
 | `fuel_logs` | Manual fill-up logs (odometer + liters) |
 | `routes` | Predefined routes for transport companies (corridor view) |
 

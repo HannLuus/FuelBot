@@ -12,7 +12,6 @@ import { TermsPage } from '@/pages/Legal/TermsPage'
 import { PrivacyPage } from '@/pages/Legal/PrivacyPage'
 import { BenefitsStationPage } from '@/pages/Benefits/BenefitsStationPage'
 import { BenefitsFleetPage } from '@/pages/Benefits/BenefitsFleetPage'
-import { B2BPage } from '@/pages/B2B/B2BPage'
 import { GaragePage } from '@/pages/Garage/GaragePage'
 import { VehicleDetailPage } from '@/pages/Garage/VehicleDetailPage'
 import { Spinner } from '@/components/ui/Spinner'
@@ -22,7 +21,7 @@ import { ContactPage } from '@/pages/Contact/ContactPage'
 import { AdvertisePage } from '@/pages/Advertise/AdvertisePage'
 import { FleetReportPreviewPage } from '@/pages/FleetReportPreview/FleetReportPreviewPage'
 import { HelpPage } from '@/pages/Help/HelpPage'
-import { RequireAdmin, RequireAuth, RequireFleetContext, RequireStationContext } from '@/components/auth/RouteGuards'
+import { RequireAdmin, RequireAuth, RequireStationContext } from '@/components/auth/RouteGuards'
 import { InboxPage } from '@/pages/Inbox/InboxPage'
 
 // Lazy-load the map to keep it out of the initial bundle
@@ -89,9 +88,6 @@ export default function App() {
             <Route path="/inbox" element={<InboxPage />} />
             <Route path="/garage" element={<GaragePage />} />
             <Route path="/garage/:vehicleId" element={<VehicleDetailPage />} />
-          </Route>
-          <Route element={<RequireFleetContext allowOnboarding />}>
-            <Route path="/b2b" element={<B2BPage />} />
           </Route>
           <Route path="/station/claim" element={<RedirectIncompleteStationClaimPath />} />
           <Route path="/station/:id" element={<StationDetailPage />} />

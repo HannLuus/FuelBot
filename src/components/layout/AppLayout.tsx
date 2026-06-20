@@ -1,19 +1,17 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Truck, Mail, CircleHelp, Gauge } from 'lucide-react'
+import { List, Map, PlusCircle, Fuel, ShieldCheck, Globe, User, X, LogIn, LogOut, Mail, CircleHelp, Gauge } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
 import { useAdminPendingCount } from '@/hooks/useAdminPendingCount'
 import { useInboxUnreadCount } from '@/hooks/useInboxUnreadCount'
 import { useState, useEffect } from 'react'
 import { useRoleAccess, type AppRole } from '@/hooks/useRoleAccess'
-import { useFilterStore } from '@/stores/filterStore'
 
 export function AppLayout() {
   const { t, i18n } = useTranslation()
   const { user, signOut } = useAuthStore()
   const { activeRole, setActiveRole, availableRoles } = useRoleAccess()
-  const { filters, setMaxDistance, setSelectedRouteId } = useFilterStore()
   const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
   const adminCounts = useAdminPendingCount()
@@ -39,7 +37,6 @@ export function AppLayout() {
     { to: '/map', label: t('nav.map'), icon: Map },
     ...(user ? [{ to: '/inbox', label: t('nav.inbox'), icon: Mail }] : []),
     { to: '/garage', label: t('nav.garage'), icon: Gauge },
-    ...(activeRole === 'fleet' ? [{ to: '/b2b', label: t('nav.routeAccess'), icon: Truck }] : []),
     ...(activeRole === 'station' ? [{ to: '/station', label: t('nav.station'), icon: Fuel }] : []),
     ...(activeRole === 'admin' ? [{ to: '/admin', label: t('nav.admin'), icon: ShieldCheck }] : []),
   ]
@@ -50,8 +47,6 @@ export function AppLayout() {
         return t('common.generalMode')
       case 'station':
         return t('common.stationMode')
-      case 'fleet':
-        return t('common.fleetMode')
       case 'admin':
         return t('common.adminMode')
       default: {
@@ -272,12 +267,6 @@ export function AppLayout() {
                           key={role}
                           type="button"
                           onClick={() => {
-                            if (role !== 'fleet') {
-                              setSelectedRouteId(null)
-                              if (filters.maxDistanceKm > 100) {
-                                setMaxDistance(25)
-                              }
-                            }
                             setActiveRole(role)
                             setSheetOpen(false)
                             switch (role) {
@@ -286,9 +275,6 @@ export function AppLayout() {
                                 break
                               case 'station':
                                 navigate('/station')
-                                break
-                              case 'fleet':
-                                navigate('/garage')
                                 break
                               case 'admin':
                                 navigate('/admin')
@@ -340,17 +326,6 @@ export function AppLayout() {
                 <span>{t('legal.termsAndPrivacy')}</span>
               </Link>
 
-              {activeRole === 'fleet' && (
-                <Link
-                  to="/b2b"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
-                >
-                  <Truck className="h-5 w-5 shrink-0 text-gray-700" />
-                  <span>{t('b2b.title')}</span>
-                </Link>
-              )}
-
               {activeRole === 'station' && (
                 <Link
                   to="/station"
@@ -370,17 +345,6 @@ export function AppLayout() {
                 >
                   <Fuel className="h-5 w-5 shrink-0 text-gray-700" />
                   <span>{t('stationOwner.title')}</span>
-                </Link>
-              )}
-
-              {user && !availableRoles.includes('fleet') && (
-                <Link
-                  to="/b2b"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
-                >
-                  <Truck className="h-5 w-5 shrink-0 text-gray-700" />
-                  <span>{t('b2b.title')}</span>
                 </Link>
               )}
 

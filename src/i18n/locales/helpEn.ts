@@ -16,17 +16,15 @@ export const helpEn = {
   'links': {
     'authInline': 'Help with sign-in',
     'stationOwner': 'Station owner help',
-    'b2bInline': 'Fleet & route help',
     'garageInline': 'Fuel efficiency guide',
     'reportInline': 'Full reporting guide',
     'benefitsCta': 'Step-by-step help'
   },
   'faqGroups': {
     'accountTitle': 'Account & sign-in',
-    'modesTitle': 'App modes (General / Station / Fleet)',
+    'modesTitle': 'App modes (General / Station)',
     'reportingTitle': 'Reporting fuel',
-    'stationTitle': 'Station owners',
-    'b2bTitle': 'Fleet & route (B2B)'
+    'stationTitle': 'Station owners'
   },
   'faq': {
     'account': {
@@ -40,12 +38,12 @@ export const helpEn = {
       'a4': 'Open the confirmation link we sent when you signed up. If it expired, try signing up again or contact us so we can help.'
     },
     'modes': {
-      'q1': 'What are General, Station owner, and Fleet modes?',
-      'a1': 'General is for drivers: nearby list and reporting. Station owner is for verified station operators. Fleet is for B2B route or nationwide map access after payment is confirmed.',
+      'q1': 'What are General and Station owner modes?',
+      'a1': 'General is for drivers: nearby list, map, reporting, and My Fleet fuel-efficiency tracking. Station owner is for verified station operators.',
       'q2': 'How do I switch mode?',
       'a2': 'Open the user menu (top right), find App mode, and choose the role you need. You only see extra modes if your account has access.',
       'q3': 'I see the wrong home screen.',
-      'a3': 'Switch mode again in the user menu. Station tasks live under Station; fleet map tools live under Route access.'
+      'a3': 'Switch mode again in the user menu. Station tasks live under Station; fuel-efficiency tracking lives under My Fleet.'
     },
     'reporting': {
       'q1': 'Who can report?',
@@ -64,16 +62,6 @@ export const helpEn = {
       'a3': 'Admin verifies payments. Wait for confirmation in the app. Use Inbox or Contact if it stays pending unusually long.',
       'q4': 'Where do I see subscription prices?',
       'a4': 'Always use the amounts shown on the payment screen in the app. We do not put fixed prices in help text because they can change.'
-    },
-    'b2b': {
-      'q0': 'Is fuel efficiency tracking free?',
-      'a0': 'Yes. My Fleet lets any signed-in transport company log fill-ups and see L/100km per truck. Peer benchmarks are anonymized. Route/national map access is a separate paid plan.',
-      'q1': 'What is fleet / route access?',
-      'a1': 'Paid plans can unlock route corridors or nationwide map views for planning. See the Benefits for fleet owners page for what is included.',
-      'q2': 'Why does it say payment under review?',
-      'a2': 'Your payment was received and is waiting for admin confirmation. Paid map features stay locked until status becomes active.',
-      'q3': 'What is the difference between route and national?',
-      'a3': 'Route focuses on stations along selected corridors. National shows broader coverage. Exact options depend on your purchased plan.'
     }
   },
   'guides': {
@@ -92,17 +80,17 @@ export const helpEn = {
       's4': 'If signup requires confirmation, open the link from FuelBot in your email.',
       's5': 'If mail does not arrive, verify the address, wait a few minutes, retry, or contact us.',
       't1': 'Reset link expired? Request a new email from Forgot password.',
-      't2': 'Wrong dashboard? Open the user menu and switch App mode (General, Station owner, Fleet).'
+      't2': 'Wrong dashboard? Open the user menu and switch App mode (General or Station owner).'
     },
     'mapModes': {
-      'title': 'General, Station, and Fleet modes',
+      'title': 'General and Station modes',
       'prereq': 'Open the user menu when your account has more than one role.',
       's1': 'General: nearby stations and reporting — typical for drivers.',
       's2': 'Station owner: manage your verified station, subscription, and official status.',
-      's3': 'Fleet: route or nationwide tools after B2B payment is active.',
-      's4': 'If a mode is missing, you may need sign-in, station setup, or a fleet purchase first.',
-      's5': 'Wrong tab? Switch mode again — each mode opens its main screen (Home, Station, or Route access).',
-      't1': 'B2B stuck on pending? See the Fleet & route guide — payment may still be under review.',
+      's3': 'My Fleet: free fuel-efficiency tracking from the bottom navigation or user menu.',
+      's4': 'If a mode is missing, you may need sign-in or station setup first.',
+      's5': 'Wrong tab? Switch mode again — each mode opens its main screen.',
+      't1': 'If Station mode is missing after approval, sign out and back in or contact support.',
       'relatedFleet': 'Benefits for fleet owners'
     },
     'stationRegister': {
@@ -138,24 +126,14 @@ export const helpEn = {
       't2': 'Pending too long? Message us from Inbox or Contact.',
       'related': 'Station owner benefits'
     },
-    'b2bAccess': {
-      'title': 'Fleet and route (B2B) access',
-      'prereq': 'Sign in, switch to Fleet mode, open Route access.',
-      's1': 'Choose the plan type offered (route or nationwide) — check Benefits for fleet owners for differences.',
-      's2': 'Pay with in-app instructions; submit reference and screenshot if required.',
-      's3': 'Pending means verification — paid map features unlock after confirmation.',
-      's4': 'When active, use Map with fleet filters allowed by your plan.',
-      't1': 'Unclear status? Check Route access or contact us with your account email.',
-      'related': 'Benefits for fleet owners'
-    },
     'garageEfficiency': {
-      'title': 'Fuel efficiency per truck (free)',
+      'title': 'Fuel efficiency per vehicle (free)',
       'prereq': 'Sign in — no paid subscription required.',
       's1': 'Open My Fleet from the bottom navigation or user menu.',
       's2': 'Add a vehicle: manufacturer, model, year, fuel type. Nickname and region are optional but help you find it later.',
       's3': 'After each refuel, open the vehicle and Add fill-up: date, odometer (km), liters. Full-tank fills give the best L/100km.',
       's4': 'After two or more full-tank intervals, your average L/100km appears. Peer benchmarks show when enough anonymized data exists.',
-      's5': 'Route/national map access is separate and paid — use My Fleet first to see which trucks burn too much fuel.',
+      's5': 'Use My Fleet to see which vehicles burn too much fuel and improve your own records over time.',
       't1': 'Wrong odometer or partial fills can skew results — edit or delete a bad fill-up from the vehicle page.',
       't2': 'Plates are private and never shared in benchmarks.',
       'related': 'Benefits for fleet owners'

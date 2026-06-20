@@ -152,7 +152,6 @@ export function ReportStationPickerPage() {
     lat: pickedLat,
     lng: pickedLng,
     maxDistanceKm: REPORT_PICKER_RADIUS_KM,
-    selectedRouteId: null,
     fuelTypes: EMPTY_FUEL_TYPES,
     statusFilter: 'ALL',
   })
