@@ -49,7 +49,7 @@ Do this **before** large UI or function work:
 - [ ] **RLS:** policy changes tested as **real roles** (anon, authenticated, admin path), not only as service role.
 - [ ] **Third-party APIs:** key present, quota understood (Google Geocoding/Places, Gemini, etc.).
 
-From Cursor, prefer **Supabase MCP** for remote inspection and deploys when available; use **CLI** for reproducible `db push` / local stack — see `supabase-vercel-connections` rule.
+Backend is **VPS self-hosted Supabase** — apply migrations via **Studio** or local **`/pg/query`** (service role); see [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) and [AGENTS.md](../AGENTS.md). Do **not** use Supabase Cloud MCP or cloud `db push`.
 
 ---
 

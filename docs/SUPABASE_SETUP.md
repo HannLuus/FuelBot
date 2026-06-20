@@ -33,14 +33,26 @@ Copy from [`.env.example`](../.env.example). Do **not** commit real keys.
 
 ## Applying schema changes (migrations)
 
+**Target: the VPS Postgres database only.** Not Supabase Cloud (`*.supabase.co`), not Cloud Dashboard, not Cloud MCP.
+
 1. Edit or add SQL under [`supabase/migrations/`](../supabase/migrations/).
-2. Open **Studio → SQL editor**:  
-   `https://studio.fuelbot.lucas-dev-server.tech/project/default/sql/new`
-3. Paste the migration SQL and run it.
+2. Apply using **one** of:
 
-For the fleet efficiency feature, run once:
+   **A. Studio SQL editor (manual)**  
+   `https://studio.fuelbot.lucas-dev-server.tech/project/default/sql/new` — paste migration SQL and run.
 
-- [`supabase/migrations/RUN_IN_STUDIO_fleet_efficiency.sql`](../supabase/migrations/RUN_IN_STUDIO_fleet_efficiency.sql)
+   **B. `/pg/query` (Cursor / local scripts)**  
+   With `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`:
+
+   ```bash
+   curl -sS "$VITE_SUPABASE_URL/pg/query" \
+     -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+     -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+     -H "Content-Type: application/json" \
+     -d "{\"query\": $(jq -Rs . supabase/migrations/YOUR_MIGRATION.sql)}"
+   ```
+
+Combined one-shot files (e.g. fleet feature): [`RUN_IN_STUDIO_fleet_efficiency.sql`](../supabase/migrations/RUN_IN_STUDIO_fleet_efficiency.sql).
 
 There is **no** `supabase db push` to Supabase Cloud and **no** tunnel service for day-to-day work.
 

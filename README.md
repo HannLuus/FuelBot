@@ -2,7 +2,7 @@
 
 Real-time fuel availability and queue times at nearby stations. Built for Myanmar (first market), designed to expand globally.
 
-**Backend:** Self-hosted Supabase on VPS — API `https://fuelbot.lucas-dev-server.tech`, Studio `https://studio.fuelbot.lucas-dev-server.tech` ([setup](docs/SUPABASE_SETUP.md))
+**Backend:** Self-hosted Supabase on VPS — API `https://fuelbot.lucas-dev-server.tech`, Studio `https://studio.fuelbot.lucas-dev-server.tech` ([setup](docs/SUPABASE_SETUP.md)). **AI/agents:** read [AGENTS.md](AGENTS.md) first — not Supabase Cloud.
 
 ---
 
