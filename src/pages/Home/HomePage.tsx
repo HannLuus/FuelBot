@@ -112,27 +112,32 @@ export function HomePage() {
         </div>
       )}
 
-      {user && !garageTeaserDismissed && (
+      {(user ? !garageTeaserDismissed : true) && (
         <div className="shrink-0 flex items-start gap-2 border-b border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-900">
           <Gauge className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold">{t('home.garageTeaserTitle')}</p>
             <p className="mt-0.5 text-blue-800">{t('home.garageTeaserBody')}</p>
-            <Link to="/garage" className="mt-1 inline-block font-semibold underline">
-              {t('home.garageTeaserCta')}
+            <Link
+              to={user ? '/garage' : '/auth?redirect=/garage'}
+              className="mt-1 inline-block font-semibold underline"
+            >
+              {user ? t('home.garageTeaserCta') : t('landing.fleetEfficiencyCta')}
             </Link>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              localStorage.setItem('fuelbot_garage_teaser_dismissed', '1')
-              setGarageTeaserDismissed(true)
-            }}
-            className="flex shrink-0 items-center justify-center rounded-full p-1 text-blue-800 active:bg-blue-100"
-            aria-label={t('common.close')}
-          >
-            <X className="h-4 w-4" />
-          </button>
+          {user && (
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem('fuelbot_garage_teaser_dismissed', '1')
+                setGarageTeaserDismissed(true)
+              }}
+              className="flex shrink-0 items-center justify-center rounded-full p-1 text-blue-800 active:bg-blue-100"
+              aria-label={t('common.close')}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
       )}
 

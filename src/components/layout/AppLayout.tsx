@@ -38,7 +38,7 @@ export function AppLayout() {
     { to: '/home', label: t('nav.nearby'), icon: List, end: true },
     { to: '/map', label: t('nav.map'), icon: Map },
     ...(user ? [{ to: '/inbox', label: t('nav.inbox'), icon: Mail }] : []),
-    ...(user ? [{ to: '/garage', label: t('nav.garage'), icon: Gauge }] : []),
+    { to: '/garage', label: t('nav.garage'), icon: Gauge },
     ...(activeRole === 'general' ? [{ to: '/earn', label: t('nav.earn'), icon: Gift }] : []),
     ...(activeRole === 'fleet' ? [{ to: '/b2b', label: t('nav.routeAccess'), icon: Truck }] : []),
     ...(activeRole === 'station' ? [{ to: '/station', label: t('nav.station'), icon: Fuel }] : []),
@@ -172,6 +172,10 @@ export function AppLayout() {
             {t('nav.leaderboard')}
           </Link>
           <span aria-hidden="true">·</span>
+          <Link to="/benefits/fleet-owners" className="hover:underline active:text-gray-900">
+            {t('landing.benefitsFleetCta')}
+          </Link>
+          <span aria-hidden="true">·</span>
           <Link to="/terms" className="hover:underline active:text-gray-900">
             {t('legal.termsOfService')}
           </Link>
@@ -260,16 +264,14 @@ export function AppLayout() {
                 </Link>
               )}
 
-              {user && (
-                <Link
-                  to="/garage"
-                  onClick={() => setSheetOpen(false)}
-                  className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
-                >
-                  <Gauge className="h-5 w-5 shrink-0 text-gray-700" />
-                  <span>{t('garage.navLabel')}</span>
-                </Link>
-              )}
+              <Link
+                to="/garage"
+                onClick={() => setSheetOpen(false)}
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left text-base font-medium text-gray-800 active:bg-gray-100"
+              >
+                <Gauge className="h-5 w-5 shrink-0 text-gray-700" />
+                <span>{t('garage.navLabel')}</span>
+              </Link>
 
               {user && availableRoles.length > 1 && (
                 <div className="px-3 py-4">
