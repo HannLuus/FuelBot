@@ -65,7 +65,17 @@ export default {
     heroCarouselGoToSlide: 'ပုံ {{total}} ခုအနက် {{n}} ခုမြှောက်ပြရန်',
     heroCarouselGoToSlideCurrent: 'ပုံ {{total}} ခုအနက် {{n}} ခုမြှောက်ပြရန် (လက်ရှိ)',
     sponsoredLabel: 'ကြော်ငြာ',
-    advertiseVacantCaption: 'FuelBot တွင် သင့်အမှတ်တံဆိပ် ကြော်ငြာပါ — homepage billboard နေရာကန့်သတ်ချက်။',
+    advertiseVacantBadge: 'Homepage နေရာ ကန့်သတ်',
+    advertiseVacantHeadline: 'မြင်သာပါ။ ဝင်ငွေရပါ။',
+    advertiseVacantHook: 'ဆီရှာနေသော ယာဉ်မောင်းများထံ — မြန်မာတစ်ဝှမ်းတွင် ရောက်ပါ။',
+    advertiseVacantSubline:
+      'ယာဉ်၊ spare parts၊ ပြုပြင်ခြင်း၊ ဆီ ရောင်းချသလား? သင့်ဖောက်သည်များ ရှိနေသည့်နေရာတွင် ကြော်ငြာပါ။',
+    advertiseVacantQuote: 'Quotation တောင်းပါက ပေးပါမည်',
+    advertiseVacantBrandPlaceholder: 'သင့် brand ဤနေရာ',
+    advertiseVacantSpecHint: '16:7 · static billboard',
+    advertiseVacantCtaButton: 'Quotation ရယူရန်',
+    advertiseVacantCaption:
+      'Marketing team {{email}} — quotation တောင်းနိုင်သည်။ မြင်သာပါ။ ဝင်ငွေရပါ။',
     advertiseVacantCta: 'ဤနေရာတွင် ကြော်ငြာပါ',
     advertiseWithUs: 'ကြော်ငြာရန်',
     heroCardCaption: 'ဤဆိုင်သည် မြန်မာပြည်သားတွေ ဆီရှာတာ လွယ်ကူစေရန် ပါဝင်ပေးထားပါတယ်။',
@@ -634,7 +644,13 @@ export default {
   },
   advertise: {
     title: 'FuelBot တွင် ကြော်ငြာပါ',
-    subtitle: 'homepage hero carousel တွင် static billboard — ဆီရှာသူ ယာဉ်မောင်းများ မြင်ရမည်။',
+    subtitle:
+      'သင့်ပရိသတ်ကို ရောက်ချင်ပါသလား? မြန်မာတစ်ဝှမ်းရှိ ယာဉ်မောင်းနှင့် ဆီသုံးသူများ homepage ကို နေ့စဉ် ကြည့်ကြသည် — သင့် brand ဤနေရာတွင် ဖြစ်သင့်သည်။',
+    audienceIntro: 'သင့်ပရိသတ် ဘယ်သူလဲ?',
+    audienceBody:
+      'ယာဉ်မောင်းများ။ ဆီသုံးသူများ။ နေ့စဉ် လမ်းပေါ်ရှိသူများ။ ယာဉ်၊ spare parts၊ ပြုပြင်ခြင်း၊ ဆီ ရောင်းချသလား — မြန်မာ၏ fuel app ပေါ်တွင် သင့် brand ကို ထင်ရှားစေပါ။',
+    audienceClose:
+      'Marketing team ကို ဆက်သွယ်ပါ၊ quotation ရယူပါ၊ သင့်အိပ်မက်ကို အမှန်ပြုပါ။ မြင်သာပါ။ ဝင်ငွေရပါ။',
     placementTitle: 'ရရှိမည့်အရာ',
     placementBody:
       'သင့်အမှတ်တံဆိပ်ကို FuelBot landing page ပေါ်တွင် full-width static ပုံအဖြစ် ပြသမည် — FuelBot မက်ဆေ့ချ်များကြားတွင် လှည့်ပြသည်။ ရိုးရှင်း — ဗီဒီယို/ pop-up မပါ။',
@@ -645,9 +661,15 @@ export default {
     specFormat: 'JPEG သို့မဟုတ် WebP၊ 512 KB အောက်',
     specContent: 'Logo + tagline တို — mobile တွင် ဖတ်ရလွယ်',
     specStatic: 'Static ပုံသာ (animation/ video မပါ)',
-    contactTitle: 'ဆက်သွယ်ရန်',
-    contactBody: 'စိတ်ဝင်စားသူများသာ email ပို့ပါ — ကုမ္ပanies အမည် နှင့် artwork ပါဝင်ရန်။',
-    emailCta: 'ကြော်ငြာအတွက် email ပို့ရန်',
+    contactTitle: 'Marketing team ကို ဆက်သွယ်ပါ',
+    contactBody:
+      'သင့် brand ထင်ရှားစေရန် ကူညီရန် အဆင်သင့်ရှိပါသည်။ ကုမ္ပani အမည် ပါဝင်စွာ email ပို့ပါ — နောက်တစ်ဆင့်နှင့် quotation ကို ပြန်ကြားပါမည်။ သဘောတူမချိန်အထိ တာဝန်မရှိပါ။',
+    contactEmailLabel: 'Email လိပ်စာ',
+    contactQuoteNote: 'Quotation တောင်းနိုင်သည် · homepage တွင် အများဆုံး brand ၁၀ ခု',
+    perkReach: 'မြန်မာတစ်ဝှမ်းရှိ ယာဉ်မောင်းနှင့် ဆီသုံးသူများထံ ရောက်ပါ',
+    perkPlacement: 'Homepage hero carousel — full-width billboard',
+    perkQuote: 'Marketing team email ဖြင့် ပြန်ကြားမည် — quotation ရယူနိုင်သည်',
+    emailCta: 'Marketing team သို့ email ပို့ရန်',
     emailSubject: 'FuelBot homepage advertising',
   },
   admin: {

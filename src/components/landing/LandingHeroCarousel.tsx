@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { LandingSponsor } from '@/hooks/useLandingSponsors'
+import { AdvertiseVacantBillboard } from '@/components/landing/AdvertiseVacantBillboard'
 
 const FUELBOT_SLIDES = [
   { src: '/landing-carousel/fuelbot-1.png', captionKey: 'landing.heroCarousel1' },
@@ -78,7 +79,7 @@ export function LandingHeroCarousel({ sponsors }: LandingHeroCarouselProps) {
       case 'sponsor':
         return slide.caption
       case 'vacant':
-        return t('landing.advertiseVacantCaption')
+        return t('landing.advertiseVacantCaption', { email: t('landing.contactEmail') })
       default: {
         const exhaustive: never = slide
         return exhaustive
@@ -87,7 +88,8 @@ export function LandingHeroCarousel({ sponsors }: LandingHeroCarouselProps) {
   }
 
   function renderSlideImage(slide: HeroSlide, slideKey: string, isCurrent: boolean) {
-    const baseClass = `absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${isCurrent ? 'opacity-100' : 'opacity-0'}`
+    const fadeClass = `absolute inset-0 h-full w-full transition-opacity duration-700 ${isCurrent ? 'opacity-100' : 'opacity-0'}`
+    const imageClass = `${fadeClass} object-cover`
 
     if (slide.kind === 'fuelbot') {
       return (
@@ -96,7 +98,7 @@ export function LandingHeroCarousel({ sponsors }: LandingHeroCarouselProps) {
           src={slide.src}
           alt=""
           aria-hidden={!isCurrent}
-          className={baseClass}
+          className={imageClass}
         />
       )
     }
@@ -109,7 +111,7 @@ export function LandingHeroCarousel({ sponsors }: LandingHeroCarouselProps) {
             href={slide.sponsor.link_url.trim()}
             target="_blank"
             rel="noopener noreferrer"
-            className={`${baseClass} block ${isCurrent ? 'z-[1]' : 'z-0 pointer-events-none'}`}
+            className={`${fadeClass} block ${isCurrent ? 'z-[1]' : 'z-0 pointer-events-none'}`}
             aria-hidden={!isCurrent}
             tabIndex={isCurrent ? 0 : -1}
           >
@@ -127,7 +129,7 @@ export function LandingHeroCarousel({ sponsors }: LandingHeroCarouselProps) {
           src={slide.sponsor.image_url ?? ''}
           alt={slide.sponsor.company_name ?? ''}
           aria-hidden={!isCurrent}
-          className={baseClass}
+          className={imageClass}
         />
       )
     }
@@ -136,13 +138,12 @@ export function LandingHeroCarousel({ sponsors }: LandingHeroCarouselProps) {
       <Link
         key={slideKey}
         to="/advertise"
-        className={`${baseClass} flex items-center justify-center bg-gradient-to-br from-blue-700 to-blue-900 ${isCurrent ? 'z-[1]' : 'z-0 pointer-events-none'}`}
+        className={`${fadeClass} block overflow-hidden ${isCurrent ? 'z-[1]' : 'z-0 pointer-events-none'}`}
+        aria-label={t('landing.advertiseVacantHeadline')}
         aria-hidden={!isCurrent}
         tabIndex={isCurrent ? 0 : -1}
       >
-        <span className="px-4 text-center text-lg font-bold text-white sm:text-xl">
-          {t('landing.advertiseVacantCta')}
-        </span>
+        <AdvertiseVacantBillboard variant="carousel" />
       </Link>
     )
   }
@@ -168,7 +169,7 @@ export function LandingHeroCarousel({ sponsors }: LandingHeroCarouselProps) {
             id="landing-hero-carousel-caption"
             aria-live="polite"
             aria-atomic="true"
-            className="mx-auto max-w-3xl text-center text-sm font-medium leading-snug text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] sm:text-base"
+            className="mx-auto max-w-3xl text-center text-base font-medium leading-snug text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] sm:text-lg"
           >
             {current ? captionForSlide(current) : ''}
           </p>

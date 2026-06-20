@@ -65,7 +65,17 @@ export default {
     heroCarouselGoToSlide: 'Show highlight {{n}} of {{total}}',
     heroCarouselGoToSlideCurrent: 'Show highlight {{n}} of {{total}} (current)',
     sponsoredLabel: 'Sponsored',
-    advertiseVacantCaption: 'Advertise your brand on FuelBot — limited homepage billboard slots.',
+    advertiseVacantBadge: 'Limited homepage slots',
+    advertiseVacantHeadline: 'Be visible. Make money.',
+    advertiseVacantHook: 'Reach drivers across Myanmar — right when they search for fuel.',
+    advertiseVacantSubline:
+      'Sell vehicles, parts, repairs, or fuel? Put your brand where your customers already are.',
+    advertiseVacantQuote: 'Quotation on request',
+    advertiseVacantBrandPlaceholder: 'Your brand here',
+    advertiseVacantSpecHint: '16:7 · static billboard',
+    advertiseVacantCtaButton: 'Get your quotation',
+    advertiseVacantCaption:
+      'Contact our marketing team at {{email}} — quotation on request. Be visible. Make money.',
     advertiseVacantCta: 'Advertise here',
     advertiseWithUs: 'Advertise with us',
     heroCardCaption: 'This station is helping people in Myanmar find fuel without wasted trips.',
@@ -634,7 +644,13 @@ export default {
   },
   advertise: {
     title: 'Advertise on FuelBot',
-    subtitle: 'Static billboard on our homepage hero carousel — seen by drivers checking fuel across Myanmar.',
+    subtitle:
+      'Eager to reach your audience? Drivers and fuel users across Myanmar see our homepage every day — this is where your brand belongs.',
+    audienceIntro: 'Who is your audience?',
+    audienceBody:
+      'Drivers. Fuel users. People on the road every day. Whether you sell vehicles, repair them, supply spare parts, or sell fuel — put your brand in the spotlight on Myanmar\'s fuel app.',
+    audienceClose:
+      'Contact our marketing team, get your quotation, and make your dream come true. Be visible. Make money.',
     placementTitle: 'What you get',
     placementBody:
       'Your brand appears as a full-width static image on the FuelBot landing page, rotated between our own FuelBot messages. We keep it simple: no video, no pop-ups — just a digital billboard.',
@@ -645,10 +661,15 @@ export default {
     specFormat: 'JPEG or WebP, under 512 KB',
     specContent: 'Logo plus one short tagline — readable on mobile',
     specStatic: 'Static image only (no animation or video)',
-    contactTitle: 'Get in touch',
+    contactTitle: 'Contact our marketing team',
     contactBody:
-      'Serious enquiries only. Email our team with your company name and artwork. We reply by email — no forms, no phone.',
-    emailCta: 'Email us about advertising',
+      'We are eager to help your brand shine. Email us with your company name and we will reply with next steps and a quotation on request — no obligation until you agree.',
+    contactEmailLabel: 'Email address',
+    contactQuoteNote: 'Quotation on request · max 10 brands on the homepage at any time',
+    perkReach: 'Reach drivers and fuel users across Myanmar',
+    perkPlacement: 'Your brand on our homepage hero carousel — full-width billboard',
+    perkQuote: 'Marketing team replies by email — get your quotation on request',
+    emailCta: 'Email our marketing team',
     emailSubject: 'FuelBot homepage advertising',
   },
   admin: {

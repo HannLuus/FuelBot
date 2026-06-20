@@ -1,12 +1,19 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Mail } from 'lucide-react'
+import { ArrowLeft, Mail, Users, ImageIcon, MailCheck } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { AdvertiseVacantBillboard } from '@/components/landing/AdvertiseVacantBillboard'
 
 export function AdvertisePage() {
   const { t } = useTranslation()
   const email = t('landing.contactEmail')
   const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(t('advertise.emailSubject'))}`
+
+  const perks = [
+    { icon: Users, text: t('advertise.perkReach') },
+    { icon: ImageIcon, text: t('advertise.perkPlacement') },
+    { icon: MailCheck, text: t('advertise.perkQuote') },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,8 +34,53 @@ export function AdvertisePage() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900">{t('advertise.title')}</h1>
-        <p className="mt-2 text-gray-700">{t('advertise.subtitle')}</p>
+        <section className="overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5">
+          <div className="aspect-[16/7] w-full">
+            <AdvertiseVacantBillboard variant="page" showEmail={false} />
+          </div>
+        </section>
+
+        <h1 className="mt-6 text-2xl font-bold text-gray-900 sm:text-3xl">{t('advertise.title')}</h1>
+        <p className="mt-2 text-base leading-relaxed text-gray-700 sm:text-lg">{t('advertise.subtitle')}</p>
+
+        <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+          {perks.map(({ icon: Icon, text }) => (
+            <li
+              key={text}
+              className="flex items-start gap-2 rounded-xl border border-gray-200 bg-white px-3 py-3 text-base text-gray-700"
+            >
+              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" aria-hidden />
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+
+        <section className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">{t('advertise.audienceIntro')}</h2>
+          <p className="mt-2 text-base leading-relaxed text-gray-700 sm:text-lg">{t('advertise.audienceBody')}</p>
+          <p className="mt-3 text-base font-semibold text-gray-900 sm:text-lg">{t('advertise.audienceClose')}</p>
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm">
+          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t('advertise.contactTitle')}</h2>
+          <p className="mt-2 text-base leading-relaxed text-gray-700 sm:text-lg">{t('advertise.contactBody')}</p>
+          <p className="mt-3 text-sm text-gray-600 sm:text-base">{t('advertise.contactQuoteNote')}</p>
+          <p className="mt-5 text-xs font-medium uppercase tracking-wide text-blue-800">
+            {t('advertise.contactEmailLabel')}
+          </p>
+          <a href={mailtoHref} className="mt-1 block text-xl font-semibold text-blue-900 underline sm:text-2xl">
+            {email}
+          </a>
+          <Button
+            className="mt-5"
+            onClick={() => {
+              window.location.href = mailtoHref
+            }}
+          >
+            <Mail className="h-4 w-4" />
+            {t('advertise.emailCta')}
+          </Button>
+        </section>
 
         <div className="mt-8 space-y-6 text-gray-800">
           <section>
@@ -49,21 +101,6 @@ export function AdvertisePage() {
               <li>{t('advertise.specContent')}</li>
               <li>{t('advertise.specStatic')}</li>
             </ul>
-          </section>
-
-          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
-            <h2 className="text-lg font-semibold text-blue-900">{t('advertise.contactTitle')}</h2>
-            <p className="mt-2 text-sm text-blue-900">{t('advertise.contactBody')}</p>
-            <p className="mt-3 text-sm font-medium text-blue-900">{email}</p>
-            <Button
-              className="mt-4"
-              onClick={() => {
-                window.location.href = mailtoHref
-              }}
-            >
-              <Mail className="h-4 w-4" />
-              {t('advertise.emailCta')}
-            </Button>
           </section>
         </div>
       </main>
