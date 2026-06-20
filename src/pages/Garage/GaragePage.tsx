@@ -129,6 +129,12 @@ export function GaragePage() {
               <Gauge className="mx-auto mb-2 h-8 w-8 text-gray-700" />
               <p className="text-sm font-medium text-gray-900">{t('garage.noVehicles')}</p>
               <p className="mt-1 text-xs text-gray-700">{t('garage.noVehiclesHint')}</p>
+              <Link
+                to="/fleet/report-preview"
+                className="mt-4 inline-block text-sm font-semibold text-blue-600 underline"
+              >
+                {t('garage.reportPreviewCta')}
+              </Link>
             </div>
           ) : (
             <ul className="space-y-2">
@@ -186,6 +192,17 @@ export function GaragePage() {
               </Link>
             </div>
           </div>
+        </section>
+
+        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+          <h2 className="text-sm font-bold text-blue-900">{t('garage.reportPreviewTitle')}</h2>
+          <p className="mt-1 text-sm text-blue-900">{t('garage.reportPreviewBody')}</p>
+          <Link
+            to="/fleet/report-preview"
+            className="mt-3 inline-flex min-h-[44px] items-center rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white active:bg-blue-700"
+          >
+            {t('garage.reportPreviewCta')}
+          </Link>
         </section>
       </div>
     </div>

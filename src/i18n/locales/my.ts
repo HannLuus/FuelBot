@@ -112,6 +112,7 @@ export default {
     fleetEfficiencyPoint2: 'ဆီဖြည့်တိုင်း မှတ်တမ်းတင်ပါ — ဆီတိုင်ကီအပြည့်ဖြည့်မှု အမှန်ဆုံးဖြစ်သည်။',
     fleetEfficiencyPoint3: 'ကုမ္ပဏီများ ပိုမိုဝင်ရောက်လာသည်နှင့်အမျှ သင့်ယာဉ်ပျမ်းမျှနှင့် အမည်မဖော်ပြသော နှိုင်းယှဉ်ချက်ကို ကြည့်ပါ။',
     fleetEfficiencyCta: 'စတင်မှတ်တမ်းတင်ရန် ဝင်ရောက်ပါ',
+    fleetReportPreviewCta: 'Sample fleet report ကြည့်မည်',
     benefitsStationCta: 'ဆိုင်ပိုင်ရှင်များအတွက် အကျိုးကျေးဇူးများ',
     benefitsFleetCta: 'ယာဉ်ပိုင်ရှင်များအတွက် အကျိုးကျေးဇူးများ',
     topReportersTitle: 'ဤလ အများဆုံးသတင်းပေးသူများ',
@@ -181,6 +182,7 @@ export default {
       efficiencyPoint3: 'ယာဉ်တစ်စီးချင်းစီ၏ L/100km ကြည့်ပြီး ယာဉ်ပိုင်ရှင်အတွင်း ထူးခြားသော ယာဉ်များကို သိရှိပါ။',
       efficiencyPoint4: 'အမည်မဖော်ပြသော အချက်အလက် လုံလောက်လာမှ peer ပျမ်းမျှပြသည် — ယာဉ်နံပါတ်နှင့် ကိုယ်ရေးမှတ်တမ်းများ မျှဝေမည်မဟုတ်ပါ။',
       efficiencyCta: 'အခမဲ့ ဆီစားနှုန်းကိရိယာ ဖွင့်မည်',
+      reportPreviewCta: 'Sample fleet fuel report ကြည့်မည်',
     },
   },
   map: {
@@ -985,7 +987,76 @@ export default {
     teaserBody:
       'သယ်ယူပို့ဆောင်ရေးကုမ္ပဏီများ: ဆီဖြည့်မှုများ မှတ်တမ်းတင်ပြီး ထရပ်ကားတစ်စီးချင်းစီကို မြန်မာတစ်နိုင်ငံလုံးရှိ အလားတူကားများနှင့် နှိုင်းယှဉ်ကြည့်ပါ။',
     openTool: 'ဆီစားနှုန်းကိရိယာ ဖွင့်မည်',
+    reportPreviewTitle: 'သင့် report များ ဘယ်လိုဖြစ်မလဲ ကြည့်ပါ',
+    reportPreviewBody:
+      'Sample fleet fuel report — truck စာရင်း၊ အကွာအဝေး၊ liter၊ ကုန်ကျစရိတ်၊ efficiency နှင့် anonymous benchmark။ Print သို့မဟုတ် CSV download။',
+    reportPreviewCta: 'Sample report ကြည့်မည်',
     saveError: 'မသိမ်းနိုင်ပါ။ ထည့်သွင်းချက်များ စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။',
+  },
+  fleetReport: {
+    back: 'Fleet benefits',
+    sampleBadge: 'Sample report — demo data',
+    title: 'Fleet fuel efficiency report',
+    subtitle:
+      'Fill-up မှတ်ပြီးနောက် fleet owner များ ရရှိမည့် report — truck တစ်စီးချင်း ဆီသုံးမှု၊ အကွာအဝေး၊ ကုန်ကျစရိတ်နှင့် comparison — print/download လုပ်နိုင်သည်။',
+    printPdf: 'Print / PDF အဖြစ် သိမ်းမည်',
+    downloadCsv: 'CSV sample download',
+    startTracking: 'Fleet tracking အခမဲ့ စတင်မည်',
+    snapshotTitle: 'Fleet snapshot',
+    snapshotTrucks: 'Truck အရေအတွက်',
+    snapshotDistance: 'စုစုပေါင်း အကွာအဝေး',
+    snapshotLiters: 'စုစုပေါင်း ဆီ',
+    snapshotCost: 'စုစုပေါင်း ဆီကုန်ကျစရိတ်',
+    snapshotFleetAvg: 'Fleet ပျမ်းမျှ',
+    bestPerformer: 'အကောင်းဆုံး',
+    worstPerformer: 'စစ်ဆေးသင့်သည်',
+    truckListTitle: 'Truck စာရင်း',
+    truckListBody:
+      'Truck တစ်စီးချင်း — အကွာအဝေး၊ liter၊ ကုန်ကျစရိတ်၊ L/100km — fleet ပျမ်းမျှနှင့် နှိုင်းယှဉ်ချက်။',
+    colDistance: 'အကွာအဝေး',
+    colLiters: 'ဆီသုံးမှု',
+    colCost: 'ဆီကုန်ကျစရိတ်',
+    colEfficiency: 'Efficiency',
+    statusBetter: 'Fleet ပျမ်းမျှ အောက်',
+    statusAverage: 'ပျမ်းမျှခန့်',
+    statusWorse: 'Fleet ပျမ်းမျှ အထက်',
+    likeForLikeTitle: 'Like-for-like comparison',
+    likeForLikeBody:
+      'Driver မတူသော တူညီသော truck များကို တူညီသော route ပေါ်တွင် နှိုင်းယှဉ်ပါ — ဆီပိုသုံးသော unit များကို ရှာပါ။',
+    likeForLikeGroups: {
+      hino500: {
+        label: 'Hino 500 Series (တူညီအရွယ်၊ driver မတူ)',
+        insight:
+          'Truck #3 သည် Truck #2 ထက် route တူတွင် L/100km 4 ပိုသုံးသည် — maintenance သို့မဟုတ် driving style စစ်ဆေးသင့်သည်။',
+      },
+      fusoFighter: {
+        label: 'Fuso Fighter (တူညီ model၊ Mandalay–Lashio)',
+        insight: 'Truck #5 သည် Truck #4 ထက် L/100km ~3 ပိုသုံးသည် — load weight နှင့် tyre pressure နှိုင်းယှဉ်ပါ။',
+      },
+      hino700: {
+        label: 'Hino 700 Series (heavy haul၊ corridor တူ)',
+        insight: 'Unit နှစ်စီးနီးပါး — load သို့မဟုတ် depot idle time ကြောင့် ကွာခြားချက် အနည်းငယ် ဖြစ်နိုင်သည်။',
+      },
+    },
+    peerTitle: 'Anonymous peer benchmark',
+    peerBody:
+      'သင့် fleet ကို အခြား fleet များရှိ တူညီသော truck များနှင့် နှိုင်းယှဉ်ပါ။ အခြား company အမည်များ မဖော်ပြပါ — aggregate ပျမ်းမျှသာ။',
+    yourFleetAvg: 'သင့် fleet ပျမ်းမျှ',
+    peerAvg: 'တူညီသော fleet များ ပျမ်းမျှ',
+    peerRange: 'မြန်မာတစ်ဝှမ်း typical range: {{low}}–{{high}} L/100km',
+    peerBasis: 'Anonymous fleet {{owners}} ခုမှ vehicle {{vehicles}} စီးအပေါ် အခြေခံ။',
+    dealerTitle: 'Manufacturer & dealer insights (အနာဂတ်)',
+    dealerBody:
+      'Aggregate data ဖြင့် truck model ၏ Myanmar တွင် performance ကို ပြသနိုင်သည် — dealer နှင့် brand များအတွက် အသုံးဝင်သည်။ Fleet အမည်/plate မဖော်ပြပါ။',
+    marketAvg: 'Market ပျမ်းမျှ (တူညီ model)',
+    marketRange: 'Market range: {{low}}–{{high}} L/100km',
+    marketBasis: 'Anonymous fleet {{fleets}} ခုမှ vehicle {{vehicles}} စီးအပေါ် အခြေခံ။',
+    privacyTitle: 'Privacy & data use',
+    privacyBody:
+      'သင့် vehicle-level data ကို သင်သာ မြင်ပါသည်။ Cross-fleet နှင့် market comparison များသည် anonymized aggregate သာ — benchmark မပြမီ minimum sample size လိုအပ်သည်။ Plate၊ driver အမည် နှင့် အခြား fleet ၏ raw log များ မမျှဝေပါ။',
+    ctaTitle: 'သင့် fleet ကို tracking စတင်ရန် အဆင်သင့်လား?',
+    ctaBody:
+      'Truck ထည့်ပါ၊ fill-up မှတ်ပါ — ဤကဲ့သို့ real report ရယူပါ (အခမဲ့)။ Fuel efficiency tracking အတွက် subscription မလိုပါ။',
   },
   help: helpMy,
 }

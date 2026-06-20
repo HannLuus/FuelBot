@@ -57,6 +57,14 @@ export function BenefitsFleetPage() {
                 {t('benefits.fleetOwners.efficiencyCta')}
               </Link>
             </p>
+            <p className="mt-3">
+              <Link
+                to="/fleet/report-preview"
+                className="font-semibold text-blue-600 underline active:text-blue-800"
+              >
+                {t('benefits.fleetOwners.reportPreviewCta')}
+              </Link>
+            </p>
           </section>
 
           <section>

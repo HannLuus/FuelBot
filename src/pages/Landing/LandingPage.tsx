@@ -257,6 +257,12 @@ export function LandingPage() {
             >
               {t('garage.openTool')}
             </Link>
+            <Link
+              to="/fleet/report-preview"
+              className="inline-flex min-h-[44px] items-center rounded-xl border border-blue-300 bg-white px-4 text-sm font-semibold text-blue-700 active:bg-blue-50"
+            >
+              {t('landing.fleetReportPreviewCta')}
+            </Link>
           </div>
         </section>
 

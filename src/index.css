@@ -93,3 +93,13 @@
     font-family: 'Padauk', 'Myanmar Text', system-ui, sans-serif;
   }
 }
+
+@media print {
+  @page {
+    margin: 1cm;
+  }
+
+  body {
+    background: white !important;
+  }
+}

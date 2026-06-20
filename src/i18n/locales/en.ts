@@ -112,6 +112,7 @@ export default {
     fleetEfficiencyPoint2: 'Log each refuel — full tank to full tank gives the most accurate numbers.',
     fleetEfficiencyPoint3: 'See your fleet average and anonymized peer benchmarks as more companies join.',
     fleetEfficiencyCta: 'Sign in to start tracking',
+    fleetReportPreviewCta: 'See sample fleet report',
     benefitsStationCta: 'Benefits for station owners',
     benefitsFleetCta: 'Benefits for fleet owners',
     topReportersTitle: 'Top reporters this month',
@@ -181,6 +182,7 @@ export default {
       efficiencyPoint3: 'See L/100km per vehicle and spot outliers in your fleet.',
       efficiencyPoint4: 'Peer averages appear when enough anonymized data exists — never your plate or raw logs.',
       efficiencyCta: 'Open the free fuel efficiency tool',
+      reportPreviewCta: 'See a sample fleet fuel report',
     },
   },
   map: {
@@ -985,7 +987,76 @@ export default {
     teaserBody:
       'Transport companies: log fuel fill-ups and see how each truck compares with similar trucks across Myanmar.',
     openTool: 'Open fuel efficiency tool',
+    reportPreviewTitle: 'See what your reports will look like',
+    reportPreviewBody:
+      'View a sample fleet fuel report — truck list, distance, liters, cost, efficiency, and anonymous benchmarks. Print or download CSV.',
+    reportPreviewCta: 'View sample report',
     saveError: 'Could not save. Please check your inputs and try again.',
+  },
+  fleetReport: {
+    back: 'Fleet benefits',
+    sampleBadge: 'Sample report — demo data',
+    title: 'Fleet fuel efficiency report',
+    subtitle:
+      'This is what fleet owners get after logging fill-ups: per-truck fuel use, distance, cost, and comparisons — printable and downloadable.',
+    printPdf: 'Print / Save as PDF',
+    downloadCsv: 'Download CSV sample',
+    startTracking: 'Start tracking your fleet free',
+    snapshotTitle: 'Fleet snapshot',
+    snapshotTrucks: 'Trucks tracked',
+    snapshotDistance: 'Total distance',
+    snapshotLiters: 'Total fuel used',
+    snapshotCost: 'Total fuel cost',
+    snapshotFleetAvg: 'Fleet average',
+    bestPerformer: 'Best performer',
+    worstPerformer: 'Needs attention',
+    truckListTitle: 'Truck list',
+    truckListBody:
+      'Each truck: distance travelled, liters used, fuel cost, and L/100km — compared to your fleet average.',
+    colDistance: 'Distance',
+    colLiters: 'Fuel used',
+    colCost: 'Fuel cost',
+    colEfficiency: 'Efficiency',
+    statusBetter: 'Below fleet avg',
+    statusAverage: 'About average',
+    statusWorse: 'Above fleet avg',
+    likeForLikeTitle: 'Like-for-like comparison',
+    likeForLikeBody:
+      'Compare similar trucks with different drivers on the same routes — spot why some units burn more fuel.',
+    likeForLikeGroups: {
+      hino500: {
+        label: 'Hino 500 Series (same size, different drivers)',
+        insight:
+          'Truck #3 uses 4 L/100km more than Truck #2 on the same route — worth a maintenance or driving-style check.',
+      },
+      fusoFighter: {
+        label: 'Fuso Fighter (same model, Mandalay–Lashio)',
+        insight: 'Truck #5 burns ~3 L/100km more than Truck #4 — compare load weights and tyre pressure.',
+      },
+      hino700: {
+        label: 'Hino 700 Series (heavy haul, same corridor)',
+        insight: 'Both units are close — small differences may come from load or idle time at depots.',
+      },
+    },
+    peerTitle: 'Anonymous peer benchmark',
+    peerBody:
+      'See how your fleet compares with similar trucks from other fleets. Other companies are never named — only aggregated averages.',
+    yourFleetAvg: 'Your fleet average',
+    peerAvg: 'Similar fleets average',
+    peerRange: 'Typical range across Myanmar: {{low}}–{{high}} L/100km',
+    peerBasis: 'Based on {{vehicles}} vehicles from {{owners}} anonymized fleets.',
+    dealerTitle: 'Manufacturer & dealer insights (future)',
+    dealerBody:
+      'Aggregated data can show how a truck model performs in Myanmar — useful for dealers and brands. No fleet names or plates are ever exposed.',
+    marketAvg: 'Market average (same model)',
+    marketRange: 'Market range: {{low}}–{{high}} L/100km',
+    marketBasis: 'Based on {{vehicles}} vehicles from {{fleets}} anonymized fleets.',
+    privacyTitle: 'Privacy & data use',
+    privacyBody:
+      'You always see your own vehicle-level data. Cross-fleet and market comparisons use anonymized aggregates only — minimum sample sizes apply before any benchmark is shown. Plates, driver names, and raw logs from other fleets are never shared.',
+    ctaTitle: 'Ready to track your own fleet?',
+    ctaBody:
+      'Add your trucks, log fill-ups, and get real reports like this — free. No subscription required for fuel efficiency tracking.',
   },
   help: helpEn,
 }
